@@ -1,0 +1,4 @@
+- set DSW difficulty lives, etc.
+- cheat add 10000 to score 
+- highscore load/save
+- detect not game in play for insert coin

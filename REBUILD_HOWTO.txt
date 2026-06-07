@@ -1,0 +1,20 @@
+to rebuild, you need to install those:
+
+paraj's lha: https://github.com/mras0/plha.git  (rename to "lha.exe" and put in path)
+Bebbo's gcc m68k toolchain
+Vasm (for whdload slaves, and also earlier games like Pacman)
+Gnu Make
+Python
+JOTD bitplanelib in tools: https://github.com/jotd666/amiga68ktools.git (put PYTHONPATH in libs)
+gadf for adf creation: https://github.com/sphair/gadf
+
+build script in "tools/create_amiga_archive.py". It should build everything from scratch. from there you can
+modify source and rebuild just with the makefile:
+
+cd src
+make -f ../makefile.am
+
+release version needs RELEASE flag to be set, else you're building the debug version with checks (slower)
+
+it's the process that I try to make uniform for all my ports, vasm or gnu.
+
