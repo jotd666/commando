@@ -209,26 +209,26 @@
 
 
 
-ROM_HI_SCORE_TABLE_018F                   = $018F        
-VULGUS_HI_SCORE_018F                      = $018F
-SON_SON_HI_SCORE_019C                     = $019C
-HIGEMARU_HI_SCORE_01A9                    = $01A9
-CAPCOM_HI_SCORE_01B6                      = $01B6
-EXED_EXES_HI_SCORE_01C3                   = $01C3
-COMANDO_HI_SCORE_01D0                     = $01D0
-EMPTY_HI_SCORE_01DD                       = $01DD
+ROM_HI_SCORE_TABLE_018F                   = rom_hi_score_table_018f        
+VULGUS_HI_SCORE_018F                      = vulgus_hi_score_018f
+SON_SON_HI_SCORE_019C                     = son_son_hi_score_019c
+HIGEMARU_HI_SCORE_01A9                    = higemaru_hi_score_01a9
+CAPCOM_HI_SCORE_01B6                      = capcom_hi_score_01b6
+EXED_EXES_HI_SCORE_01C3                   = exed_exes_hi_score_01c3
+COMANDO_HI_SCORE_01D0                     = comando_hi_score_01d0
+EMPTY_HI_SCORE_01DD                       = empty_hi_score_01dd
 
-HI_SCORE_TABLE                       = $EE00
-HI_SCORE_1ST                         = $EE00
-HI_SCORE_2ND                         = $EE0D
-HI_SCORE_3RD                         = $EE1A
-HI_SCORE_4TH                         = $EE27
-HI_SCORE_5TH                         = $EE34
-HI_SCORE_6TH                         = $EE41
-HI_SCORE_7TH                         = $EE4E
+HI_SCORE_TABLE_EE00                       = hi_score_table_ee00
+HI_SCORE_1ST_EE00                         = hi_score_1st_ee00
+HI_SCORE_2ND_EE0D                         = hi_score_2nd_ee0d
+HI_SCORE_3RD_EE1A                         = hi_score_3rd_ee1a
+HI_SCORE_4TH_EE27                         = hi_score_4th_ee27
+HI_SCORE_5TH_EE34                         = hi_score_5th_ee34
+HI_SCORE_6TH_EE41                         = hi_score_6th_ee41
+HI_SCORE_7TH_EE4E                         = hi_score_7th_ee4e
 
-TIMING_VARIABLE                      = $E002
-PORT_STATE_C000_IN0                  = $E003
+TIMING_VARIABLE_E002                      = timing_variable_e002
+PORT_STATE_C000_IN0_E003                  = port_state_c000_in0_e003
 
 
 ; PORT_STATE_C001_IN1_e004 holds the state of IN1 after a bit flip (2's complement) - see $0328
@@ -238,29 +238,29 @@ PORT_STATE_C000_IN0                  = $E003
 ; Bit 3: player moving UP
 ; Bit 4: player SHOOT
 ; Bit 5: player GRENADE
-PORT_STATE_C001_IN1_e004             = $E004 
-PORT_STATE_C002_IN2_e005             = $E005
-PORT_STATE_DSW1_e006                 = $E006
-PORT_STATE_DSW2_e007                 = $E007
+PORT_STATE_C001_IN1_e004             = port_state_c001_in1_e004 
+PORT_STATE_C002_IN2_e005             = port_state_c002_in2_e005
+PORT_STATE_DSW1_e006                 = port_state_dsw1_e006
+PORT_STATE_DSW2_e007                 = port_state_dsw2_e007
 
 ; These names are temporary until I work out what they are for.
-PORT_STATE_C001_BIT0_BITS_e008            = $E008
-PORT_STATE_C001_BIT1_BITS_e009            = $E009
-PORT_STATE_C001_BIT2_BITS_e00a            = $E00A
-PORT_STATE_C001_BIT3_BITS_e00b            = $E00B
-PORT_STATE_C001_BIT4_BITS_e00c            = $E00C
-PORT_STATE_C001_BIT5_BITS_e00d            = $E00D
+PORT_STATE_C001_BIT0_BITS_e008            = port_state_c001_bit0_bits_e008
+PORT_STATE_C001_BIT1_BITS_e009            = port_state_c001_bit1_bits_e009
+PORT_STATE_C001_BIT2_BITS_e00a            = port_state_c001_bit2_bits_e00a
+PORT_STATE_C001_BIT3_BITS_e00b            = port_state_c001_bit3_bits_e00b
+PORT_STATE_C001_BIT4_BITS_e00c            = port_state_c001_bit4_bits_e00c
+PORT_STATE_C001_BIT5_BITS_e00d            = port_state_c001_bit5_bits_e00d
 
 
-IS_CABINET_UPRIGHT_e025                   = $E025    ; set to 1 if dip switches report an upright cabinet 
-IS_SINGLE_STICK_SETUP_e029                = $E029    ; set to 2 if dip switches report upright cabinet with one stick (see $012D)                  
-IS_DEMO_SOUNDS_ON_e02a                    = $E02A    ; set to 16 if dip switches report demo sounds should be OFF (see $0133)
-IS_DIFFICULT_e02c                         = $E02C    ; set to 8 if Difficult difficulty in dip switches, 0 = Normal (see $0139)      
-NUM_CREDITS_e030                          = $E030    ; number of credits inserted 
-IS_SCREEN_YFLIPPED_e039                   = $E039    ; temp name: set to 1 if screen is flipped on vertical axis          
+IS_CABINET_UPRIGHT_e025                   = is_cabinet_upright_e025    ; set to 1 if dip switches report an upright cabinet 
+IS_SINGLE_STICK_SETUP_e029                = is_single_stick_setup_e029    ; set to 2 if dip switches report upright cabinet with one stick (see $012D)                  
+IS_DEMO_SOUNDS_ON_e02a                    = is_demo_sounds_on_e02a    ; set to 16 if dip switches report demo sounds should be OFF (see $0133)
+IS_DIFFICULT_e02c                         = is_difficult_e02c    ; set to 8 if Difficult difficulty in dip switches, 0 = Normal (see $0139)      
+NUM_CREDITS_e030                          = num_credits_e030    ; number of credits inserted 
+IS_SCREEN_YFLIPPED_e039                   = is_screen_yflipped_e039    ; temp name: set to 1 if screen is flipped on vertical axis          
 
 
-PLAYER_BULLETS_e200                       = $E200
+PLAYER_BULLETS_e200                       = player_bullets_e200
 
 ;
 ;struct PLAYER_BULLET
@@ -301,8 +301,8 @@ PLAYER_BULLETS_e200                       = $E200
 
 
 
-NUM_GRENADES_eda8                         = $EDA8
-HI_SCORE_ee97                             = $EE97                  ; the hi score seen on screen
+NUM_GRENADES_eda8                         = num_grenades_eda8
+HI_SCORE_ee97                             = hi_score_ee97                  ; the hi score seen on screen
 
 
 
@@ -344,7 +344,7 @@ HI_SCORE_ee97                             = $EE97                  ; the hi scor
 ; A = 8 bit value to add to HL
 ;
 
-ADD_A_TO_HL:
+add_a_to_hl_0018:
 0018: 85          add  a,l
 0019: 6F          ld   l,a
 001A: 30 01       jr   nc,$001D
@@ -364,7 +364,7 @@ ADD_A_TO_HL:
 ; A = the contents of (HL + A)
 ; HL = HL + A
 
-RETURN_BYTE_AT_HL_PLUS_A:
+return_byte_at_hl_plus_a_0020:
 0020: 85          add  a,l
 0021: 6F          ld   l,a
 0022: 30 01       jr   nc,$0025
@@ -374,7 +374,7 @@ RETURN_BYTE_AT_HL_PLUS_A:
 
 0027: FF          rst  $38
 
-MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL:
+multiply_a_by_2_add_to_hl_load_de_from_hl_0028:
 0028: 87          add  a,a                   ; multiply a by 2
 0029: DF          rst  $18                   ; call ADD_A_TO_HL
 002A: 5E          ld   e,(hl)
@@ -385,7 +385,7 @@ MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL:
 
 002F: FF          rst  $38
 
-jump_using_jump_table_0030:
+jump_0030:
 0030: E1          pop  hl
 0031: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 0032: EB          ex   de,hl
@@ -453,16 +453,16 @@ jump_using_jump_table_0030:
 009F: ED B0       ldir
 
 ; Copy hi score to RAM
-00A1: 21 E9 01    ld   hl,$018F              ; load HL with address of ROM_HI_SCORE_TABLE
+00A1: 21 E9 01    ld   hl,vulgus_hi_score_018f              ; load HL with address of ROM_HI_SCORE_TABLE
 00A4: E5          push hl
-00A5: 11 79 EE    ld   de,$EE97              ; load DE with address of HI_SCORE 
+00A5: 11 79 EE    ld   de,hi_score_ee97              ; load DE with address of HI_SCORE 
 00A8: ED A0       ldi                        ; copy top score from ROM...
 00AA: ED A0       ldi
 00AC: ED A0       ldi                        ; ..to current high score in RAM. 
 00AE: E1          pop  hl
 
 ; Copy high score table from ROM to RAM
-00AF: 11 00 EE    ld   de,$EE00
+00AF: 11 00 EE    ld   de,hi_score_1st_ee00
 00B2: 01 28 00    ld   bc,$0082
 00B5: ED B0       ldir
 
@@ -485,10 +485,10 @@ jump_using_jump_table_0030:
 00DD: CD 7B 21    call $03B7
 
 00E0: 3E 00       ld   a,$00
-00E2: 32 93 0E    ld   ($E039),a
+00E2: 32 93 0E    ld   (is_screen_yflipped_e039),a
 00E5: CD 76 20    call $0276
 
-00E8: 3A 60 0E    ld   a,($E006)
+00E8: 3A 60 0E    ld   a,(port_state_dsw1_e006)
 00EB: 47          ld   b,a
 00EC: E6 21       and  $03
 00EE: 21 67 01    ld   hl,$0167
@@ -523,19 +523,19 @@ jump_using_jump_table_0030:
 011D: 07          rlca
 011E: E6 21       and  $03
 0120: 32 63 0E    ld   ($E027),a
-0123: 3A 61 0E    ld   a,($E007)             ; read PORT_STATE_DSW2
+0123: 3A 61 0E    ld   a,(port_state_dsw2_e007)             ; read PORT_STATE_DSW2
 0126: 47          ld   b,a
 0127: E6 01       and  $01
-0129: 32 43 0E    ld   ($E025),a             ; set IS_CABINET_UPRIGHT
+0129: 32 43 0E    ld   (is_cabinet_upright_e025),a             ; set IS_CABINET_UPRIGHT
 012C: 78          ld   a,b
 012D: E6 20       and  $02
-012F: 32 83 0E    ld   ($E029),a             ; set IS_SINGLE_STICK_SETUP
+012F: 32 83 0E    ld   (is_single_stick_setup_e029),a             ; set IS_SINGLE_STICK_SETUP
 0132: 78          ld   a,b
 0133: E6 10       and  $10
-0135: 32 A2 0E    ld   ($E02A),a             ; set DEMO_SOUNDS_ON
+0135: 32 A2 0E    ld   (is_demo_sounds_on_e02a),a             ; set DEMO_SOUNDS_ON
 0138: 78          ld   a,b
 0139: E6 80       and  $08
-013B: 32 C2 0E    ld   ($E02C),a             ; set IS_NORMAL_DIFFICULTY
+013B: 32 C2 0E    ld   (is_difficult_e02c),a             ; set IS_NORMAL_DIFFICULTY
 013E: 78          ld   a,b
 013F: 07          rlca
 0140: 07          rlca
@@ -618,7 +618,7 @@ jump_using_jump_table_0030:
 028F: 17          rla
 0290: CB 18       rr   b
 0292: 78          ld   a,b
-0293: 32 60 0E    ld   ($E006),a             ; write to PORT_STATE_DSW1
+0293: 32 60 0E    ld   (port_state_dsw1_e006),a             ; write to PORT_STATE_DSW1
 0296: 3A 40 0C    ld   a,($C004)             ; read DSW2
 0299: 2F          cpl
 029A: 17          rla
@@ -638,7 +638,7 @@ jump_using_jump_table_0030:
 02AF: 17          rla
 02B0: CB 18       rr   b
 02B2: 78          ld   a,b
-02B3: 32 61 0E    ld   ($E007),a             ; write to PORT_STATE_DSW2 
+02B3: 32 61 0E    ld   (port_state_dsw2_e007),a             ; write to PORT_STATE_DSW2 
 02B6: C9          ret
 02B7: F5          push af
 02B8: C5          push bc
@@ -684,7 +684,7 @@ jump_using_jump_table_0030:
 02F8: C9          ret
 02F9: C9          ret
 
-02FA: 21 20 0E    ld   hl,$E002              ; load HL with address of TIMING_VARIABLE
+02FA: 21 20 0E    ld   hl,timing_variable_e002              ; load HL with address of TIMING_VARIABLE
 02FD: 34          inc  (hl)                  ; increment TIMING_VARIABLE
 02FE: 21 B3 0E    ld   hl,$E03B
 0301: 3A 40 0C    ld   a,($C004)             ; read DSW2 
@@ -692,7 +692,7 @@ jump_using_jump_table_0030:
 0305: 07          rlca
 0306: E6 08       and  $80
 0308: 4F          ld   c,a
-0309: 3A 93 0E    ld   a,($E039)
+0309: 3A 93 0E    ld   a,(is_screen_yflipped_e039)
 030C: E6 01       and  $01
 030E: 28 40       jr   z,$0314
 0310: 79          ld   a,c
@@ -704,17 +704,17 @@ jump_using_jump_table_0030:
 031A: 32 B3 0E    ld   ($E03B),a
 031D: 3A 00 0C    ld   a,(system_c000)             ; read IN0
 0320: 2F          cpl
-0321: 32 21 0E    ld   ($E003),a             ; save in PORT_STATE_C000_IN0  
+0321: 32 21 0E    ld   (port_state_c000_in0_e003),a             ; save in PORT_STATE_C000_IN0  
 0324: 3A 01 0C    ld   a,(port_1_c001)             ; read IN1
 0327: 2F          cpl
-0328: 32 40 0E    ld   ($E004),a             ; save in PORT_STATE_C001_IN1_e004
+0328: 32 40 0E    ld   (port_state_c001_in1_e004),a             ; save in PORT_STATE_C001_IN1_e004
 032B: 3A 20 0C    ld   a,(port_2_c002)             ; read IN2
 032E: 2F          cpl
-032F: 32 41 0E    ld   ($E005),a             ; save in PORT_STATE_C005
+032F: 32 41 0E    ld   (port_state_c002_in2_e005),a             ; save in PORT_STATE_C005
 
 ; Expand PORT_STATE_C001_IN1_e004 bits to flags
-0332: 11 40 0E    ld   de,$E004              ; load DE with address of PORT_STATE_C001_IN1_e004
-0335: 21 80 0E    ld   hl,$E008
+0332: 11 40 0E    ld   de,port_state_c001_in1_e004              ; load DE with address of PORT_STATE_C001_IN1_e004
+0335: 21 80 0E    ld   hl,port_state_c001_bit0_bits_e008
 0338: 1A          ld   a,(de)                ; read PORT_STATE_C001_IN1_e004
 0339: 0F          rrca                       ; move IPT_JOYSTICK_RIGHT bit into carry 
 033A: CB 16       rl   (hl)                  ; shift into PORT_STATE_C001_BIT0_BITS
@@ -735,12 +735,12 @@ jump_using_jump_table_0030:
 034E: CB 16       rl   (hl)                  ; shift into PORT_STATE_C001_BIT5_BITS   
 
 
-0350: 11 40 0E    ld   de,$E004              ; load DE with address of PORT_STATE_C001_IN1_e004 
-0353: 3A 93 0E    ld   a,($E039)             ; read IS_SCREEN_YFLIPPED flag 
+0350: 11 40 0E    ld   de,port_state_c001_in1_e004              ; load DE with address of PORT_STATE_C001_IN1_e004 
+0353: 3A 93 0E    ld   a,(is_screen_yflipped_e039)             ; read IS_SCREEN_YFLIPPED flag 
 0356: E6 01       and  $01                   ; test if flag is set
 0358: 20 60       jr   nz,$0360              ; if flag is set, goto $03600
 
-035A: 3A 83 0E    ld   a,($E029)
+035A: 3A 83 0E    ld   a,(is_single_stick_setup_e029)
 035D: A7          and  a
 035E: 20 01       jr   nz,$0361
 0360: 1C          inc  e                     ; bump DE to point to PORT_STATE_C002_IN2
@@ -765,7 +765,7 @@ jump_using_jump_table_0030:
 037A: CB 16       rl   (hl)
 
 
-037C: 3A 21 0E    ld   a,($E003)             ; read PORT_STATE_C000_IN0 bits
+037C: 3A 21 0E    ld   a,(port_state_c000_in0_e003)             ; read PORT_STATE_C000_IN0 bits
 037F: 21 96 0E    ld   hl,$E078
 0382: 0F          rrca
 0383: CB 16       rl   (hl)
@@ -810,11 +810,11 @@ jump_using_jump_table_0030:
 	dc.w	$03d1	; $03cd
 	dc.w	$03fd	; $03cf
 
-03D1: 3A C0 0E    ld   a,($E00C)
+03D1: 3A C0 0E    ld   a,(port_state_c001_bit4_bits_e00c)
 03D4: A7          and  a
 03D5: C2 DE 41    jp   nz,$05FC
 03D8: CD 06 E0    call $0E60
-03DB: 3A 20 0E    ld   a,($E002)
+03DB: 3A 20 0E    ld   a,(timing_variable_e002)
 03DE: E6 21       and  $03
 03E0: C0          ret  nz
 03E1: 21 65 0E    ld   hl,$E047
@@ -849,7 +849,7 @@ jump_using_jump_table_0030:
 0414: 3A 90 0E    ld   a,($E018)
 0417: A7          and  a
 0418: C2 16 41    jp   nz,$0570
-041B: 3A 12 0E    ld   a,($E030)
+041B: 3A 12 0E    ld   a,(num_credits_e030)
 041E: A7          and  a
 041F: C8          ret  z
 0420: 16 81       ld   d,$09
@@ -941,7 +941,7 @@ jump_using_jump_table_0030:
 04F7: C9          ret
 04F8: FD 21 92 FF ld   iy,$FF38
 04FC: 21 91 41    ld   hl,$0519
-04FF: 3A 20 0E    ld   a,($E002)
+04FF: 3A 20 0E    ld   a,(timing_variable_e002)
 0502: 0F          rrca
 0503: 0F          rrca
 0504: 0F          rrca
@@ -961,7 +961,7 @@ jump_using_jump_table_0030:
 0521: E6 E1       and  $0F
 0523: C0          ret  nz
 0524: 11 60 00    ld   de,$0006
-0527: 3A C2 0E    ld   a,($E02C)
+0527: 3A C2 0E    ld   a,(is_difficult_e02c)
 052A: A7          and  a
 052B: 28 20       jr   z,$052F
 052D: 1E 70       ld   e,$16
@@ -977,7 +977,7 @@ jump_using_jump_table_0030:
 0541: 11 50 00    ld   de,$0014
 0544: FF          rst  $38
 0545: C9          ret
-0546: 3A 20 0E    ld   a,($E002)
+0546: 3A 20 0E    ld   a,(timing_variable_e002)
 0549: 0F          rrca
 054A: E6 21       and  $03
 054C: 21 D5 41    ld   hl,$055D
@@ -1001,7 +1001,7 @@ jump_using_jump_table_0030:
 	dc.w	$0600	; $056e
 
 056F: 60          ld   h,b
-0570: 3A 20 0E    ld   a,($E002)
+0570: 3A 20 0E    ld   a,(timing_variable_e002)
 0573: 47          ld   b,a
 0574: E6 F3       and  $3F
 0576: 20 50       jr   nz,$058C
@@ -1011,14 +1011,14 @@ jump_using_jump_table_0030:
 057F: 14          inc  d
 0580: FF          rst  $38
 0581: 18 81       jr   $058C
-0583: 3A 20 0E    ld   a,($E002)
+0583: 3A 20 0E    ld   a,(timing_variable_e002)
 0586: 47          ld   b,a
 0587: E6 F1       and  $1F
 0589: CC D8 41    call z,$059C
-058C: 3A 21 0E    ld   a,($E003)
+058C: 3A 21 0E    ld   a,(port_state_c000_in0_e003)
 058F: CB 4F       bit  1,a
 0591: 20 43       jr   nz,$05B8
-0593: 3A 21 0E    ld   a,($E003)
+0593: 3A 21 0E    ld   a,(port_state_c000_in0_e003)
 0596: CB 47       bit  0,a
 0598: C8          ret  z
 0599: C3 8A 41    jp   $05A8
@@ -1027,19 +1027,19 @@ jump_using_jump_table_0030:
 05A1: CA 92 00    jp   z,$0038
 05A4: 14          inc  d
 05A5: C3 92 00    jp   $0038
-05A8: 3A 12 0E    ld   a,($E030)
+05A8: 3A 12 0E    ld   a,(num_credits_e030)
 05AB: D6 01       sub  $01
 05AD: 27          daa
-05AE: 32 12 0E    ld   ($E030),a
+05AE: 32 12 0E    ld   (num_credits_e030),a
 05B1: AF          xor  a
 05B2: 32 B0 0E    ld   ($E01A),a
 05B5: C3 8D 41    jp   $05C9
-05B8: 3A 12 0E    ld   a,($E030)
+05B8: 3A 12 0E    ld   a,(num_credits_e030)
 05BB: FE 01       cp   $01
 05BD: C8          ret  z
 05BE: D6 20       sub  $02
 05C0: 27          daa
-05C1: 32 12 0E    ld   ($E030),a
+05C1: 32 12 0E    ld   (num_credits_e030),a
 05C4: 3E 01       ld   a,$01
 05C6: 32 B0 0E    ld   ($E01A),a
 05C9: AF          xor  a
@@ -1062,7 +1062,7 @@ jump_using_jump_table_0030:
 05EC: FF          rst  $38
 05ED: C3 DE 41    jp   $05FC
 
-05F0: 3A 12 0E    ld   a,($E030)
+05F0: 3A 12 0E    ld   a,(num_credits_e030)
 05F3: 3D          dec  a
 05F4: C8          ret  z
 05F5: 11 81 00    ld   de,$0009
@@ -1199,11 +1199,11 @@ jump_using_jump_table_0030:
 06FA: FF          rst  $38
 06FB: 16 C1       ld   d,$0D
 06FD: FF          rst  $38
-06FE: 3A 8A CF    ld   a,($EDA8)             ; read NUM_GRENADES
+06FE: 3A 8A CF    ld   a,(num_grenades_eda8)             ; read NUM_GRENADES
 0701: FE 60       cp   $06
 0703: 30 41       jr   nc,$070A
 0705: 3E 60       ld   a,$06
-0707: 32 8A CF    ld   ($EDA8),a             ; update NUM_GRENADES
+0707: 32 8A CF    ld   (num_grenades_eda8),a             ; update NUM_GRENADES
 070A: 16 A1       ld   d,$0B
 070C: FF          rst  $38
 070D: CD E8 4B    call $A58E
@@ -1271,17 +1271,17 @@ jump_using_jump_table_0030:
 0795: CD DA 8B    call $A9BC
 0798: C3 DE 41    jp   $05FC
 
-079B: 3A 43 0E    ld   a,($E025)
+079B: 3A 43 0E    ld   a,(is_cabinet_upright_e025)
 079E: A7          and  a
 079F: C0          ret  nz
 07A0: 3A 91 0E    ld   a,($E019)
 07A3: E6 01       and  $01
-07A5: 32 93 0E    ld   ($E039),a
+07A5: 32 93 0E    ld   (is_screen_yflipped_e039),a
 07A8: C9          ret
 
 07A9: 11 C1 00    ld   de,$000D
 07AC: FF          rst  $38
-07AD: 3A 20 0E    ld   a,($E002)
+07AD: 3A 20 0E    ld   a,(timing_variable_e002)
 07B0: 47          ld   b,a
 07B1: E6 E1       and  $0F
 07B3: C0          ret  nz
@@ -1762,7 +1762,7 @@ jump_using_jump_table_0030:
 0AA1: 22 75 0E    ld   ($E057),hl
 0AA4: CD 81 F9    call $9F09
 0AA7: C3 81 F9    jp   $9F09
-0AAA: 3A 20 0E    ld   a,($E002)
+0AAA: 3A 20 0E    ld   a,(timing_variable_e002)
 0AAD: 47          ld   b,a
 0AAE: E6 F1       and  $1F
 0AB0: C0          ret  nz
@@ -1823,7 +1823,7 @@ jump_using_jump_table_0030:
 0B24: FF          rst  $38
 0B25: C3 DE 41    jp   $05FC
 0B28: CD 72 A1    call $0B36
-0B2B: 3A 20 0E    ld   a,($E002)
+0B2B: 3A 20 0E    ld   a,(timing_variable_e002)
 0B2E: E6 21       and  $03
 0B30: C0          ret  nz
 0B31: 21 0B 0E    ld   hl,$E0A1
@@ -1834,7 +1834,7 @@ jump_using_jump_table_0030:
 0B3B: 21 DD A1    ld   hl,$0BDD
 0B3E: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 0B3F: EB          ex   de,hl
-0B40: 3A 20 0E    ld   a,($E002)
+0B40: 3A 20 0E    ld   a,(timing_variable_e002)
 0B43: 0F          rrca
 0B44: 0F          rrca
 0B45: 0F          rrca
@@ -1854,7 +1854,7 @@ jump_using_jump_table_0030:
 0B62: FE 41       cp   $05
 0B64: C0          ret  nz
 0B65: DD 21 7D A1 ld   ix,$0BD7
-0B69: 3A 20 0E    ld   a,($E002)
+0B69: 3A 20 0E    ld   a,(timing_variable_e002)
 0B6C: 0F          rrca
 0B6D: 0F          rrca
 0B6E: E6 21       and  $03
@@ -2187,7 +2187,7 @@ jump_using_jump_table_0030:
 0D13: C3 2F 68    jp   $86E3
 0D16: CD BB 68    call $86BB
 0D19: C3 5C 68    jp   $86D4
-0D1C: 3A 20 0E    ld   a,($E002)
+0D1C: 3A 20 0E    ld   a,(timing_variable_e002)
 0D1F: CB 47       bit  0,a
 0D21: C0          ret  nz
 0D22: 21 65 0E    ld   hl,$E047
@@ -2222,7 +2222,7 @@ jump_using_jump_table_0030:
 0D61: 32 00 0E    ld   ($E000),a
 0D64: 3E 00       ld   a,$00
 0D66: 32 01 0E    ld   ($E001),a
-0D69: 32 93 0E    ld   ($E039),a
+0D69: 32 93 0E    ld   (is_screen_yflipped_e039),a
 0D6C: C9          ret
 0D6D: 3E 01       ld   a,$01
 0D6F: 32 01 0E    ld   ($E001),a
@@ -2289,7 +2289,7 @@ jump_using_jump_table_0030:
 0DF4: 63          ld   h,e
 0DF5: B0          or   b
 0DF6: C1          pop  bc
-0DF7: 3A 20 0E    ld   a,($E002)
+0DF7: 3A 20 0E    ld   a,(timing_variable_e002)
 0DFA: E6 21       and  $03
 0DFC: C0          ret  nz
 0DFD: 21 65 0E    ld   hl,$E047
@@ -2303,7 +2303,7 @@ jump_using_jump_table_0030:
 0E10: E6 01       and  $01
 0E12: 28 21       jr   z,$0E17
 0E14: 11 58 EE    ld   de,$EE94
-0E17: 21 E4 EE    ld   hl,$EE4E
+0E17: 21 E4 EE    ld   hl,hi_score_7th_ee4e
 0E1A: 0E 61       ld   c,$07
 0E1C: 22 CA 0E    ld   ($E0AC),hl
 0E1F: ED 53 AA 0E ld   ($E0AA),de
@@ -2348,7 +2348,7 @@ jump_using_jump_table_0030:
 ; $E0B3 = pointer to text to print 
 ;
 
-0E60: 3A 20 0E    ld   a,($E002)
+0E60: 3A 20 0E    ld   a,(timing_variable_e002)
 0E63: E6 21       and  $03
 0E65: C0          ret  nz
 0E66: ED 5B 1B 0E ld   de,($E0B1)
@@ -2696,7 +2696,7 @@ jump_using_jump_table_0030:
 
 
 104B: 30 6E       jr   nc,$1033
-104D: 3A 20 0E    ld   a,($E002)
+104D: 3A 20 0E    ld   a,(timing_variable_e002)
 1050: 0F          rrca
 1051: 0F          rrca
 1052: E6 21       and  $03
@@ -2760,7 +2760,7 @@ jump_using_jump_table_0030:
 10CE: 07          rlca
 10CF: 07          rlca
 10D0: 47          ld   b,a
-10D1: 3A 20 0E    ld   a,($E002)
+10D1: 3A 20 0E    ld   a,(timing_variable_e002)
 10D4: 80          add  a,b
 10D5: DD 77 01    ld   (ix+$01),a
 10D8: DD 77 20    ld   (ix+$02),a
@@ -2805,7 +2805,7 @@ jump_using_jump_table_0030:
 113D: 18 30       jr   $1151
 113F: 21 26 11    ld   hl,$1162
 1142: 18 C1       jr   $1151
-1144: 3A 20 0E    ld   a,($E002)
+1144: 3A 20 0E    ld   a,(timing_variable_e002)
 1147: 21 B4 11    ld   hl,$115A
 114A: CB 5F       bit  3,a
 114C: 28 21       jr   z,$1151
@@ -3012,7 +3012,7 @@ jump_using_jump_table_0030:
 1320: DD 35 51    dec  (ix+$15)
 1323: DD CB 30 6E set  4,(ix+$12)
 1327: CD 19 51    call $1591
-132A: 3A 20 0E    ld   a,($E002)
+132A: 3A 20 0E    ld   a,(timing_variable_e002)
 132D: E6 21       and  $03
 132F: CC 25 31    call z,$1343
 1332: 1E 4A       ld   e,$A4
@@ -3420,7 +3420,7 @@ jump_using_jump_table_0030:
 165B: C0          ret  nz
 165C: CB 6F       bit  5,a
 165E: 20 11       jr   nz,$1671
-1660: 3A 20 0E    ld   a,($E002)
+1660: 3A 20 0E    ld   a,(timing_variable_e002)
 1663: E6 21       and  $03
 1665: 47          ld   b,a
 1666: DD 7E F1    ld   a,(ix+$1f)
@@ -3560,7 +3560,7 @@ jump_using_jump_table_0030:
 1859: DD 7E F1    ld   a,(ix+$1f)
 185C: E6 E1       and  $0F
 185E: 47          ld   b,a
-185F: 3A 20 0E    ld   a,($E002)
+185F: 3A 20 0E    ld   a,(timing_variable_e002)
 1862: E6 E1       and  $0F
 1864: B8          cp   b
 1865: C0          ret  nz
@@ -3611,7 +3611,7 @@ jump_using_jump_table_0030:
 18D3: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 18D4: C3 88 A3    jp   $2B88
 
-1922: 3A 20 0E    ld   a,($E002)
+1922: 3A 20 0E    ld   a,(timing_variable_e002)
 1925: E6 61       and  $07
 1927: 20 11       jr   nz,$193A
 1929: DD 46 41    ld   b,(ix+$05)
@@ -3630,7 +3630,7 @@ jump_using_jump_table_0030:
 1948: DD CB 50 64 bit  0,(ix+$14)
 194C: 28 90       jr   z,$1966
 194E: DD 34 21    inc  (ix+$03)
-1951: 3A 20 0E    ld   a,($E002)
+1951: 3A 20 0E    ld   a,(timing_variable_e002)
 1954: E6 01       and  $01
 1956: C8          ret  z
 1957: DD 34 21    inc  (ix+$03)
@@ -3641,7 +3641,7 @@ jump_using_jump_table_0030:
 1962: E1          pop  hl
 1963: C3 6B B2    jp   $3AA7
 1966: DD 35 21    dec  (ix+$03)
-1969: 3A 20 0E    ld   a,($E002)
+1969: 3A 20 0E    ld   a,(timing_variable_e002)
 196C: E6 01       and  $01
 196E: C8          ret  z
 196F: DD 35 21    dec  (ix+$03)
@@ -3720,7 +3720,7 @@ jump_using_jump_table_0030:
 1A1B: DD 70 21    ld   (ix+$03),b
 1A1E: DD 71 41    ld   (ix+$05),c
 1A21: C9          ret
-1A22: 3A 20 0E    ld   a,($E002)
+1A22: 3A 20 0E    ld   a,(timing_variable_e002)
 1A25: E6 21       and  $03
 1A27: C0          ret  nz
 1A28: DD 7E 50    ld   a,(ix+$14)
@@ -4076,7 +4076,7 @@ jump_using_jump_table_0030:
 1CFC: 28 CF       jr   z,$1CEB
 1CFE: CD 10 D1    call $1D10
 1D01: 21 0B F0    ld   hl,$1EA1
-1D04: 3A 20 0E    ld   a,($E002)
+1D04: 3A 20 0E    ld   a,(timing_variable_e002)
 1D07: 0F          rrca
 1D08: 0F          rrca
 1D09: 0F          rrca
@@ -4122,7 +4122,7 @@ jump_using_jump_table_0030:
 1D63: CD 10 D1    call $1D10
 1D66: CD 96 D1    call $1D78
 1D69: 21 BB F0    ld   hl,$1EBB
-1D6C: 3A 20 0E    ld   a,($E002)
+1D6C: 3A 20 0E    ld   a,(timing_variable_e002)
 1D6F: 0F          rrca
 1D70: 0F          rrca
 1D71: 0F          rrca
@@ -4138,7 +4138,7 @@ jump_using_jump_table_0030:
 1D78: DD 66 21    ld   h,(ix+$03)
 1D7B: DD 6E 41    ld   l,(ix+$05)
 1D7E: DD E5       push ix
-1D80: DD 21 00 2E ld   ix,$E200
+1D80: DD 21 00 2E ld   ix,player_bullets_e200
 1D84: 11 02 00    ld   de,$0020
 1D87: 06 60       ld   b,$06
 1D89: DD 7E 00    ld   a,(ix+$00)
@@ -4295,7 +4295,7 @@ jump_using_jump_table_0030:
 1ED5: DD 36 50 00 ld   (ix+$14),$00
 1ED9: DD 36 51 10 ld   (ix+$15),$10
 1EDD: C9          ret
-1EDE: 3A 20 0E    ld   a,($E002)
+1EDE: 3A 20 0E    ld   a,(timing_variable_e002)
 1EE1: E6 F3       and  $3F
 1EE3: 47          ld   b,a
 1EE4: DD 7E F1    ld   a,(ix+$1f)
@@ -4642,7 +4642,7 @@ jump_using_jump_table_0030:
 218C: 40          ld   b,b
 218D: A7          and  a
 218E: C0          ret  nz
-218F: 3A 20 0E    ld   a,($E002)
+218F: 3A 20 0E    ld   a,(timing_variable_e002)
 2192: 47          ld   b,a
 2193: E6 61       and  $07
 2195: C0          ret  nz
@@ -4679,7 +4679,7 @@ jump_using_jump_table_0030:
 21CB: 87          add  a,a
 21CC: E6 F3       and  $3F
 21CE: 47          ld   b,a
-21CF: 3A 20 0E    ld   a,($E002)
+21CF: 3A 20 0E    ld   a,(timing_variable_e002)
 21D2: E6 F3       and  $3F
 21D4: B8          cp   b
 21D5: C0          ret  nz
@@ -4868,7 +4868,7 @@ jump_using_jump_table_0030:
 234C: C9          ret
 234D: CD F7 68    call $867F
 2350: C3 6B B2    jp   $3AA7
-2353: 3A 20 0E    ld   a,($E002)
+2353: 3A 20 0E    ld   a,(timing_variable_e002)
 2356: E6 01       and  $01
 2358: C0          ret  nz
 2359: DD 35 21    dec  (ix+$03)
@@ -5040,7 +5040,7 @@ jump_using_jump_table_0030:
 24A8: DD 7E 50    ld   a,(ix+$14)
 24AB: FE 20       cp   $02
 24AD: C0          ret  nz
-24AE: 3A 20 0E    ld   a,($E002)
+24AE: 3A 20 0E    ld   a,(timing_variable_e002)
 24B1: E6 E1       and  $0F
 24B3: 47          ld   b,a
 24B4: DD 7E F1    ld   a,(ix+$1f)
@@ -5252,7 +5252,7 @@ jump_using_jump_table_0030:
 2651: DD 7E 90    ld   a,(ix+$18)
 2654: A7          and  a
 2655: C0          ret  nz
-2656: 3A 20 0E    ld   a,($E002)
+2656: 3A 20 0E    ld   a,(timing_variable_e002)
 2659: CB 4F       bit  1,a
 265B: C8          ret  z
 265C: DD 35 70    dec  (ix+$16)
@@ -5306,7 +5306,7 @@ jump_using_jump_table_0030:
 26DD: DD 7E 40    ld   a,(ix+$04)
 26E0: A7          and  a
 26E1: C0          ret  nz
-26E2: 3A 20 0E    ld   a,($E002)
+26E2: 3A 20 0E    ld   a,(timing_variable_e002)
 26E5: E6 F3       and  $3F
 26E7: C0          ret  nz
 26E8: 21 0E 4F    ld   hl,$E5E0
@@ -5465,7 +5465,7 @@ jump_using_jump_table_0030:
 2832: C9          ret
 2833: 3A 21 0F    ld   a,($E103)
 2836: 47          ld   b,a
-2837: 3A 20 0E    ld   a,($E002)
+2837: 3A 20 0E    ld   a,(timing_variable_e002)
 283A: E6 F1       and  $1F
 283C: 2F          cpl
 283D: 80          add  a,b
@@ -5529,7 +5529,7 @@ jump_using_jump_table_0030:
 28D3: DD 36 51 00 ld   (ix+$15),$00
 28D7: DD 36 70 00 ld   (ix+$16),$00
 28DB: C9          ret
-28DC: 3A 20 0E    ld   a,($E002)
+28DC: 3A 20 0E    ld   a,(timing_variable_e002)
 28DF: E6 08       and  $80
 28E1: D6 04       sub  $40
 28E3: 47          ld   b,a
@@ -6277,7 +6277,7 @@ jump_using_jump_table_0030:
 2F85: DD 7E 40    ld   a,(ix+$04)
 2F88: A7          and  a
 2F89: 20 98       jr   nz,$2F23
-2F8B: 3A 20 0E    ld   a,($E002)
+2F8B: 3A 20 0E    ld   a,(timing_variable_e002)
 2F8E: E6 61       and  $07
 2F90: C0          ret  nz
 2F91: CD 2E C6    call $6CE2
@@ -6398,7 +6398,7 @@ jump_using_jump_table_0030:
 3055: 00          nop
 3056: 2A 00 2B    ld   hl,($A300)
 3059: 00          nop
-305A: 3A 20 0E    ld   a,($E002)
+305A: 3A 20 0E    ld   a,(timing_variable_e002)
 305D: E6 61       and  $07
 305F: 47          ld   b,a
 3060: DD 7E F1    ld   a,(ix+$1f)
@@ -6432,7 +6432,7 @@ jump_using_jump_table_0030:
 3090: 5E          ld   e,(hl)
 3091: C9          ret
 3092: CD BC 12    call $30DA
-3095: 3A 20 0E    ld   a,($E002)
+3095: 3A 20 0E    ld   a,(timing_variable_e002)
 3098: 0F          rrca
 3099: 0F          rrca
 309A: 0F          rrca
@@ -6500,12 +6500,12 @@ jump_using_jump_table_0030:
 3101: DD 7E 50    ld   a,(ix+$14)
 3104: 21 53 13    ld   hl,$3135
 3107: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
-3108: 3A 8A CF    ld   a,($EDA8)             ; read NUM_GRENADES
+3108: 3A 8A CF    ld   a,(num_grenades_eda8)             ; read NUM_GRENADES
 310B: BA          cp   d
 310C: 30 70       jr   nc,$3124
 310E: 83          add  a,e
 310F: 27          daa
-3110: 32 8A CF    ld   ($EDA8),a             ; update NUM_GRENADES 
+3110: 32 8A CF    ld   (num_grenades_eda8),a             ; update NUM_GRENADES 
 3113: 16 A1       ld   d,$0B
 3115: FF          rst  $38
 3116: 16 41       ld   d,$05
@@ -6517,7 +6517,7 @@ jump_using_jump_table_0030:
 3124: DD 36 00 00 ld   (ix+$00),$00
 3128: DD 36 21 00 ld   (ix+$03),$00
 312C: 3E 99       ld   a,$99
-312E: 32 8A CF    ld   ($EDA8),a             ; set NUM_GRENADES
+312E: 32 8A CF    ld   (num_grenades_eda8),a             ; set NUM_GRENADES
 3131: 16 A1       ld   d,$0B
 3133: FF          rst  $38
 3134: C9          ret
@@ -6624,7 +6624,7 @@ jump_using_jump_table_0030:
 31F9: DD 7E 50    ld   a,(ix+$14)
 31FC: A7          and  a
 31FD: C2 C9 32    jp   nz,$328D
-3200: 3A 20 0E    ld   a,($E002)
+3200: 3A 20 0E    ld   a,(timing_variable_e002)
 3203: 0F          rrca
 3204: 0F          rrca
 3205: E6 61       and  $07
@@ -6873,7 +6873,7 @@ jump_using_jump_table_0030:
 	dc.w	$34b9	; $3415
 	dc.w	$34c1	; $3417
 
-3419: 3A 20 0E    ld   a,($E002)
+3419: 3A 20 0E    ld   a,(timing_variable_e002)
 341C: 0F          rrca
 341D: 0F          rrca
 341E: E6 61       and  $07
@@ -6975,11 +6975,11 @@ jump_using_jump_table_0030:
 3512: FD 19       add  iy,de
 3514: 11 79 53    ld   de,$3597
 3517: C3 88 A3    jp   $2B88
-351A: 3A 20 0E    ld   a,($E002)
+351A: 3A 20 0E    ld   a,(timing_variable_e002)
 351D: E6 01       and  $01
 351F: C8          ret  z
 3520: FD E5       push iy
-3522: FD 21 00 2E ld   iy,$E200
+3522: FD 21 00 2E ld   iy,player_bullets_e200
 3526: 11 02 00    ld   de,$0020              ; sizeof (PLAYER_BULLET)
 3529: 06 60       ld   b,$06
 352B: DD 66 21    ld   h,(ix+$03)
@@ -7055,7 +7055,7 @@ jump_using_jump_table_0030:
 35AC: D8          ret  c
 35AD: FE 1E       cp   $F0
 35AF: D0          ret  nc
-35B0: 3A 20 0E    ld   a,($E002)
+35B0: 3A 20 0E    ld   a,(timing_variable_e002)
 35B3: E6 E1       and  $0F
 35B5: C0          ret  nz
 35B6: CD 2E C6    call $6CE2
@@ -7193,7 +7193,7 @@ jump_using_jump_table_0030:
 36AE: DD 7E 50    ld   a,(ix+$14)
 36B1: FE 20       cp   $02
 36B3: 28 E0       jr   z,$36C3
-36B5: 3A 20 0E    ld   a,($E002)
+36B5: 3A 20 0E    ld   a,(timing_variable_e002)
 36B8: 0F          rrca
 36B9: 0F          rrca
 36BA: 0F          rrca
@@ -7787,9 +7787,9 @@ jump_using_jump_table_0030:
 3AC8: CD 6C B3    call $3BC6
 3ACB: 10 BF       djnz $3AC8
 3ACD: CD 76 20    call $0276
-3AD0: 3A 21 0E    ld   a,($E003)
+3AD0: 3A 21 0E    ld   a,(port_state_c000_in0_e003)
 3AD3: 32 B3 0E    ld   ($E03B),a
-3AD6: 3A 60 0E    ld   a,($E006)
+3AD6: 3A 60 0E    ld   a,(port_state_dsw1_e006)
 3AD9: 47          ld   b,a
 3ADA: E6 21       and  $03
 3ADC: 87          add  a,a
@@ -7826,7 +7826,7 @@ jump_using_jump_table_0030:
 3B0E: 21 BE B3    ld   hl,$3BFA
 3B11: E7          rst  $20                   ; call RETURN_BYTE_AT_HL_PLUS_A
 3B12: 32 B7 3C    ld   ($D27B),a
-3B15: 3A 61 0E    ld   a,($E007)
+3B15: 3A 61 0E    ld   a,(port_state_dsw2_e007)
 3B18: 47          ld   b,a
 3B19: E6 01       and  $01
 3B1B: CA 78 B3    jp   z,$3B96
@@ -8289,7 +8289,7 @@ jump_using_jump_table_0030:
 3D8D: 06 30       ld   b,$12
 3D8F: CD 6C B3    call $3BC6
 3D92: 10 BF       djnz $3D8F
-3D94: 3A 60 0E    ld   a,($E006)
+3D94: 3A 60 0E    ld   a,(port_state_dsw1_e006)
 3D97: 4F          ld   c,a
 3D98: 21 32 3C    ld   hl,$D232
 3D9B: 11 02 00    ld   de,$0020
@@ -8300,7 +8300,7 @@ jump_using_jump_table_0030:
 3DA4: CB 09       rrc  c
 3DA6: 79          ld   a,c
 3DA7: 10 7F       djnz $3DA0
-3DA9: 3A 61 0E    ld   a,($E007)
+3DA9: 3A 61 0E    ld   a,(port_state_dsw2_e007)
 3DAC: 4F          ld   c,a
 3DAD: 21 13 3C    ld   hl,$D231
 3DB0: 06 80       ld   b,$08
@@ -8310,7 +8310,7 @@ jump_using_jump_table_0030:
 3DB6: CB 09       rrc  c
 3DB8: 79          ld   a,c
 3DB9: 10 7F       djnz $3DB2
-3DBB: 3A 40 0E    ld   a,($E004)
+3DBB: 3A 40 0E    ld   a,(port_state_c001_in1_e004)
 3DBE: 4F          ld   c,a
 3DBF: 21 CA 1D    ld   hl,$D1AC
 3DC2: 06 40       ld   b,$04
@@ -8328,7 +8328,7 @@ jump_using_jump_table_0030:
 3DD6: 79          ld   a,c
 3DD7: E6 01       and  $01
 3DD9: 77          ld   (hl),a
-3DDA: 3A 41 0E    ld   a,($E005)
+3DDA: 3A 41 0E    ld   a,(port_state_c002_in2_e005)
 3DDD: 4F          ld   c,a
 3DDE: 21 C8 3D    ld   hl,$D38C
 3DE1: 06 40       ld   b,$04
@@ -8346,7 +8346,7 @@ jump_using_jump_table_0030:
 3DF5: 79          ld   a,c
 3DF6: E6 01       and  $01
 3DF8: 77          ld   (hl),a
-3DF9: 3A 21 0E    ld   a,($E003)
+3DF9: 3A 21 0E    ld   a,(port_state_c000_in0_e003)
 3DFC: 47          ld   b,a
 3DFD: E6 01       and  $01
 3DFF: 21 89 3D    ld   hl,$D389
@@ -8356,7 +8356,7 @@ jump_using_jump_table_0030:
 3E06: 78          ld   a,b
 3E07: E6 01       and  $01
 3E09: 77          ld   (hl),a
-3E0A: 3A 21 0E    ld   a,($E003)
+3E0A: 3A 21 0E    ld   a,(port_state_c000_in0_e003)
 3E0D: 07          rlca
 3E0E: 47          ld   b,a
 3E0F: 21 8A 1D    ld   hl,$D1A8
@@ -8565,18 +8565,18 @@ jump_using_jump_table_0030:
 3F1A: CD D8 D8    call $9C9C
 3F1D: 21 44 0E    ld   hl,$E044
 3F20: CD 12 F3    call $3F30
-3F23: 3A C0 0E    ld   a,($E00C)
+3F23: 3A C0 0E    ld   a,(port_state_c001_bit4_bits_e00c)
 3F26: E6 61       and  $07
 3F28: FE 01       cp   $01
 3F2A: C0          ret  nz
 3F2B: 7E          ld   a,(hl)
 3F2C: 32 B2 0E    ld   ($E03A),a
 3F2F: C9          ret
-3F30: 3A 80 0E    ld   a,($E008)
+3F30: 3A 80 0E    ld   a,(port_state_c001_bit0_bits_e008)
 3F33: E6 61       and  $07
 3F35: FE 01       cp   $01
 3F37: 28 E0       jr   z,$3F47
-3F39: 3A 81 0E    ld   a,($E009)
+3F39: 3A 81 0E    ld   a,(port_state_c001_bit1_bits_e009)
 3F3C: E6 61       and  $07
 3F3E: FE 01       cp   $01
 3F40: C0          ret  nz
@@ -8774,19 +8774,19 @@ jump_using_jump_table_0030:
 6D7A: 06 0E       ld   b,$E0
 6D7C: 0A          ld   a,(bc)
 6D7D: FD 21 40 FE ld   iy,$FE04
-6D81: 3A A1 0E    ld   a,($E00B)
+6D81: 3A A1 0E    ld   a,(port_state_c001_bit3_bits_e00b)
 6D84: E6 01       and  $01
 6D86: 28 21       jr   z,$6D8B
 6D88: FD 34 21    inc  (iy+$03)
-6D8B: 3A A0 0E    ld   a,($E00A)
+6D8B: 3A A0 0E    ld   a,(port_state_c001_bit2_bits_e00a)
 6D8E: E6 01       and  $01
 6D90: 28 21       jr   z,$6D95
 6D92: FD 35 21    dec  (iy+$03)
-6D95: 3A 81 0E    ld   a,($E009)
+6D95: 3A 81 0E    ld   a,(port_state_c001_bit1_bits_e009)
 6D98: E6 01       and  $01
 6D9A: 28 21       jr   z,$6D9F
 6D9C: FD 35 20    dec  (iy+$02)
-6D9F: 3A 80 0E    ld   a,($E008)
+6D9F: 3A 80 0E    ld   a,(port_state_c001_bit0_bits_e008)
 6DA2: E6 01       and  $01
 6DA4: 28 21       jr   z,$6DA9
 6DA6: FD 34 20    inc  (iy+$02)
@@ -8874,7 +8874,7 @@ jump_using_jump_table_0030:
 804A: A7          and  a
 804B: C8          ret  z
 804C: 21 CA 29    ld   hl,$83AC
-804F: CD C7 D8    call $9C6D                 ; call PRINT_TEXT
+804F: CD C7 D8    call print_text_9c6d
 8052: 3A 62 0E    ld   a,($E026)
 8055: E6 E1       and  $0F
 8057: 32 A3 3C    ld   ($D22B),a
@@ -8882,13 +8882,13 @@ jump_using_jump_table_0030:
 805D: CB 67       bit  4,a
 805F: 20 E1       jr   nz,$8070
 8061: 21 2D 29    ld   hl,$83C3
-8064: CD C7 D8    call $9C6D                 ; call PRINT_TEXT 
+8064: CD C7 D8    call print_text_9c6d
 8067: 3A 82 0E    ld   a,($E028)
 806A: E6 E1       and  $0F
 806C: 32 83 3C    ld   ($D229),a
 806F: C9          ret
 8070: 21 BD 29    ld   hl,$83DB
-8073: CD C7 D8    call $9C6D                 ; call PRINT_TEXT 
+8073: CD C7 D8    call print_text_9c6d
 8076: CD D1 09    call $811D
 8079: AF          xor  a
 807A: 32 1A 0E    ld   ($E0B0),a
@@ -8989,7 +8989,7 @@ jump_using_jump_table_0030:
 8146: 71          ld   (hl),c
 8147: CB 94       res  2,h
 8149: 21 0E 1D    ld   hl,$D1E0
-814C: 3A 8A CF    ld   a,($EDA8)             ; read NUM_GRENADES
+814C: 3A 8A CF    ld   a,(num_grenades_eda8)             ; read NUM_GRENADES
 814F: CD 87 09    call $8169
 8152: C9          ret
 8153: 11 02 00    ld   de,$0020
@@ -9054,7 +9054,7 @@ jump_using_jump_table_0030:
 81BE: 3A 48 CF    ld   a,($ED84)
 81C1: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 81C2: EB          ex   de,hl
-81C3: CD C7 D8    call $9C6D                 ; call PRINT_TEXT 
+81C3: CD C7 D8    call print_text_9c6d
 81C6: 21 76 28    ld   hl,$8276
 81C9: 3A 48 CF    ld   a,($ED84)
 81CC: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
@@ -9082,7 +9082,7 @@ jump_using_jump_table_0030:
 81F1: FF          rst  $38
 
 81F2: FD 21 46 0E ld   iy,$E064
-81F6: DD 21 00 EE ld   ix,$EE00
+81F6: DD 21 00 EE ld   ix,hi_score_1st_ee00
 81FA: 21 13 1D    ld   hl,$D131
 81FD: FD 36 00 61 ld   (iy+$00),$07
 8201: FD 36 01 00 ld   (iy+$01),$00
@@ -9144,7 +9144,7 @@ jump_using_jump_table_0030:
 8264: C0          ret  nz
 8265: 21 CC 28    ld   hl,$82CC
 8268: CD C7 D8    call $9C6D
-826B: 3A 12 0E    ld   a,($E030)
+826B: 3A 12 0E    ld   a,(num_credits_e030)
 826E: 21 08 3D    ld   hl,$D380
 8271: 0E 00       ld   c,$00
 8273: C3 D8 D8    jp   $9C9C
@@ -9225,7 +9225,7 @@ jump_using_jump_table_0030:
 8559: 77          ld   (hl),a
 855A: C9          ret
 855B: 2A 6A 0E    ld   hl,($E0A6)
-855E: 11 79 EE    ld   de,$EE97
+855E: 11 79 EE    ld   de,hi_score_ee97
 8561: 1A          ld   a,(de)
 8562: BE          cp   (hl)
 8563: 38 E1       jr   c,$8574
@@ -9244,7 +9244,7 @@ jump_using_jump_table_0030:
 8573: C0          ret  nz
 8574: 01 21 00    ld   bc,$0003
 8577: 2A 6A 0E    ld   hl,($E0A6)
-857A: 11 79 EE    ld   de,$EE97
+857A: 11 79 EE    ld   de,hi_score_ee97
 857D: ED B0       ldir
 857F: C3 DC D8    jp   $9CDC
 8582: 2A 6A 0E    ld   hl,($E0A6)
@@ -9503,7 +9503,7 @@ jump_using_jump_table_0030:
 87BA: DD 7E B0    ld   a,(ix+$1a)
 87BD: FE 21       cp   $03
 87BF: 38 71       jr   c,$87D8
-87C1: 3A 20 0E    ld   a,($E002)
+87C1: 3A 20 0E    ld   a,(timing_variable_e002)
 87C4: E6 01       and  $01
 87C6: CA D2 88    jp   z,$883C
 87C9: DD 35 51    dec  (ix+$15)
@@ -9555,7 +9555,7 @@ jump_using_jump_table_0030:
 883A: 5A          ld   e,d
 883B: 0A          ld   a,(bc)
 883C: FD 21 9C FE ld   iy,$FED8
-8840: 3A 20 0E    ld   a,($E002)
+8840: 3A 20 0E    ld   a,(timing_variable_e002)
 8843: 0F          rrca
 8844: E6 21       and  $03
 8846: 87          add  a,a
@@ -10108,14 +10108,14 @@ jump_using_jump_table_0030:
 8E49: FD 36 20 00 ld   (iy+$02),$00
 8E4D: FD 36 60 00 ld   (iy+$06),$00
 8E51: C9          ret
-8E52: 21 40 0E    ld   hl,$E004
+8E52: 21 40 0E    ld   hl,port_state_c001_in1_e004
 8E55: 3A 91 0E    ld   a,($E019)
 8E58: E6 01       and  $01
 8E5A: 28 E0       jr   z,$8E6A
-8E5C: 3A 93 0E    ld   a,($E039)
+8E5C: 3A 93 0E    ld   a,(is_screen_yflipped_e039)
 8E5F: E6 01       and  $01
 8E61: 20 60       jr   nz,$8E69
-8E63: 3A 83 0E    ld   a,($E029)
+8E63: 3A 83 0E    ld   a,(is_single_stick_setup_e029)
 8E66: A7          and  a
 8E67: 20 01       jr   nz,$8E6A
 8E69: 2C          inc  l
@@ -10146,7 +10146,7 @@ jump_using_jump_table_0030:
 ; I *think* this routine is responsible for positioning player bullet sprites
 ;
 
-8E9A: DD 21 00 2E ld   ix,$E200
+8E9A: DD 21 00 2E ld   ix,player_bullets_e200
 8E9E: 26 E0       ld   h,$0E
 8EA0: 11 02 00    ld   de,$0020              ; DE = sizeof(PLAYER_BULLET)
 8EA3: FD 21 84 FF ld   iy,$FF48              ; IY = pointer to sprites
@@ -10344,7 +10344,7 @@ jump_using_jump_table_0030:
 9080: DD 7E F1    ld   a,(ix+$1f)
 9083: E6 01       and  $01
 9085: 47          ld   b,a
-9086: 3A 20 0E    ld   a,($E002)
+9086: 3A 20 0E    ld   a,(timing_variable_e002)
 9089: E6 01       and  $01
 908B: B8          cp   b
 908C: C8          ret  z
@@ -10632,7 +10632,7 @@ jump_using_jump_table_0030:
 92DC: FE 01       cp   $01
 92DE: C0          ret  nz
 92DF: 18 81       jr   $92EA
-92E1: 3A C1 0E    ld   a,($E00D)
+92E1: 3A C1 0E    ld   a,(port_state_c001_bit5_bits_e00d)
 92E4: E6 61       and  $07
 92E6: C8          ret  z
 92E7: FE 01       cp   $01
@@ -10640,12 +10640,12 @@ jump_using_jump_table_0030:
 92EA: 3A 70 0F    ld   a,($E116)
 92ED: A7          and  a
 92EE: C0          ret  nz
-92EF: 3A 8A CF    ld   a,($EDA8)             ; read NUM_GRENADES
+92EF: 3A 8A CF    ld   a,(num_grenades_eda8)             ; read NUM_GRENADES
 92F2: A7          and  a
 92F3: C8          ret  z
 92F4: 3D          dec  a
 92F5: 27          daa
-92F6: 32 8A CF    ld   ($EDA8),a             ; update NUM_GRENADES 
+92F6: 32 8A CF    ld   (num_grenades_eda8),a             ; update NUM_GRENADES 
 92F9: 16 A1       ld   d,$0B
 92FB: FF          rst  $38
 92FC: 3E 80       ld   a,$08
@@ -10674,7 +10674,7 @@ jump_using_jump_table_0030:
 9335: FE 01       cp   $01
 9337: C0          ret  nz
 9338: 18 80       jr   $9342
-933A: 3A C0 0E    ld   a,($E00C)
+933A: 3A C0 0E    ld   a,(port_state_c001_bit4_bits_e00c)
 933D: E6 61       and  $07
 933F: FE 01       cp   $01
 9341: C0          ret  nz
@@ -10705,7 +10705,7 @@ jump_using_jump_table_0030:
 936E: C9          ret
 
 
-936F: DD 21 00 2E ld   ix,$E200
+936F: DD 21 00 2E ld   ix,player_bullets_e200
 9373: 11 02 00    ld   de,$0020
 9376: 06 60       ld   b,$06
 9378: DD 7E 00    ld   a,(ix+$00)
@@ -10958,7 +10958,7 @@ jump_using_jump_table_0030:
 95BE: 21 8B 0E    ld   hl,$E0A9
 95C1: 34          inc  (hl)
 95C2: 18 A4       jr   $960E
-95C4: 3A 20 0E    ld   a,($E002)
+95C4: 3A 20 0E    ld   a,(timing_variable_e002)
 95C7: E6 06       and  $60
 95C9: C0          ret  nz
 95CA: 21 DE 0E    ld   hl,$E0FC
@@ -11158,7 +11158,7 @@ jump_using_jump_table_0030:
 9771: 10 80       djnz $977B
 9773: 40          ld   b,b
 9774: 20 01       jr   nz,$9777
-9776: 3A 20 0E    ld   a,($E002)
+9776: 3A 20 0E    ld   a,(timing_variable_e002)
 9779: E6 F1       and  $1F
 977B: C0          ret  nz
 977C: 3A 55 0E    ld   a,($E055)
@@ -11248,7 +11248,7 @@ jump_using_jump_table_0030:
 9831: C5          push bc
 9832: 3A 0C EE    ld   a,($EEC0)
 9835: 47          ld   b,a
-9836: 3A 20 0E    ld   a,($E002)
+9836: 3A 20 0E    ld   a,(timing_variable_e002)
 9839: 80          add  a,b
 983A: 47          ld   b,a
 983B: 3A 92 FF    ld   a,($FF38)
@@ -11287,7 +11287,7 @@ jump_using_jump_table_0030:
 9886: CD BB 68    call $86BB
 9889: CD 7F 68    call $86F7
 988C: C9          ret
-988D: DD 21 00 2E ld   ix,$E200
+988D: DD 21 00 2E ld   ix,player_bullets_e200
 9891: 06 40       ld   b,$04
 9893: 11 10 00    ld   de,$0010
 9896: CD 2A 98    call $98A2
@@ -11391,7 +11391,7 @@ jump_using_jump_table_0030:
 
 9957: CD F3 B9    call $9B3F
 995A: CD 21 D8    call $9C03
-995D: DD 21 00 2E ld   ix,$E200
+995D: DD 21 00 2E ld   ix,player_bullets_e200
 9961: 11 10 00    ld   de,$0010
 9964: 06 40       ld   b,$04
 9966: CD B6 99    call $997A
@@ -11489,10 +11489,10 @@ jump_using_jump_table_0030:
 9A1D: 20 F1       jr   nz,$9A3E
 9A1F: C9          ret
 
-9A20: 3A 81 0E    ld   a,($E009)
+9A20: 3A 81 0E    ld   a,(port_state_c001_bit1_bits_e009)
 9A23: E6 01       and  $01
 9A25: 20 80       jr   nz,$9A2F
-9A27: 3A 80 0E    ld   a,($E008)
+9A27: 3A 80 0E    ld   a,(port_state_c001_bit0_bits_e008)
 9A2A: E6 01       and  $01
 9A2C: 20 10       jr   nz,$9A3E
 9A2E: C9          ret
@@ -11559,10 +11559,10 @@ jump_using_jump_table_0030:
 9AAB: 20 F1       jr   nz,$9ACC
 9AAD: C9          ret
 
-9AAE: 3A A1 0E    ld   a,($E00B)
+9AAE: 3A A1 0E    ld   a,(port_state_c001_bit3_bits_e00b)
 9AB1: E6 01       and  $01
 9AB3: 20 80       jr   nz,$9ABD
-9AB5: 3A A0 0E    ld   a,($E00A)
+9AB5: 3A A0 0E    ld   a,(port_state_c001_bit2_bits_e00a)
 9AB8: E6 01       and  $01
 9ABA: 20 10       jr   nz,$9ACC
 9ABC: C9          ret
@@ -11581,7 +11581,7 @@ jump_using_jump_table_0030:
 9AD6: DD 36 00 80 ld   (ix+$00),$08
 9ADA: C9          ret
 
-9ADB: 21 C0 0E    ld   hl,$E00C
+9ADB: 21 C0 0E    ld   hl,port_state_c001_bit4_bits_e00c
 9ADE: 3A 91 0E    ld   a,($E019)
 9AE1: E6 01       and  $01
 9AE3: 28 21       jr   z,$9AE8
@@ -11590,7 +11590,7 @@ jump_using_jump_table_0030:
 9AE9: E6 61       and  $07
 9AEB: FE 01       cp   $01
 9AED: C0          ret  nz
-9AEE: DD 21 00 2E ld   ix,$E200
+9AEE: DD 21 00 2E ld   ix,player_bullets_e200
 9AF2: FD 21 84 FF ld   iy,$FF48
 9AF6: 11 40 00    ld   de,$0004
 9AF9: 01 10 00    ld   bc,$0010
@@ -11621,7 +11621,7 @@ jump_using_jump_table_0030:
 9B3B: DD 75 21    ld   (ix+$03),l
 9B3E: C9          ret
 
-9B3F: DD 21 00 2E ld   ix,$E200
+9B3F: DD 21 00 2E ld   ix,player_bullets_e200
 9B43: FD 21 84 FF ld   iy,$FF48
 9B47: 06 40       ld   b,$04
 9B49: C5          push bc
@@ -11784,7 +11784,7 @@ jump_using_jump_table_0030:
 9C6C: C9          ret
 
 
-PRINT_TEXT:
+print_text_9c6d:
 9C6D: 5E          ld   e,(hl)
 9C6E: 23          inc  hl
 9C6F: 56          ld   d,(hl)
@@ -11865,7 +11865,7 @@ PRINT_TEXT:
 9CE6: 71          ld   (hl),c
 9CE7: CB 94       res  2,h
 9CE9: 21 F8 1D    ld   hl,$D19E
-9CEC: 11 79 EE    ld   de,$EE97
+9CEC: 11 79 EE    ld   de,hi_score_ee97
 9CEF: C3 F1 D9    jp   $9D1F
 9CF2: 47          ld   b,a
 9CF3: 0F          rrca
@@ -11928,19 +11928,19 @@ PRINT_TEXT:
 9D53: 28 6F       jr   z,$9D3C
 9D55: 08          ex   af,af'
 9D56: 18 FC       jr   $9D36
-9D58: 3A 80 0E    ld   a,($E008)
+9D58: 3A 80 0E    ld   a,(port_state_c001_bit0_bits_e008)
 9D5B: E6 61       and  $07
 9D5D: FE 01       cp   $01
 9D5F: 28 D0       jr   z,$9D7D
-9D61: 3A 81 0E    ld   a,($E009)
+9D61: 3A 81 0E    ld   a,(port_state_c001_bit1_bits_e009)
 9D64: E6 61       and  $07
 9D66: FE 01       cp   $01
 9D68: 28 90       jr   z,$9D82
-9D6A: 3A A1 0E    ld   a,($E00B)
+9D6A: 3A A1 0E    ld   a,(port_state_c001_bit3_bits_e00b)
 9D6D: E6 61       and  $07
 9D6F: FE 01       cp   $01
 9D71: 28 50       jr   z,$9D87
-9D73: 3A A0 0E    ld   a,($E00A)
+9D73: 3A A0 0E    ld   a,(port_state_c001_bit2_bits_e00a)
 9D76: E6 61       and  $07
 9D78: FE 01       cp   $01
 9D7A: 28 10       jr   z,$9D8C
@@ -11991,11 +11991,11 @@ PRINT_TEXT:
 9DCC: CD 3F D9    call $9DF3
 9DCF: CD 50 F8    call $9E14
 9DD2: C9          ret
-9DD3: 3A 80 0E    ld   a,($E008)
+9DD3: 3A 80 0E    ld   a,(port_state_c001_bit0_bits_e008)
 9DD6: E6 61       and  $07
 9DD8: FE 21       cp   $03
 9DDA: 28 E1       jr   z,$9DEB
-9DDC: 3A 81 0E    ld   a,($E009)
+9DDC: 3A 81 0E    ld   a,(port_state_c001_bit1_bits_e009)
 9DDF: E6 61       and  $07
 9DE1: FE 21       cp   $03
 9DE3: C0          ret  nz
@@ -12009,11 +12009,11 @@ PRINT_TEXT:
 9DEF: D6 10       sub  $10
 9DF1: 77          ld   (hl),a
 9DF2: C9          ret
-9DF3: 3A A1 0E    ld   a,($E00B)
+9DF3: 3A A1 0E    ld   a,(port_state_c001_bit3_bits_e00b)
 9DF6: E6 61       and  $07
 9DF8: FE 21       cp   $03
 9DFA: 28 10       jr   z,$9E0C
-9DFC: 3A A0 0E    ld   a,($E00A)
+9DFC: 3A A0 0E    ld   a,(port_state_c001_bit2_bits_e00a)
 9DFF: E6 61       and  $07
 9E01: FE 21       cp   $03
 9E03: C0          ret  nz
@@ -12050,7 +12050,7 @@ PRINT_TEXT:
 9E45: C9          ret
 
 9E46: 21 33 0E    ld   hl,$E033
-9E49: 3A 21 0E    ld   a,($E003)
+9E49: 3A 21 0E    ld   a,(port_state_c000_in0_e003)
 9E4C: 07          rlca
 9E4D: CB 16       rl   (hl)
 9E4F: 7E          ld   a,(hl)
@@ -12062,7 +12062,7 @@ PRINT_TEXT:
 9E59: CD 4D F8    call $9EC5
 9E5C: C3 ED F8    jp   $9ECF
 9E5F: 21 52 0E    ld   hl,$E034
-9E62: 3A 21 0E    ld   a,($E003)
+9E62: 3A 21 0E    ld   a,(port_state_c000_in0_e003)
 9E65: 07          rlca
 9E66: 07          rlca
 9E67: CB 16       rl   (hl)
@@ -12141,12 +12141,12 @@ PRINT_TEXT:
 9EDA: 36 00       ld   (hl),$00
 9EDC: 3A 02 0E    ld   a,($E020)
 9EDF: 4F          ld   c,a
-9EE0: 3A 12 0E    ld   a,($E030)
+9EE0: 3A 12 0E    ld   a,(num_credits_e030)
 9EE3: FE 99       cp   $99
 9EE5: D0          ret  nc
 9EE6: 81          add  a,c
 9EE7: 27          daa
-9EE8: 32 12 0E    ld   ($E030),a
+9EE8: 32 12 0E    ld   (num_credits_e030),a
 9EEB: 3A 00 0E    ld   a,($E000)
 9EEE: FE 21       cp   $03
 9EF0: C8          ret  z
@@ -12244,7 +12244,7 @@ PRINT_TEXT:
 9FB5: A7          and  a
 9FB6: 28 01       jr   z,$9FB9
 9FB8: 35          dec  (hl)
-9FB9: 3A 20 0E    ld   a,($E002)
+9FB9: 3A 20 0E    ld   a,(timing_variable_e002)
 9FBC: E6 01       and  $01
 9FBE: C0          ret  nz
 9FBF: 21 9E 0E    ld   hl,$E0F8
@@ -12280,7 +12280,7 @@ PRINT_TEXT:
 9FF3: D1          pop  de
 9FF4: 19          add  hl,de
 9FF5: 0E 00       ld   c,$00
-9FF7: 3A C2 0E    ld   a,($E02C)
+9FF7: 3A C2 0E    ld   a,(is_difficult_e02c)
 9FFA: A7          and  a
 9FFB: 28 20       jr   z,$9FFF
 9FFD: 0E 01       ld   c,$01
@@ -13744,7 +13744,7 @@ AA42: CD 64 AA    call $AA46
 AA45: C9          ret
 AA46: DD 66 61    ld   h,(ix+$07)
 AA49: DD 6E 80    ld   l,(ix+$08)
-AA4C: 3A 20 0E    ld   a,($E002)
+AA4C: 3A 20 0E    ld   a,(timing_variable_e002)
 AA4F: E6 21       and  $03
 AA51: 20 70       jr   nz,$AA69
 AA53: DD 7E A1    ld   a,(ix+$0b)
@@ -14336,7 +14336,7 @@ AE89: FD 36 60 00 ld   (iy+$06),$00
 AE8D: FD 36 A0 00 ld   (iy+$0a),$00
 AE91: CD 60 89    call $8906
 AE94: C9          ret
-AE95: 3A 20 0E    ld   a,($E002)
+AE95: 3A 20 0E    ld   a,(timing_variable_e002)
 AE98: E6 01       and  $01
 AE9A: CA 23 EB    jp   z,$AF23
 AE9D: CD 4F EA    call $AEE5
@@ -14415,7 +14415,7 @@ AF20: 10 FD       djnz $AF01
 AF22: C9          ret
 AF23: 16 C0       ld   d,$0C
 AF25: C3 92 00    jp   $0038
-AF28: DD 21 00 2E ld   ix,$E200
+AF28: DD 21 00 2E ld   ix,player_bullets_e200
 AF2C: 0E 60       ld   c,$06
 AF2E: D9          exx
 AF2F: 01 02 00    ld   bc,$0020
