@@ -904,6 +904,11 @@ jump_0030:
 04E5: 32 65 0E    ld   ($E047),a
 04E8: C3 DE 41    jp   $05FC
 
+04EB: 21 65 0E    ld   hl,$E047
+04EE: 35          dec  (hl)
+04EF: C0          ret  nz
+04F0: CD 81 60    call $0609
+04F3: AF          xor  a
 04F4: 32 01 0E    ld   ($E001),a
 04F7: C9          ret
 04F8: FD 21 92 FF ld   iy,$FF38
@@ -1681,7 +1686,7 @@ jump_0030:
 0B9E: C3 A9 A1    jp   $0B8B
 
 
-0CEC: 41          ld   b,c
+0CEB: 16 41       ld   d,$05
 0CED: 1E 10       ld   e,$10
 0CEF: FF          rst  $38
 0CF0: 21 4A CF    ld   hl,$EDA4
@@ -1976,7 +1981,8 @@ jump_0030:
 	dc.w	$1046	; $1044
 
 
-104B: 30 6E       jr   nc,$1033
+1046: CD 94 31    call $1358
+1049: DD CB 30 6E set  4,(ix+$12)
 104D: 3A 20 0E    ld   a,(timing_variable_e002)
 1050: 0F          rrca
 1051: 0F          rrca
@@ -2444,8 +2450,7 @@ jump_0030:
 	dc.w	$1556	; $1451
 	dc.w	$143e	; $1453
 
-1456: 7E          ld   a,(hl)
-1457: 51          ld   d,c
+1455: DD 7E 51    ld   a,(ix+$15)
 1458: FE 80       cp   $08
 145A: CC 96 50    call z,$1478
 145D: CD 19 51    call $1591
@@ -2597,8 +2602,11 @@ jump_0030:
 	dc.w	$1633	; $15eb
 	dc.w	$163e	; $15ed
 
-
-15FB: 51          ld   d,c
+15EF: 3E 01       ld   a,$01
+15F1: 32 58 0E    ld   ($E094),a
+15F4: DD 36 51 01 ld   (ix+$15),$01
+15F8: C9          ret
+15F9: CD 8D 51    call $15C9
 15FC: DD 77 E1    ld   (ix+$0f),a
 15FF: C9          ret
 1600: DD 36 31 01 ld   (ix+$13),$01
@@ -3115,22 +3123,10 @@ jump_0030:
 1B96: 11 F9 B1    ld   de,$1B9F
 1B99: CD 88 A3    call $2B88
 1B9C: C3 88 A3    jp   $2B88
-1B9F: 40          ld   b,b
-1BA0: 14          inc  d
-1BA1: 00          nop
-1BA2: 7A          ld   a,d
-1BA3: 01 EA 20    ld   bc,$02AE
-1BA6: 6A          ld   l,d
-1BA7: 30 6B       jr   nc,$1B50
-1BA9: 40          ld   b,b
-1BAA: 94          sub  h
-1BAB: 12          ld   (de),a
-1BAC: 7A          ld   a,d
-1BAD: 13          inc  de
-1BAE: EA 32 6A    jp   pe,$A632
-1BB1: 22 6B 21    ld   ($03A7),hl
-1BB4: 55          ld   d,l
-1BB5: 0E 34       ld   c,$52
+
+
+1BB3: 21 55 0E    ld   hl,$E055
+1BB6: 34          inc  (hl)
 1BB7: CD C9 B2    call $3A8D
 1BBA: 3A D8 0E    ld   a,($E09C)
 1BBD: A7          and  a
@@ -3515,8 +3511,7 @@ jump_0030:
 1F17: DD 36 51 10 ld   (ix+$15),$10
 1F1B: C9          ret
 
-1F49: 4E          ld   c,(hl)
-1F4A: 80          add  a,b
+1F48: DD 4E 80    ld   c,(ix+$08)
 1F4B: DD 66 21    ld   h,(ix+$03)
 1F4E: DD 6E 41    ld   l,(ix+$05)
 1F51: 11 50 FE    ld   de,$FE14
@@ -5445,22 +5440,8 @@ jump_0030:
 3007: 11 10 12    ld   de,$3010
 300A: CD 88 A3    call $2B88
 300D: C3 88 A3    jp   $2B88
-3010: 40          ld   b,b
-3011: 06 11       ld   b,$11
-3013: 25          dec  h
-3014: 03          inc  bc
-3015: 44          ld   b,h
-3016: 10 45       djnz $305D
-3018: 02          ld   (bc),a
-3019: E4 40 86    call po,$6804
-301C: 0F          rrca
-301D: 25          dec  h
-301E: 1D          dec  e
-301F: 44          ld   b,h
-3020: 0E 45       ld   c,$45
-3022: 1C          inc  e
-3023: E4 3A B0    call po,$1AB2
-3026: 0F          rrca
+
+3024: 3A B0 0F    ld   a,($E11A)
 3027: A7          and  a
 3028: C2 6B B2    jp   nz,$3AA7
 302B: 3A D8 0E    ld   a,($E09C)
@@ -5621,40 +5602,9 @@ jump_0030:
 3143: 11 C4 13    ld   de,$314C
 3146: CD 88 A3    call $2B88
 3149: C3 88 A3    jp   $2B88
-314C: C0          ret  nz
-314D: 86          add  a,(hl)
-314E: 11 25 01    ld   de,$0143
-3151: 44          ld   b,h
-3152: 10 45       djnz $3199
-3154: 00          nop
-3155: E4 51 25    call po,$4315
-3158: 41          ld   b,c
-3159: 44          ld   b,h
-315A: 50          ld   d,b
-315B: 45          ld   b,l
-315C: 40          ld   b,b
-315D: E4 D1 25    call po,$431D
-3160: C1          pop  bc
-3161: 44          ld   b,h
-3162: D0          ret  nc
-3163: 45          ld   b,l
-3164: C0          ret  nz
-3165: E4 80 06    call po,$6008
-3168: 05          dec  b
-3169: 25          dec  h
-316A: 15          dec  d
-316B: 44          ld   b,h
-316C: 04          inc  b
-316D: 45          ld   b,l
-316E: 14          inc  d
-316F: E4 45 25    call po,$4345
-3172: 55          ld   d,l
-3173: 44          ld   b,h
-3174: 44          ld   b,h
-3175: 45          ld   b,l
-3176: 54          ld   d,h
-3177: E4 21 55    call po,$5503
-317A: 0E 34       ld   c,$52
+
+3178: 21 55 0E    ld   hl,$E055
+317B: 34          inc  (hl)
 317C: CD C9 B2    call $3A8D
 317F: CD 5E 13    call $31F4
 3182: 11 6B 32    ld   de,$32A7
@@ -5778,21 +5728,9 @@ jump_0030:
 32A2: C0          ret  nz
 32A3: DD 34 50    inc  (ix+$14)
 32A6: C9          ret
-32A7: 01 98 00    ld   bc,$0098
-32AA: 75          ld   (hl),l
-32AB: 20 98       jr   nz,$3245
-32AD: 01 74 00    ld   bc,$0056
-32B0: F4 01 98    call p,$9801
-32B3: 00          nop
-32B4: F4 01 18    call p,$9001
-32B7: 00          nop
-32B8: 75          ld   (hl),l
-32B9: 20 18       jr   nz,$324B
-32BB: 01 74 00    ld   bc,$0056
-32BE: F4 01 18    call p,$9001
-32C1: 00          nop
-32C2: F4 21 55    call p,$5503
-32C5: 0E 34       ld   c,$52
+
+32C3: 21 55 0E    ld   hl,$E055
+32C6: 34          inc  (hl)
 32C7: CD C9 B2    call $3A8D
 32CA: DD 7E 41    ld   a,(ix+$05)
 32CD: A7          and  a
@@ -7640,6 +7578,7 @@ jump_0030:
 	dc.w	$6cca	; $6cbc
 	dc.w	$6cd6	; $6cbe
 
+6CC0: 50          ld   d,b
 6CC1: 59          ld   e,c
 6CC2: 01 00 00    ld   bc,$0000
 6CC5: C9          ret
@@ -9396,14 +9335,10 @@ jump_0030:
 90F0: DD 36 51 60 ld   (ix+$15),$06
 90F4: CD 15 68    call $8651
 90F7: C9          ret
-90F8: 08          ex   af,af'
-90F9: 04          inc  b
-90FA: 02          ld   (bc),a
-90FB: 10 80       djnz $9105
-90FD: 40          ld   b,b
-90FE: 20 01       jr   nz,$9101
-9100: CD 26 38    call $9262
-9103: DD 21 04 0F ld   ix,$E140
+
+90FF: 01 CD 26    ld   bc,$62CD
+9102: 38 DD       jr   c,$90E1
+9104: 21 04 0F    ld   hl,$E140
 9107: FD 21 44 FF ld   iy,$FF44
 910B: DD 7E 00    ld   a,(ix+$00)
 910E: A7          and  a
@@ -12970,19 +12905,8 @@ AE17: 23          inc  hl
 AE18: DD 77 F0    ld   (ix+$1e),a
 AE1B: 0E 04       ld   c,$40
 AE1D: C3 2C C9    jp   $8DC2
-AE20: E3          ex   (sp),hl
-AE21: EA C2 EA    jp   pe,$AE2C
-AE24: E3          ex   (sp),hl
-AE25: EA C2 EA    jp   pe,$AE2C
-AE28: 20 45       jr   nz,$AE6F
-AE2A: 64          ld   h,h
-AE2B: E5          push hl
-AE2C: 00          nop
-AE2D: 64          ld   h,h
-AE2E: E5          push hl
-AE2F: 00          nop
-AE30: 65          ld   h,l
-AE31: E5          push hl
+
+
 AE32: DD 7E 51    ld   a,(ix+$15)
 AE35: 0F          rrca
 AE36: 0F          rrca
