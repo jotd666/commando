@@ -1,3 +1,5 @@
+- test.asm: problems
+
 - set DSW difficulty lives, etc.
 - cheat add 10000 to score 
 - highscore load/save

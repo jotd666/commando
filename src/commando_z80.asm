@@ -4249,28 +4249,7 @@ jump_0030:
 250C: E7          rst  $20                   ; call RETURN_BYTE_AT_HL_PLUS_A
 250D: 5F          ld   e,a
 250E: C3 9C D0    jp   $1CD8
-2511: 79          ld   a,c
-2512: 79          ld   a,c
-2513: 79          ld   a,c
-2514: 79          ld   a,c
-2515: 28 F9       jr   z,$24B6
-2517: F9          ld   sp,hl
-2518: F9          ld   sp,hl
-2519: 08          ex   af,af'
-251A: 09          add  hl,bc
-251B: 28 09       jr   z,$249E
-251D: 08          ex   af,af'
-251E: FE FE       cp   $FE
-2520: FE FE       cp   $FE
-2522: A8          xor  b
-2523: DF          rst  $18
-2524: DF          rst  $18
-2525: DF          rst  $18
-2526: 88          adc  a,b
-2527: 89          adc  a,c
-2528: A8          xor  b
-2529: 89          adc  a,c
-252A: 88          adc  a,b
+
 252B: DD 35 51    dec  (ix+$15)
 252E: 28 F0       jr   z,$254E
 2530: CD F5 43    call $255F
@@ -4285,12 +4264,7 @@ jump_0030:
 2540: 5F          ld   e,a
 2541: 16 10       ld   d,$10
 2543: C3 9C D0    jp   $1CD8
-2546: 5A          ld   e,d
-2547: 3B          dec  sp
-2548: 3B          dec  sp
-2549: 3A 3A 3B    ld   a,($B3B2)
-254C: 3B          dec  sp
-254D: 5A          ld   e,d
+
 254E: DD 36 00 00 ld   (ix+$00),$00
 2552: DD 66 21    ld   h,(ix+$03)
 2555: DD 6E 41    ld   l,(ix+$05)
@@ -6544,96 +6518,7 @@ jump_0030:
 3917: DD 86 41    add  a,(ix+$05)
 391A: DD 77 41    ld   (ix+$05),a
 391D: C9          ret
-391E: 12          ld   (de),a
-391F: 93          sub  e
-3920: D2 93 84    jp   nc,$4839
-3923: 93          sub  e
-3924: 84          add  a,h
-3925: 93          sub  e
-3926: 28 93       jr   z,$3961
-3928: 28 93       jr   z,$3963
-392A: F4 93 F4    call p,$5E39
-392D: 93          sub  e
-392E: 84          add  a,h
-392F: 93          sub  e
-3930: 9E          sbc  a,(hl)
-3931: 9E          sbc  a,(hl)
-3932: 40          ld   b,b
-3933: 16 01       ld   d,$01
-3935: 08          ex   af,af'
-3936: 11 09 00    ld   de,$0081
-3939: 88          adc  a,b
-393A: 10 89       djnz $38C5
-393C: 9E          sbc  a,(hl)
-393D: 9E          sbc  a,(hl)
-393E: 40          ld   b,b
-393F: 16 01       ld   d,$01
-3941: 28 11       jr   z,$3954
-3943: 29          add  hl,hl
-3944: 00          nop
-3945: A8          xor  b
-3946: 10 A9       djnz $38D3
-3948: 00          nop
-3949: 00          nop
-394A: 81          add  a,c
-394B: 16 1F       ld   d,$F1
-394D: 08          ex   af,af'
-394E: 01 8C 11    ld   bc,$11C8
-3951: 09          add  hl,bc
-3952: 1E 0C       ld   e,$C0
-3954: 00          nop
-3955: 0D          dec  c
-3956: 10 2C       djnz $391A
-3958: FF          rst  $38
-3959: 88          adc  a,b
-395A: E1          pop  hl
-395B: 8D          adc  a,l
-395C: F1          pop  af
-395D: 89          adc  a,c
-395E: C0          ret  nz
-395F: 16 3E       ld   d,$F2
-3961: C8          ret  z
-3962: 20 C9       jr   nz,$38F1
-3964: 30 E8       jr   nc,$38F4
-3966: 22 E9 1F    ld   ($F18F),hl
-3969: 58          ld   e,b
-396A: 01 59 11    ld   bc,$1195
-396D: 78          ld   a,b
-396E: 03          inc  bc
-396F: 79          ld   a,c
-3970: 1E D8       ld   e,$9C
-3972: 00          nop
-3973: D9          exx
-3974: 10 F8       djnz $3914
-3976: 02          ld   (bc),a
-3977: F9          ld   sp,hl
-3978: 40          ld   b,b
-3979: 56          ld   d,(hl)
-397A: E3          ex   (sp),hl
-397B: E9          jp   (hl)
-397C: F1          pop  af
-397D: E8          ret  pe
-397E: E1          pop  hl
-397F: C9          ret
-3980: FF          rst  $38
-3981: C8          ret  z
-3982: 00          nop
-3983: 00          nop
-3984: 81          add  a,c
-3985: 16 1F       ld   d,$F1
-3987: 18 01       jr   $398A
-3989: 9C          sbc  a,h
-398A: 11 19 1E    ld   de,$F091
-398D: 1C          inc  e
-398E: 00          nop
-398F: 1D          dec  e
-3990: 10 3C       djnz $3964
-3992: FF          rst  $38
-3993: 99          sbc  a,c
-3994: E1          pop  hl
-3995: 9D          sbc  a,l
-3996: F1          pop  af
-3997: 19          add  hl,de
+
 3998: DD 7E 50    ld   a,(ix+$14)
 399B: A7          and  a
 399C: C2 6B B2    jp   nz,$3AA7
@@ -8076,43 +7961,43 @@ jump_0030:
 8273: C3 D8 D8    jp   $9C9C
 
 
-82CF:  43 52 45 44 49 54 20 30 30 40 9F D0 06 31 55 50  CREDIT 00@...1UP
-82DF:  40 3F D3 06 32 55 50 40 9F D1 06 54 4F 50 5F 53  @?..2UP@...TOP_S
-82EF:  43 4F 52 45 40 33 D1 01 52 41 4E 4B 49 4E 47 20  CORE@3..RANKING 
-82FF:  42 45 53 54 20 37 40 A8 D0 00 53 45 4C 45 43 54  BEST 7@...SELECT
-830F:  20 31 20 4F 52 20 32 20 50 4C 41 59 45 52 53 40   1 OR 2 PLAYERS@
-831F:  4D D1 01 49 4E 53 45 52 54 20 43 4F 49 4E 40 A0  M..INSERT COIN@.
-832F:  D2 00 46 52 45 45 20 50 4C 41 59 40 EC D0 00 50  ..FREE PLAY@...P
-833F:  55 53 48 20 53 54 41 52 54 20 42 55 54 54 4F 4E  USH START BUTTON
-834F:  20 40 EA D0 00 4F 4E 45 20 4F 52 20 54 57 4F 20   @...ONE OR TWO 
-835F:  50 4C 41 59 45 52 53 40 EA D0 00 20 4F 4E 45 20  PLAYERS@... ONE 
-836F:  50 4C 41 59 45 52 20 4F 4E 4C 59 20 40 8F D1 00  PLAYER ONLY @...
-837F:  50 4C 41 59 45 52 20 31 40 8F D1 00 50 4C 41 59  PLAYER 1@...PLAY
-838F:  45 52 20 32 40 8D D1 00 20 52 45 41 44 59 20 40  ER 2@... READY @
-839F:  8D D1 00 47 41 4D 45 20 4F 56 45 52 40 EB D0 00  ...GAME OVER@...
-83AF:  31 53 54 20 42 4F 4E 55 53 20 31 30 30 30 30 20  1ST BONUS 10000 
-83BF:  50 54 53 40 E9 D0 00 41 4E 44 20 45 56 45 52 59  PTS@...AND EVERY
-83CF:  20 31 30 30 30 30 30 20 50 54 53 40 E9 D0 00 41   100000 PTS@...A
-83DF:  4E 44 20 45 56 45 52 59 20 35 30 30 30 30 20 50  ND EVERY 50000 P
-83EF:  54 53 40 A3 D1 05 43 41 50 43 4F 4D 40 22 D1 05  TS@...CAPCOM@"..
-83FF:  43 4F 50 59 52 49 47 48 54 20 31 39 38 35 40 C1  COPYRIGHT 1985@.
-840F:  D0 05 41 4C 4C 20 52 49 47 48 54 53 20 52 45 53  ..ALL RIGHTS RES
-841F:  45 52 56 45 44 40 F5 D1 00 50 4C 41 59 45 52 20  ERVED@...PLAYER 
-842F:  40 4D D1 02 49 4E 53 45 52 54 20 43 4F 49 4E 40  @M..INSERT COIN@
-843F:  B1 D0 00 31 53 54 40 AF D0 00 32 4E 44 40 AD D0  ...1ST@...2ND@..
-844F:  00 33 52 44 40 AB D0 00 34 54 48 40 A9 D0 00 35  .3RD@...4TH@...5
-845F:  54 48 40 A7 D0 00 36 54 48 40 A5 D0 00 37 54 48  TH@...6TH@...7TH
-846F:  40 E6 D2 40 67 68 69 40 E5 D2 40 77 78 79 40 00  @..@ghi@..@wxy@.
-847F:  D0 00 40 7C D0 01 54 49 4D 45 52 20 20 20 40 79  ..@|..TIMER   @y
-848F:  D1 05 2E 2E 2E 2E 2E 2E 2E 2E 2E 2E 7E 40 00 D0  ............~@..
-849F:  00 40 88 D0 40 6A 6B 6C 6D 6E 6F 40 87 D0 40 7A  .@..@jklmno@..@z
-84AF:  7B 7C 7D 7E 7F 40 40 96 D0 00 20 20 20 20 20 43  {|}~.@@...     C
-84BF:  4F 4E 47 52 41 54 55 4C 41 54 49 4F 4E 40 94 D0  ONGRATULATION@..
-84CF:  00 59 4F 55 52 20 46 49 52 53 54 20 44 55 54 59  .YOUR FIRST DUTY
-84DF:  20 46 49 4E 49 53 48 45 44 40 96 D0 00 20 20 20   FINISHED@...   
-84EF:  20 20 43 4F 4E 47 52 41 54 55 4C 41 54 49 4F 4E    CONGRATULATION
-84FF:  40 94 D0 00 59 4F 55 52 20 45 56 45 52 59 20 44  @...YOUR EVERY D
-850F:  55 54 59 20 46 49 4E 49 53 48 45 44 40 B2 00 E0  UTY FINISHED@...
+82CF:  43 52 45 44 49 54 20 30 30 40 9F D0 06 31 55 50  ;CREDIT 00@...1UP
+82DF:  40 3F D3 06 32 55 50 40 9F D1 06 54 4F 50 5F 53  ;@?..2UP@...TOP_S
+82EF:  43 4F 52 45 40 33 D1 01 52 41 4E 4B 49 4E 47 20  ;CORE@3..RANKING 
+82FF:  42 45 53 54 20 37 40 A8 D0 00 53 45 4C 45 43 54  ;BEST 7@...SELECT
+830F:  20 31 20 4F 52 20 32 20 50 4C 41 59 45 52 53 40  ; 1 OR 2 PLAYERS@
+831F:  4D D1 01 49 4E 53 45 52 54 20 43 4F 49 4E 40 A0  ;M..INSERT COIN@.
+832F:  D2 00 46 52 45 45 20 50 4C 41 59 40 EC D0 00 50  ;..FREE PLAY@...P
+833F:  55 53 48 20 53 54 41 52 54 20 42 55 54 54 4F 4E  ;USH START BUTTON
+834F:  20 40 EA D0 00 4F 4E 45 20 4F 52 20 54 57 4F 20  ; @...ONE OR TWO 
+835F:  50 4C 41 59 45 52 53 40 EA D0 00 20 4F 4E 45 20  ;PLAYERS@... ONE 
+836F:  50 4C 41 59 45 52 20 4F 4E 4C 59 20 40 8F D1 00  ;PLAYER ONLY @...
+837F:  50 4C 41 59 45 52 20 31 40 8F D1 00 50 4C 41 59  ;PLAYER 1@...PLAY
+838F:  45 52 20 32 40 8D D1 00 20 52 45 41 44 59 20 40  ;ER 2@... READY @
+839F:  8D D1 00 47 41 4D 45 20 4F 56 45 52 40 EB D0 00  ;...GAME OVER@...
+83AF:  31 53 54 20 42 4F 4E 55 53 20 31 30 30 30 30 20  ;1ST BONUS 10000 
+83BF:  50 54 53 40 E9 D0 00 41 4E 44 20 45 56 45 52 59  ;PTS@...AND EVERY
+83CF:  20 31 30 30 30 30 30 20 50 54 53 40 E9 D0 00 41  ; 100000 PTS@...A
+83DF:  4E 44 20 45 56 45 52 59 20 35 30 30 30 30 20 50  ;ND EVERY 50000 P
+83EF:  54 53 40 A3 D1 05 43 41 50 43 4F 4D 40 22 D1 05  ;TS@...CAPCOM@"..
+83FF:  43 4F 50 59 52 49 47 48 54 20 31 39 38 35 40 C1  ;COPYRIGHT 1985@.
+840F:  D0 05 41 4C 4C 20 52 49 47 48 54 53 20 52 45 53  ;..ALL RIGHTS RES
+841F:  45 52 56 45 44 40 F5 D1 00 50 4C 41 59 45 52 20  ;ERVED@...PLAYER 
+842F:  40 4D D1 02 49 4E 53 45 52 54 20 43 4F 49 4E 40  ;@M..INSERT COIN@
+843F:  B1 D0 00 31 53 54 40 AF D0 00 32 4E 44 40 AD D0  ;...1ST@...2ND@..
+844F:  00 33 52 44 40 AB D0 00 34 54 48 40 A9 D0 00 35  ;.3RD@...4TH@...5
+845F:  54 48 40 A7 D0 00 36 54 48 40 A5 D0 00 37 54 48  ;TH@...6TH@...7TH
+846F:  40 E6 D2 40 67 68 69 40 E5 D2 40 77 78 79 40 00  ;@..@ghi@..@wxy@.
+847F:  D0 00 40 7C D0 01 54 49 4D 45 52 20 20 20 40 79  ;..@|..TIMER   @y
+848F:  D1 05 2E 2E 2E 2E 2E 2E 2E 2E 2E 2E 7E 40 00 D0  ;............~@..
+849F:  00 40 88 D0 40 6A 6B 6C 6D 6E 6F 40 87 D0 40 7A  ;.@..@jklmno@..@z
+84AF:  7B 7C 7D 7E 7F 40 40 96 D0 00 20 20 20 20 20 43  ;{|}~.@@...     C
+84BF:  4F 4E 47 52 41 54 55 4C 41 54 49 4F 4E 40 94 D0  ;ONGRATULATION@..
+84CF:  00 59 4F 55 52 20 46 49 52 53 54 20 44 55 54 59  ;.YOUR FIRST DUTY
+84DF:  20 46 49 4E 49 53 48 45 44 40 96 D0 00 20 20 20  ; FINISHED@...   
+84EF:  20 20 43 4F 4E 47 52 41 54 55 4C 41 54 49 4F 4E  ;  CONGRATULATION
+84FF:  40 94 D0 00 59 4F 55 52 20 45 56 45 52 59 20 44  ;@...YOUR EVERY D
+850F:  55 54 59 20 46 49 4E 49 53 48 45 44 40 B2 00 E0  ;UTY FINISHED@...
 
 851C: 3A 00 0E    ld   a,($E000)
 851F: 3D          dec  a
@@ -12583,130 +12468,7 @@ AB2A: 21 52 AB    ld   hl,$AB34
 AB2D: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 AB2E: CD 88 A3    call $2B88
 AB31: C3 88 A3    jp   $2B88
-AB34: B2          or   d
-AB35: AB          xor  e
-AB36: A6          and  (hl)
-AB37: AB          xor  e
-AB38: B8          cp   b
-AB39: AB          xor  e
-AB3A: A1          and  c
-AB3B: 18 1E       jr   $AB2D
-AB3D: 6F          ld   l,a
-AB3E: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
-AB3F: EE FF       xor  $FF
-AB41: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
-AB42: EE 4E       xor  $E4
-AB44: FE 4F       cp   $E5
-AB46: CF          rst  $08
-AB47: CE DF       adc  a,$FD
-AB49: CF          rst  $08
-AB4A: CE 5E       adc  a,$F4
-AB4C: DE 5F       sbc  a,$F5
-AB4E: AF          xor  a
-AB4F: DE BF       sbc  a,$FB
-AB51: DF          rst  $18
-AB52: A1          and  c
-AB53: 98          sbc  a,b
-AB54: 00          nop
-AB55: 6F          ld   l,a
-AB56: F1          pop  af
-AB57: EE E1       xor  $0F
-AB59: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
-AB5A: F0          ret  p
-AB5B: 4E          ld   c,(hl)
-AB5C: E0          ret  po
-AB5D: 4F          ld   c,a
-AB5E: D1          pop  de
-AB5F: CE C1       adc  a,$0D
-AB61: CF          rst  $08
-AB62: D0          ret  nc
-AB63: 5E          ld   e,(hl)
-AB64: C0          ret  nz
-AB65: 5F          ld   e,a
-AB66: B1          or   c
-AB67: DE A1       sbc  a,$0B
-AB69: DF          rst  $18
-AB6A: A1          and  c
-AB6B: 18 1E       jr   $AB5D
-AB6D: 6E          ld   l,(hl)
-AB6E: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
-AB6F: 2E FF       ld   l,$FF
-AB71: 2F          cpl
-AB72: EE AE       xor  $EA
-AB74: FE AF       cp   $EB
-AB76: CF          rst  $08
-AB77: 3E DF       ld   a,$FD
-AB79: 3F          ccf
-AB7A: CE BE       adc  a,$FA
-AB7C: DE BF       sbc  a,$FB
-AB7E: CF          rst  $08
-AB7F: FF          rst  $38
-AB80: CF          rst  $08
-AB81: FF          rst  $38
-AB82: A1          and  c
-AB83: 98          sbc  a,b
-AB84: 00          nop
-AB85: 6E          ld   l,(hl)
-AB86: F1          pop  af
-AB87: 2E E1       ld   l,$0F
-AB89: 2F          cpl
-AB8A: F0          ret  p
-AB8B: AE          xor  (hl)
-AB8C: E0          ret  po
-AB8D: AF          xor  a
-AB8E: D1          pop  de
-AB8F: 3E C1       ld   a,$0D
-AB91: 3F          ccf
-AB92: D0          ret  nc
-AB93: BE          cp   (hl)
-AB94: C0          ret  nz
-AB95: BF          cp   a
-AB96: D1          pop  de
-AB97: FF          rst  $38
-AB98: D1          pop  de
-AB99: FF          rst  $38
-AB9A: A1          and  c
-AB9B: 18 0E       jr   $AB7D
-AB9D: 0E 1E       ld   c,$F0
-AB9F: 0F          rrca
-ABA0: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
-ABA1: 8E          adc  a,(hl)
-ABA2: FF          rst  $38
-ABA3: 8F          adc  a,a
-ABA4: EE 1E       xor  $F0
-ABA6: FE 1F       cp   $F1
-ABA8: CF          rst  $08
-ABA9: 9E          sbc  a,(hl)
-ABAA: DF          rst  $18
-ABAB: 9F          sbc  a,a
-ABAC: CF          rst  $08
-ABAD: FF          rst  $38
-ABAE: CF          rst  $08
-ABAF: FF          rst  $38
-ABB0: CF          rst  $08
-ABB1: FF          rst  $38
-ABB2: A1          and  c
-ABB3: 98          sbc  a,b
-ABB4: 10 0E       djnz $AB96
-ABB6: 00          nop
-ABB7: 0F          rrca
-ABB8: F1          pop  af
-ABB9: 8E          adc  a,(hl)
-ABBA: E1          pop  hl
-ABBB: 8F          adc  a,a
-ABBC: F0          ret  p
-ABBD: 1E E0       ld   e,$0E
-ABBF: 1F          rra
-ABC0: D1          pop  de
-ABC1: 9E          sbc  a,(hl)
-ABC2: C1          pop  bc
-ABC3: 9F          sbc  a,a
-ABC4: D1          pop  de
-ABC5: FF          rst  $38
-ABC6: D1          pop  de
-ABC7: FF          rst  $38
-ABC8: D1          pop  de
-ABC9: FF          rst  $38
+
 ABCA: DD 21 06 0F ld   ix,$E160
 ABCE: CD 62 CB    call $AD26
 ABD1: DD 7E 00    ld   a,(ix+$00)
@@ -12840,6 +12602,7 @@ AD97: DD 77 41    ld   (ix+$05),a
 AD9A: FD 36 00 EC ld   (iy+$00),$CE
 AD9E: FD 36 01 00 ld   (iy+$01),$00
 ADA2: C9          ret
+
 ADA3: DD 7E 51    ld   a,(ix+$15)
 ADA6: 0F          rrca
 ADA7: 0F          rrca
