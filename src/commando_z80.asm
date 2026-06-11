@@ -5,6 +5,8 @@
 ; Tools used: MAME debugger & Visual Studio Code text editor.
 ; Date: 23 Feb 2020. Keep checking for updates. 
 ; 
+; Fake instructions cleanup, jump table discovery, entrypoints restorations by JOTD
+;
 ; Please send any questions, corrections and updates to scott.tunstall@ntlworld.com
 ;
 ; Be sure to check out my reverse engineering work for Robotron 2084, Galaxian and Scramble too, 
@@ -3386,21 +3388,7 @@ jump_0030:
 1FAE: DD 77 41    ld   (ix+$05),a
 1FB1: CD 24 68    call $8642
 1FB4: C9          ret
-1FB5: BE          cp   (hl)
-1FB6: 81          add  a,c
-1FB7: BE          cp   (hl)
-1FB8: 80          add  a,b
-1FB9: BE          cp   (hl)
-1FBA: 61          ld   h,c
-1FBB: DE 60       sbc  a,$06
-1FBD: 40          ld   b,b
-1FBE: 60          ld   h,b
-1FBF: 60          ld   h,b
-1FC0: 61          ld   h,c
-1FC1: 60          ld   h,b
-1FC2: 80          add  a,b
-1FC3: 60          ld   h,b
-1FC4: 81          add  a,c
+
 1FC5: CD 01 02    call $2001
 1FC8: 0E 80       ld   c,$08
 1FCA: DD 7E 20    ld   a,(ix+$02)
@@ -3568,7 +3556,7 @@ jump_0030:
 213A: 80          add  a,b
 213B: 18 1F       jr   $212E
 
-;218A: ???
+218A: DD 7E 40    ld   a,(ix+$04)
 218D: A7          and  a
 218E: C0          ret  nz
 218F: 3A 20 0E    ld   a,(timing_variable_e002)
@@ -3631,48 +3619,7 @@ jump_0030:
 21F1: DD 36 71 80 ld   (ix+$17),$08
 21F5: 21 10 22    ld   hl,$2210
 21F8: C3 43 22    jp   $2225
-21FB: 60          ld   h,b
-21FC: 7E          ld   a,(hl)
-21FD: BB          cp   e
-21FE: 81          add  a,c
-21FF: 7E          ld   a,(hl)
-2200: BB          cp   e
-2201: 81          add  a,c
-2202: 7E          ld   a,(hl)
-2203: BB          cp   e
-2204: C0          ret  nz
-2205: BF          cp   a
-2206: BA          cp   d
-2207: C0          ret  nz
-2208: BF          cp   a
-2209: BA          cp   d
-220A: A0          and  b
-220B: 41          ld   b,c
-220C: 9A          sbc  a,d
-220D: A0          and  b
-220E: 41          ld   b,c
-220F: 9A          sbc  a,d
-2210: BE          cp   (hl)
-2211: 7E          ld   a,(hl)
-2212: BB          cp   e
-2213: 7F          ld   a,a
-2214: 7E          ld   a,(hl)
-2215: BB          cp   e
-2216: 7F          ld   a,a
-2217: 7E          ld   a,(hl)
-2218: BB          cp   e
-2219: 5E          ld   e,(hl)
-221A: BF          cp   a
-221B: BA          cp   d
-221C: 5E          ld   e,(hl)
-221D: BF          cp   a
-221E: BA          cp   d
-221F: 7E          ld   a,(hl)
-2220: 41          ld   b,c
-2221: 9A          sbc  a,d
-2222: 7E          ld   a,(hl)
-2223: 41          ld   b,c
-2224: 9A          sbc  a,d
+
 2225: DD E5       push ix
 2227: 11 6A 22    ld   de,$22A6
 222A: D5          push de
@@ -5738,9 +5685,7 @@ jump_0030:
 37E6: 5F          ld   e,a
 37E7: 16 00       ld   d,$00
 37E9: C3 9C D0    jp   $1CD8
-37EC: DA DA BB    jp   c,$BBBC
-37EF: 9B          sbc  a,e
-37F0: 9A          sbc  a,d
+
 37F1: CD F8 72    call $369E
 37F4: 1E FA       ld   e,$BE
 37F6: 16 00       ld   d,$00
@@ -6355,7 +6300,7 @@ jump_0030:
 6D49: 90          sub  b
 6D4A: C9          ret
 
-;6D63: ???
+6D63: 7E          ld   a,(hl)
 6D64: DD 96 41    sub  (ix+$05)
 6D67: CB 19       rr   c
 6D69: 3E 04       ld   a,$40
@@ -7762,8 +7707,7 @@ jump_0030:
 8ED0: FD 77 00    ld   (iy+$00),a
 8ED3: C3 0C E9    jp   $8FC0
 
-8ED6: 
-    DA 9B 9A DD    
+  
 
 
 8ED9: DD 35 51    dec  (ix+$15)
