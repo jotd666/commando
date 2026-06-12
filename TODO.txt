@@ -1,5 +1,8 @@
 - test.asm: problems
-
+- HL still unresolved
+- after a move.w  (a0),d6 we should MAKE_H, as MAKE_HL_NO_AR would trash
+  the value
+- after dec/inc HL, we have to MAKE_H too
 - set DSW difficulty lives, etc.
 - cheat add 10000 to score 
 - highscore load/save

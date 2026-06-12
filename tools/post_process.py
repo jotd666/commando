@@ -5,12 +5,14 @@ gamename = "commando"
 # game_specific: replace or remove I/O addresses
 # if not done it will write in ROM here!!
 input_dict = {
-"dip_switches_7800":"read_dipswitches",
-"sound_6000":"",
-"sound_6800":"",
-"video_register_5000":"write_5000",
-"scroll_register_5800":"set_scroll_value"
+#"dip_switches_7800":"read_dipswitches",
+"sound_c800":"sound_start",
 
+"background_scroll_x_c808":"set_background_scroll_x_lsb",
+"background_scroll_x_c809":"set_background_scroll_x_msb",
+"background_scroll_y_c80a":"set_background_scroll_y_lsb",
+"background_scroll_y_c80b":"set_background_scroll_y_msb",
+"sound_and_screen_orientation_c804":"",
 }
 
 store_to_video = re.compile("GET_ADDRESS\s+(0xd\w\w\w|video_ram_d)",flags=re.I)   # game_specific
@@ -157,6 +159,11 @@ this_dir = pathlib.Path(__file__).absolute().parent
 
 source_dir = this_dir / "../src"
 
+add_a_to_hl = """\tMAKE_HL_NO_AR
+\tand.w #0xFF,d0
+\tadd.w\td0,d6
+\tMAKE_H
+"""
 
 # various dirty but at least automatic patches applying on the converted code
 with open(source_dir / "conv.s") as f:
@@ -238,8 +245,39 @@ with open(source_dir / "conv.s") as f:
         ###############################################
         # game_specific
 
-        if address == 0x004a:
+        if "replace by EXG_A_A_PRIME" in line:
+            # no need to swap F with F', ever in this game
+            lines[i-1] = "* just swap A/A'\n"+change_instruction("EXG_A_A_PRIME",lines,i-1)
+            line = remove_error(line)
+
+        if address == 0x0018:
+            # replace routine altogether
+            line = add_a_to_hl+"\trts"
+            kill_code(lines,i+1,0x1D)
+        elif address == 0x0020:
+            # replace routine altogether
+            line = add_a_to_hl
+            kill_code(lines,i+1,0x24)
+        elif address == 0x0030:
+            # jump table
+            line = """\tmove.l\t(a7)+,a0   | get table address (just after rst instruction)
+\tand.w\t#0xFF,d0      | needed?
+\tadd.w\td0,d0
+\tadd.w\td0,d0       | times 4
+\tmove.l\t(a0,d0.w),a0
+\tjmp\t(a0)
+"""
+            kill_code(lines,i+1,0x33)
+        elif address == 0x004a:
+            lines[i-1] = remove_error(lines[i-1])
             line = remove_instruction(lines,i)
+        elif address == 0x0a94:
+            # useless test, we test d6.w afterwards
+            lines[i-1] = ""  # no need for MAKE_H
+            line = remove_instruction(lines,i)
+            lines[i+1] = remove_instruction(lines,i+1)
+        elif address == 0x0a99:
+            lines[i+1] = remove_error(lines[i+1])  # flags are consistent
 
         elif address == 0x92f4:
             line = change_instruction("moveq\t#1,d7",lines,i)+"\tCLR_XC_FLAGS\n"
@@ -260,7 +298,7 @@ with open(source_dir / "conv.s") as f:
         # end game_specific
         ###############################################
         if "GET_ADDRESS" in line:
-            val = line.split()[1]
+            val = line.split()[1].split(",")[0]
             osd_call = input_dict.get(val)
             if osd_call is not None:
 

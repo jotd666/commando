@@ -231,7 +231,12 @@ hi_score_7th_ee4e    = $ee4e
 
 timing_variable_e002 = $e002
 port_state_c000_in0_e003 = $e003
-
+sound_and_screen_orientation_c804 = $c804
+background_scroll_x_c808 = $c808
+background_scroll_x_c809 = $c809
+background_scroll_y_c80a = $c80a
+background_scroll_y_c80b = $c80b
+background_scroll_x_shadow_e05b = $e05b
 
 ; PORT_STATE_C001_IN1_e004 holds the state of IN1 after a bit flip (2's complement) - see $0328
 ; Bit 0: player moving RIGHT
@@ -252,6 +257,7 @@ port_state_c001_bit2_bits_e00a = $e00a
 port_state_c001_bit3_bits_e00b = $e00b
 port_state_c001_bit4_bits_e00c = $e00c
 port_state_c001_bit5_bits_e00d = $e00d
+sound_c800 = $c800
 
 ; set to 1 if dip switches report an upright cabinet 
 is_cabinet_upright_e025 = $e025
@@ -269,6 +275,12 @@ is_screen_yflipped_e039 = $e039
 
 player_bullets_e200 = $e200
 
+num_grenades_eda8 = $eda8
+  ; the hi score seen on screen
+hi_score_ee97     = $ee97
+port_1_c001 = $c001
+port_2_c002 = $c002
+system_c000 = $c000
 ;
 ;struct PLAYER_BULLET
 ;{
@@ -308,12 +320,6 @@ player_bullets_e200 = $e200
 
 
 
-num_grenades_eda8 = $eda8
-  ; the hi score seen on screen
-hi_score_ee97     = $ee97
-port_1_c001 = $c001
-port_2_c002 = $c002
-system_c000 = $c000
 ;
 ; Hardware sprite structure
 ;
@@ -339,7 +345,7 @@ system_c000 = $c000
 boot_0000:   ; [global]
 0000: 3E 40       ld   a,$04
 0002: 32 00 0E    ld   ($E000),a
-0005: C3 A4 00    jp   $004A
+0005: C3 A4 00    jp   startup_004a
 0008: C9          ret
 
 0010: F3          di
@@ -380,7 +386,6 @@ return_byte_at_hl_plus_a_0020:
 0025: 7E          ld   a,(hl)
 0026: C9          ret
 
-0027: FF          rst  $38
 
 multiply_a_by_2_add_to_hl_load_de_from_hl_0028:
 0028: 87          add  a,a                   ; multiply a by 2
@@ -391,7 +396,6 @@ multiply_a_by_2_add_to_hl_load_de_from_hl_0028:
 002D: 23          inc  hl
 002E: C9          ret
 
-002F: FF          rst  $38
 
 jump_0030:
 0030: E1          pop  hl
@@ -414,16 +418,16 @@ jump_0030:
 0046: 22 08 CF    ld   ($ED80),hl
 0049: C9          ret
 
-
-004A: 31 00 1E    ld   sp,$F000
-004D: F3          di
+startup_004a:
+004A: 31 00 1E    ld   sp,$F000			; set stack at top
+004D: F3          di					; no interrupts
 004E: 3E 10       ld   a,$10
-0050: 32 40 8C    ld   ($C804),a
+0050: 32 40 8C    ld   (sound_and_screen_orientation_c804),a		; reset sound cpu & screen orientation
 0053: AF          xor  a
-0054: 32 80 8C    ld   ($C808),a             ; set background scroll X
-0057: 32 A1 8C    ld   ($C80B),a             ; set background scroll Y
-005A: 32 81 8C    ld   ($C809),a             ; set background scroll X
-005D: 32 A0 8C    ld   ($C80A),a             ; set background scroll Y
+0054: 32 80 8C    ld   (background_scroll_x_c808),a             ; set background scroll X
+0057: 32 A1 8C    ld   (background_scroll_y_c80b),a             ; set background scroll Y
+005A: 32 81 8C    ld   (background_scroll_x_c809),a             ; set background scroll X
+005D: 32 A0 8C    ld   (background_scroll_y_c80a),a             ; set background scroll Y
 
 ; clear all RAM
 0060: 21 00 0E    ld   hl,$E000
@@ -444,21 +448,21 @@ jump_0030:
 007D: 11 01 5C    ld   de,$D401
 0080: 36 00       ld   (hl),$00
 0082: 01 FF 21    ld   bc,$03FF
-0085: ED B0       ldir
+0085: ED B0       ldir			; [video_address]
 
 ; clear background video RAM
 0087: 21 00 9C    ld   hl,$D800
 008A: 11 01 9C    ld   de,$D801
 008D: 01 FF 21    ld   bc,$03FF
 0090: 36 9E       ld   (hl),$F8
-0092: ED B0       ldir
+0092: ED B0       ldir			; [video_address]
 
 ; clear background colour RAM
 0094: 21 00 DC    ld   hl,$DC00
 0097: 11 01 DC    ld   de,$DC01
 009A: 01 FF 21    ld   bc,$03FF
 009D: 36 00       ld   (hl),$00
-009F: ED B0       ldir
+009F: ED B0       ldir			; [video_address]
 
 ; Copy hi score to RAM
 00A1: 21 E9 01    ld   hl,vulgus_hi_score_018f              ; load HL with address of ROM_HI_SCORE_TABLE
@@ -750,14 +754,14 @@ jump_0030:
 	dc.w	$0621	; $0394
 
 0396: 3A B2 0E    ld   a,($E03A)
-0399: 32 00 8C    ld   ($C800),a
-039C: 3A B5 0E    ld   a,($E05B)
+0399: 32 00 8C    ld   (sound_c800),a
+039C: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
 039F: E6 01       and  $01
-03A1: 32 81 8C    ld   ($C809),a
+03A1: 32 81 8C    ld   (background_scroll_x_c809),a
 03A4: 3A D4 0E    ld   a,($E05C)
-03A7: 32 80 8C    ld   ($C808),a
+03A7: 32 80 8C    ld   (background_scroll_x_c808),a
 03AA: 3A B3 0E    ld   a,($E03B)
-03AD: 32 40 8C    ld   ($C804),a
+03AD: 32 40 8C    ld   (sound_and_screen_orientation_c804),a
 03B0: 32 60 8C    ld   ($C806),a
 03B3: 00          nop
 03B4: 00          nop
@@ -1311,7 +1315,7 @@ jump_0030:
 082A: 3A D4 0E    ld   a,($E05C)
 082D: A7          and  a
 082E: C0          ret  nz
-082F: 3A B5 0E    ld   a,($E05B)
+082F: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
 0832: 3C          inc  a
 0833: E6 F7       and  $7F
 0835: C8          ret  z
@@ -1429,7 +1433,7 @@ jump_0030:
 0975: 28 A1       jr   z,$0982
 0977: CD 38 6B    call $A792
 097A: 3E 01       ld   a,$01
-097C: 32 A1 8C    ld   ($C80B),a
+097C: 32 A1 8C    ld   (background_scroll_y_c80b),a
 097F: C3 18 81    jp   $0990
 0982: 21 08 20    ld   hl,$0280
 0985: 22 5B 0E    ld   ($E0B5),hl
@@ -1509,7 +1513,7 @@ jump_0030:
 0ACD: 32 65 0E    ld   ($E047),a
 0AD0: 32 0B 0E    ld   ($E0A1),a
 0AD3: 21 00 04    ld   hl,$4000
-0AD6: 3A B5 0E    ld   a,($E05B)
+0AD6: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
 0AD9: 84          add  a,h
 0ADA: E6 04       and  $40
 0ADC: 67          ld   h,a
@@ -1625,7 +1629,7 @@ jump_0030:
 0CFE: 3E 40       ld   a,$04
 0D00: 32 01 0E    ld   ($E001),a
 0D03: 3E 00       ld   a,$00
-0D05: 32 A1 8C    ld   ($C80B),a
+0D05: 32 A1 8C    ld   (background_scroll_y_c80b),a
 0D08: C9          ret
 0D09: 3A 8B CF    ld   a,($EDA9)
 0D0C: E6 21       and  $03
@@ -4144,7 +4148,7 @@ jump_0030:
 2751: 67          ld   h,a
 2752: FE FF       cp   $FF
 2754: C8          ret  z
-2755: ED 5B B5 0E ld   de,($E05B)
+2755: ED 5B B5 0E ld   de,(background_scroll_x_shadow_e05b)
 2759: 7A          ld   a,d
 275A: 53          ld   d,e
 275B: 5F          ld   e,a
@@ -6975,7 +6979,8 @@ jump_0030:
 8708: C3 71 69    jp   $8717
 870B: C9          ret
 
-870C: 21 40 8C    ld   hl,$C804
+; not reached??
+870C: 21 40 8C    ld   hl,sound_and_screen_orientation_c804
 870F: CB 96       res  2,(hl)
 8711: CB D6       set  2,(hl)
 8713: 00          nop
@@ -7962,7 +7967,6 @@ jump_0030:
 
 9100: CD 26 38    call $9262
 9103: DD 21 04 0F ld   ix,$E140
-9104: 21 04 0F    ld   hl,$E140
 9107: FD 21 44 FF ld   iy,$FF44
 910B: DD 7E 00    ld   a,(ix+$00)
 910E: A7          and  a
@@ -8403,7 +8407,7 @@ jump_0030:
 9507: DD 2A 78 0E ld   ix,($E096)
 950B: DD 66 01    ld   h,(ix+$01)
 950E: DD 6E 00    ld   l,(ix+$00)
-9511: ED 5B B5 0E ld   de,($E05B)
+9511: ED 5B B5 0E ld   de,(background_scroll_x_shadow_e05b)
 9515: 7B          ld   a,e
 9516: 5A          ld   e,d
 9517: 57          ld   d,a
@@ -8823,9 +8827,8 @@ jump_0030:
 98BB: DD 36 41 04 ld   (ix+$05),$40
 98BF: 11 4D 98    ld   de,$98C5
 98C2: C3 88 A3    jp   $2B88
-98C5: 20 00       jr   nz,$98C7
-98C7: 01 60 00    ld   bc,$0006
-98CA: E0          ret  po
+
+
 98CB: DD 21 80 0F ld   ix,$E108
 98CF: FD 21 04 FF ld   iy,$FF40
 98D3: DD 36 00 00 ld   (ix+$00),$00
@@ -9237,6 +9240,7 @@ jump_0030:
 
 9C57: CD 47 D8    call $9C65
 9C5A: 36 F7       ld   (hl),$7F
+9C5C: C9          ret
 
 9C5D: CD 47 D8    call $9C65
 9C60: DD 7E 01    ld   a,(ix+$01)
@@ -9658,7 +9662,7 @@ print_text_9c6d:
 9F40: DD 7E 00    ld   a,(ix+$00)
 9F43: CE 00       adc  a,$00
 9F45: DD 77 00    ld   (ix+$00),a
-9F48: 32 B5 0E    ld   ($E05B),a
+9F48: 32 B5 0E    ld   (background_scroll_x_shadow_e05b),a
 9F4B: 32 2B CF    ld   ($EDA3),a
 9F4E: 6F          ld   l,a
 9F4F: 7C          ld   a,h
@@ -9678,7 +9682,7 @@ print_text_9c6d:
 9F6D: 7C          ld   a,h
 9F6E: E6 BF       and  $FB
 9F70: DD 77 10    ld   (ix+$10),a
-9F73: 3A B5 0E    ld   a,($E05B)
+9F73: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
 9F76: 21 D5 1C    ld   hl,$D05D
 9F79: 0E 00       ld   c,$00
 9F7B: 3A D4 0E    ld   a,($E05C)
@@ -9727,7 +9731,7 @@ print_text_9c6d:
 9FD0: 38 70       jr   c,$9FE8
 9FD2: 36 E2       ld   (hl),$2E
 9FD4: C3 8E F9    jp   $9FE8
-9FD7: 3A B5 0E    ld   a,($E05B)
+9FD7: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
 9FDA: 32 BF 0E    ld   ($E0FB),a
 9FDD: 11 A5 0A    ld   de,$A04B
 9FE0: CB 77       bit  6,a
@@ -9832,7 +9836,7 @@ A311: 10 2F       djnz $A2F6
 A313: C9          ret
 
 A318: FD 2A F4 0E ld   iy,($E05E)
-A31C: 3A B5 0E    ld   a,($E05B)
+A31C: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
 A31F: 67          ld   h,a
 A320: 3A D4 0E    ld   a,($E05C)
 A323: 6F          ld   l,a
@@ -10161,7 +10165,7 @@ A612: DD 74 10    ld   (ix+$10),h
 A615: DD 75 11    ld   (ix+$11),l
 A618: CD B5 6A    call $A65B
 A61B: 11 00 9C    ld   de,$D800
-A61E: 3A B5 0E    ld   a,($E05B)
+A61E: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
 A621: E6 01       and  $01
 A623: 67          ld   h,a
 A624: 3A D4 0E    ld   a,($E05C)
@@ -10194,7 +10198,7 @@ A668: 7D          ld   a,l
 A669: 32 D4 0E    ld   ($E05C),a
 A66C: DD 77 01    ld   (ix+$01),a
 A66F: 7C          ld   a,h
-A670: 32 B5 0E    ld   ($E05B),a
+A670: 32 B5 0E    ld   (background_scroll_x_shadow_e05b),a
 A673: DD 77 00    ld   (ix+$00),a
 A676: 3E 00       ld   a,$00
 A678: 32 D5 0E    ld   ($E05D),a
