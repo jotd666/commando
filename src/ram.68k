@@ -1,0 +1,91 @@
+	.include	"options.inc"
+
+	.global infinite_lives_flag
+
+	.global invincible_flag
+	.global vb_ticks_count
+	.global break_at_startup_flag
+	.global log_ptr
+	.global highscore_needs_saving_flag
+	.global vbl_sync_counter
+	.global irq_sync_flag
+	.global vbl_sync_flag
+
+	
+	.global	regscopy
+	.global	aprime
+	.global	fprime
+	
+	.ifeq	OPT_ALIGNED_MEMORY
+	.global	ram_buffer
+	.global	rom_buffer
+	.else
+	.global rom_start_0000
+	.global	dev_ram_buffer
+	.endif
+	.global	bank_1
+	
+	.ifdef   __amiga__
+	.else
+	* Neogeo: needs different writable section from ROM code
+    .bss
+	.endif
+
+	.align	4
+
+rom_buffer:
+	.skip	0x4000
+ram_buffer:
+	.ifeq	OPT_ALIGNED_MEMORY
+	.skip	0x1000
+	.else
+dev_ram_buffer:
+	.skip	0x20000
+rom_start_0000:
+	.long	0
+	.endif
+bank_1:
+	.skip	0x1000
+	
+* game uses a 16-bit value, we replace by a longword
+stack_save:
+	.long	0
+
+high_score_beaten:
+	.word	0
+
+regscopy:
+	.skip	56
+aprime:
+	.byte	0
+fprime:
+	.byte	0
+invincible_flag:
+	.byte	0
+infinite_lives_flag:
+	.byte	0
+
+	.ifndef	OPT_ENABLE_LOGGING
+log_ptr:
+	.long	0   | 0x100
+	.endif
+	
+highscore_needs_saving_flag:
+	.byte	0
+vb_ticks_count:
+	.byte	0
+current_ticks_count:
+	.byte	0
+irq_sync_flag:
+	.byte	0
+vbl_sync_flag:
+	.byte	0
+vbl_sync_counter:
+	.byte	0
+
+	
+break_at_startup_flag:
+	.byte	0
+
+
+	
