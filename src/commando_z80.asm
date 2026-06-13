@@ -232,6 +232,7 @@ hi_score_7th_ee4e    = $ee4e
 timing_variable_e002 = $e002
 port_state_c000_in0_e003 = $e003
 sound_and_screen_orientation_c804 = $c804
+dma_trigger_c806 = $c806
 background_scroll_x_c808 = $c808
 background_scroll_x_c809 = $c809
 background_scroll_y_c80a = $c80a
@@ -245,6 +246,10 @@ background_scroll_x_shadow_e05b = $e05b
 ; Bit 3: player moving UP
 ; Bit 4: player SHOOT
 ; Bit 5: player GRENADE
+
+dsw1_c003 = $c003
+dsw2_c004 = $c004
+
 port_state_c001_in1_e004 = $e004
 port_state_c002_in2_e005 = $e005
 port_state_dsw1_e006     = $e006
@@ -355,8 +360,9 @@ reset_0000:   ; [global]
 0005: C3 A4 00    jp   startup_004a
 0008: C9          ret
 
-0010: F3          di
-0011: C3 7B 20    jp   $02B7
+; irq is here
+0010: F3          di		; disable interrupts
+0011: C3 7B 20    jp   irq_02b7
 
 
 
@@ -431,10 +437,10 @@ startup_004a:
 004E: 3E 10       ld   a,$10
 0050: 32 40 8C    ld   (sound_and_screen_orientation_c804),a		; reset sound cpu & screen orientation
 0053: AF          xor  a
-0054: 32 80 8C    ld   (background_scroll_x_c808),a             ; set background scroll X
-0057: 32 A1 8C    ld   (background_scroll_y_c80b),a             ; set background scroll Y
-005A: 32 81 8C    ld   (background_scroll_x_c809),a             ; set background scroll X
-005D: 32 A0 8C    ld   (background_scroll_y_c80a),a             ; set background scroll Y
+0054: 32 80 8C    ld   (background_scroll_x_c808),a   ; set background scroll X  [unchecked_address]
+0057: 32 A1 8C    ld   (background_scroll_y_c80b),a   ; set background scroll Y  [unchecked_address]
+005A: 32 81 8C    ld   (background_scroll_x_c809),a   ; set background scroll X  [unchecked_address]
+005D: 32 A0 8C    ld   (background_scroll_y_c80a),a   ; set background scroll Y  [unchecked_address]
 
 ; clear all RAM
 0060: 21 00 0E    ld   hl,$E000
@@ -446,14 +452,14 @@ startup_004a:
 ; clear Video RAM
 006D: 21 00 1C    ld   hl,fg_tiles_address_d000
 0070: 11 01 1C    ld   de,$D001
-0073: 36 02       ld   (hl),$20
+0073: 36 02       ld   (hl),$20		; [video_address]
 0075: 01 FF 21    ld   bc,$03FF
-0078: ED B0       ldir
+0078: ED B0       ldir		; [video_address]
 
 ; clear colour RAM
 007A: 21 00 5C    ld   hl,fg_tiles_color_address_d400
 007D: 11 01 5C    ld   de,$D401
-0080: 36 00       ld   (hl),$00
+0080: 36 00       ld   (hl),$00		; [video_address]
 0082: 01 FF 21    ld   bc,$03FF
 0085: ED B0       ldir			; [video_address]
 
@@ -461,14 +467,14 @@ startup_004a:
 0087: 21 00 9C    ld   hl,bg_tiles_address_d800
 008A: 11 01 9C    ld   de,$D801
 008D: 01 FF 21    ld   bc,$03FF
-0090: 36 9E       ld   (hl),$F8
+0090: 36 9E       ld   (hl),$F8		; [video_address]
 0092: ED B0       ldir			; [video_address]
 
 ; clear background colour RAM
 0094: 21 00 DC    ld   hl,bg_tiles_color_address_dc00
 0097: 11 01 DC    ld   de,$DC01
 009A: 01 FF 21    ld   bc,$03FF
-009D: 36 00       ld   (hl),$00
+009D: 36 00       ld   (hl),$00		; [video_address]
 009F: ED B0       ldir			; [video_address]
 
 ; Copy hi score to RAM
@@ -579,7 +585,7 @@ startup_004a:
 
 
 
-0276: 3A 21 0C    ld   a,($C003)             ; read DSW1 
+0276: 3A 21 0C    ld   a,(dsw1_c003)             ; read DSW1 
 0279: 2F          cpl
 027A: 17          rla
 027B: CB 18       rr   b
@@ -599,7 +605,7 @@ startup_004a:
 0290: CB 18       rr   b
 0292: 78          ld   a,b
 0293: 32 60 0E    ld   (port_state_dsw1_e006),a             ; write to PORT_STATE_DSW1
-0296: 3A 40 0C    ld   a,($C004)             ; read DSW2
+0296: 3A 40 0C    ld   a,(dsw2_c004)             ; read DSW2
 0299: 2F          cpl
 029A: 17          rla
 029B: CB 18       rr   b
@@ -651,6 +657,7 @@ irq_02b7:    ; [global]
 02DB: F1          pop  af
 02DC: FB          ei
 02DD: C9          ret
+
 02DE: 21 04 1C    ld   hl,$D040
 02E1: 06 D0       ld   b,$1C
 02E3: 0E 11       ld   c,$11
@@ -669,7 +676,7 @@ irq_02b7:    ; [global]
 02FA: 21 20 0E    ld   hl,timing_variable_e002              ; load HL with address of TIMING_VARIABLE
 02FD: 34          inc  (hl)                  ; increment TIMING_VARIABLE
 02FE: 21 B3 0E    ld   hl,$E03B
-0301: 3A 40 0C    ld   a,($C004)             ; read DSW2 
+0301: 3A 40 0C    ld   a,(dsw2_c004)             ; read DSW2 
 0304: 07          rlca
 0305: 07          rlca
 0306: E6 08       and  $80
@@ -766,16 +773,17 @@ irq_02b7:    ; [global]
 0399: 32 00 8C    ld   (sound_c800),a
 039C: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
 039F: E6 01       and  $01
-03A1: 32 81 8C    ld   (background_scroll_x_c809),a
+03A1: 32 81 8C    ld   (background_scroll_x_c809),a		; [unchecked_address]
 03A4: 3A D4 0E    ld   a,($E05C)
-03A7: 32 80 8C    ld   (background_scroll_x_c808),a
+03A7: 32 80 8C    ld   (background_scroll_x_c808),a		; [unchecked_address]
 03AA: 3A B3 0E    ld   a,($E03B)
 03AD: 32 40 8C    ld   (sound_and_screen_orientation_c804),a
-03B0: 32 60 8C    ld   ($C806),a
+03B0: 32 60 8C    ld   (dma_trigger_c806),a
 03B3: 00          nop
 03B4: 00          nop
 03B5: 00          nop
 03B6: C9          ret
+
 03B7: DD 21 40 FE ld   ix,$FE04
 03BB: 06 F5       ld   b,$5F
 03BD: 11 40 00    ld   de,$0004
@@ -1036,7 +1044,7 @@ irq_02b7:    ; [global]
 05D7: C3 92 00    jp   $0038
 
 05DA: CD 7B 21    call $03B7
-05DD: 16 81       ld   d,$09
+05DD: 16 81       ld   d,$09		; [breakpoint]
 05DF: FF          rst  $38
 05E0: 16 40       ld   d,$04
 05E2: FF          rst  $38
@@ -6650,10 +6658,10 @@ irq_02b7:    ; [global]
 8211: E1          pop  hl
 8212: DD E5       push ix
 8214: D1          pop  de
-8215: CD F1 D9    call $9D1F
-8218: 36 12       ld   (hl),$30
+8215: CD F1 D9    call write_number_to_screen_9d1f
+8218: 36 12       ld   (hl),$30		; [video_address]
 821A: CB D4       set  2,h
-821C: 71          ld   (hl),c
+821C: 71          ld   (hl),c		; [video_address]
 821D: CB 94       res  2,h
 821F: 3E 04       ld   a,$40
 8221: DF          rst  $18                   ; call ADD_A_TO_HL
@@ -6662,11 +6670,11 @@ irq_02b7:    ; [global]
 8225: 06 A0       ld   b,$0A
 8227: DD 7E 00    ld   a,(ix+$00)
 822A: DD 23       inc  ix
-822C: 77          ld   (hl),a
+822C: 77          ld   (hl),a		; [video_address]
 822D: FE D4       cp   $5C
 822F: 30 90       jr   nc,$8249
 8231: CB D4       set  2,h
-8233: 36 00       ld   (hl),$00
+8233: 36 00       ld   (hl),$00		; [video_address]
 8235: CB 94       res  2,h
 8237: 3E 02       ld   a,$20
 8239: DF          rst  $18                   ; call ADD_A_TO_HL  
@@ -6678,7 +6686,7 @@ irq_02b7:    ; [global]
 8246: 20 0C       jr   nz,$8208
 8248: C9          ret
 8249: CB D4       set  2,h
-824B: 36 01       ld   (hl),$01
+824B: 36 01       ld   (hl),$01		; [video_address]
 824D: CB 94       res  2,h
 824F: 3E 02       ld   a,$20
 8251: DF          rst  $18                   ; call ADD_A_TO_HL
@@ -9306,7 +9314,7 @@ print_text_9c6d:
 9CBD: 71          ld   (hl),c
 9CBE: 21 F4 1C    ld   hl,$D05E
 9CC1: 11 19 EE    ld   de,$EE91
-9CC4: C3 F1 D9    jp   $9D1F
+9CC4: C3 F1 D9    jp   write_number_to_screen_9d1f
 9CC7: C9          ret
 9CC8: 3E 00       ld   a,$00
 9CCA: 4F          ld   c,a
@@ -9316,17 +9324,17 @@ print_text_9c6d:
 9CD2: 71          ld   (hl),c
 9CD3: 21 FE 3C    ld   hl,$D2FE
 9CD6: 11 58 EE    ld   de,$EE94
-9CD9: C3 F1 D9    jp   $9D1F
+9CD9: C3 F1 D9    jp   write_number_to_screen_9d1f
 9CDC: 3E 00       ld   a,$00
 9CDE: 4F          ld   c,a
 9CDF: 21 F4 3C    ld   hl,$D25E
-9CE2: 36 12       ld   (hl),$30
+9CE2: 36 12       ld   (hl),$30		; [video_address]
 9CE4: CB D4       set  2,h
-9CE6: 71          ld   (hl),c
+9CE6: 71          ld   (hl),c		; [video_address]
 9CE7: CB 94       res  2,h
 9CE9: 21 F8 1D    ld   hl,$D19E
 9CEC: 11 79 EE    ld   de,hi_score_ee97
-9CEF: C3 F1 D9    jp   $9D1F
+9CEF: C3 F1 D9    jp   write_number_to_screen_9d1f
 9CF2: 47          ld   b,a
 9CF3: 0F          rrca
 9CF4: 0F          rrca
@@ -9354,6 +9362,8 @@ print_text_9c6d:
 9D1A: C3 8B D8    jp   $9CA9
 9D1D: C9          ret
 9D1E: C9          ret
+
+write_number_to_screen_9d1f:
 9D1F: AF          xor  a
 9D20: 32 45 0E    ld   ($E045),a
 9D23: 3E 60       ld   a,$06

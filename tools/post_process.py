@@ -5,7 +5,8 @@ gamename = "commando"
 # game_specific: replace or remove I/O addresses
 # if not done it will write in ROM here!!
 input_dict = {
-#"dip_switches_7800":"read_dipswitches",
+"dsw1_c003":"read_dsw1",
+"dsw2_c004":"read_dsw2",
 "sound_c800":"sound_start",
 
 ##"background_scroll_x_c808":"set_background_scroll_x_lsb",
@@ -13,6 +14,7 @@ input_dict = {
 ##"background_scroll_y_c80a":"set_background_scroll_y_lsb",
 ##"background_scroll_y_c80b":"set_background_scroll_y_msb",
 "sound_and_screen_orientation_c804":"",
+"dma_trigger_c806":"",
 }
 
 single_line_to_cc_protect = {0x1a14,0x96ec}
@@ -29,7 +31,6 @@ jmpre = re.compile("(j..)\s+\[a,(.)\]")
 dreg_dict = {'a':'d0','b':'d1'}
 areg_dict = {'x':'a2','y':'a3','u':'a4'}
 
-jtre = re.compile("#jump_table_(\w+)")
 
 
 def remove_continuing_lines(lines,i):
@@ -86,36 +87,15 @@ def remove_continuing_lines(lines,i):
 
 
 def process_jump_table(line):
-    m = jtre.search(line)
+
+    m = re.search("\[nb_entries=(\d+)",line)
     if m:
-        # move.w  #jump_table...,dX => lea jump_table...,aX works as X ranges from 2 to 4
-        # in debug mode, leave register address
-        line2 = line.replace("jump_table_","0x")
+        nb_entries = m.group(1)
         line = f"""\t.ifndef\tRELEASE
-{line2}\t.endif
-""" + line.replace("move.w\t#","lea\t").replace(",d",",a")
+\tmove.w\t#{nb_entries},d7
+\t.endif
+"""+line
 
-    if "indirect j" in line:
-        # grab original code in comments, dirty but works as long as converter
-        # presents it like this
-        comment = line.split('|')[1]
-        nb_entries = ""
-        m = re.search("\[nb_entries=(\d+)",comment)
-        if m:
-            nb_entries = m.group(1)
-
-
-        orig_inst = line.split(":")[1].split("]")[0].replace('[','')
-        # parse code: Jxx [R1,R2], R1 = A or B, R2 = X,Y,U
-        toks = orig_inst.split()
-
-        dreg,areg = toks[1].split(",")
-
-        areg = areg_dict[areg]
-        line = remove_error(line)
-        macro = f"{toks[0].upper()}_{dreg.upper()}_INDEXED"
-        line = f"""\t{macro}\t{areg},{nb_entries}  |{comment}
-"""
     return line
 
 def get_original_instruction(line):
@@ -213,7 +193,7 @@ with open(source_dir / "conv.s") as f:
                 lines[i+1] = remove_error(lines[i+1],True)
 
 
-        #line = process_jump_table(line)
+        line = process_jump_table(line)
 
         # pre-add video_address tag if we find a store instruction to an explicit 3000-3FFF address
         m = store_to_video.search(line)
@@ -235,16 +215,13 @@ with open(source_dir / "conv.s") as f:
             line = line.replace("_ADDRESS","_UNCHECKED_ADDRESS")
             if "MAKE" in line:
                 line = re.sub("(MAKE_\w\w)",r"\1_UNCHECKED",line)
-            elif "MAKE" in lines[i-1]:
+            elif "MAKE" in lines[i-1] and "UNCHECKED" not in lines[i-1]:
                 lines[i-1] = re.sub("(MAKE_\w\w)",r"\1_UNCHECKED",lines[i-1])
+            elif "ldir" in line:
+                line = line.replace("ldir","ldir_video")
+            if ",(a0)" in line:
+                line += "\tVIDEO_BYTE_DIRTY | [...]\n"
 
-
-            for j in [i,i+1]:
-                if ",(a0)" in lines[j] or "clr" in lines[j]:
-                    lines[j] += "\tVIDEO_BYTE_DIRTY | [...]\n"
-                    if j==i:
-                        line = lines[j]
-                    break
 
         ###############################################
         # game_specific
@@ -268,7 +245,15 @@ with open(source_dir / "conv.s") as f:
         elif address == 0x0030:
             # jump table
             line = """\tmove.l\t(a7)+,a0   | get table address (just after rst instruction)
-\tand.w\t#0xFF,d0      | needed?
+\t.ifndef\tRELEASE
+\tcmp.b\td7,d0
+\tjcs\t0f
+\tmove.b\td0,d1
+\tmove.b\td7,d6
+\tjbsr\tosd_get_last_known_pc
+\tBREAKPOINT\t"too many cases for jump table (D1 vs D6, rst called from D7)"
+0:
+\t.endif
 \tadd.w\td0,d0
 \tadd.w\td0,d0       | times 4
 \tmove.l\t(a0,d0.w),a0

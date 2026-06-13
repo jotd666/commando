@@ -12,7 +12,8 @@
 * (see my burger time 6502 conversion which does that in RELEASE mode)
 
 
-
+	.include	"options.inc"
+	
 	.global	cpu_init
 
 
@@ -48,9 +49,13 @@
 
 * only in dev mode, else call GET_UNCHECKED_ADDRESS_FUNC
 	.macro	GET_ADDRESS_FUNC	dest
+	.if \dest!=a0
 	exg	a0,\dest
+	.endif
 	jbsr	get_address
+	.if \dest!=a0
 	exg	a0,\dest
+	.endif
 	.endm
 
 	.macro	CHECK_MAX	reg,arg
@@ -65,6 +70,16 @@
 	.endm
 	.macro	MAKE_AR_FROM_BC	dest
 	GET_REG_ADDRESS	0,d2,\dest
+	.endm
+	
+	.macro	MAKE_AR_UNCHECKED_FROM_HL	dest
+	GET_REG_UNCHECKED_ADDRESS	0,d6,\dest
+	.endm
+	.macro	MAKE_AR_UNCHECKED_FROM_DE	dest
+	GET_REG_UNCHECKED_ADDRESS	0,d4,\dest
+	.endm
+	.macro	MAKE_AR_UNCHECKED_FROM_BC	dest
+	GET_REG_UNCHECKED_ADDRESS	0,d2,\dest
 	.endm
 
 	.macro	MAKE_HL_NO_AR
@@ -367,11 +382,74 @@
 	GET_UNCHECKED_ADDRESS_FUNC	\dest
 	.endm
 
+* < A0: source (HL)
+* < A1: destination (DE)
+* < D1: length (16 bit)
+ldir_video:
+    MAKE_BC_NO_AR
+    MAKE_HL_NO_AR
+    MAKE_DE_NO_AR
+    MAKE_AR_UNCHECKED_FROM_HL	a1
+    MAKE_AR_UNCHECKED_FROM_DE	a0
+    subq.w    #1,d2
+0:
+    move.b    (a1)+,(a0)
+	VIDEO_BYTE_DIRTY
+	addq	#1,a0
+    dbf        d2,0b
+    moveq	#0,d2
+    rts
+
 
 get_address:
-	ERROR "first check dest in a0 in dev mode"
+	.ifndef	RELEASE
+	cmp.l	#0xC000,a0
+	jcs		0f		| in ROM: okay!
+	cmp.l	#0xC800,a0
+	jcc		1f
+	jbsr	osd_get_last_known_pc
+	BREAKPOINT	"accessing unmapped memory between 0xC000 and 0xC7FF, PC in D7"
+	jra 	0f
+1:
+	* > 0xC800
+	cmp.l 	#0xD000,a0
+	jcc		1f
+	* I/O: needs unchecked
+	jbsr	osd_get_last_known_pc
+	BREAKPOINT	"accessing I/O memory between 0xC800 and 0xCFFF"
+	jra 	0f
+1:
+	cmp.l	#0xE000,a0
+	jcc		0f		| RAM: ok
+	jbsr	osd_get_last_known_pc
+	BREAKPOINT	"accessing video memory between 0xD000 and 0xDFFF"
+0:
+	.endif
+
 	GET_UNCHECKED_ADDRESS_FUNC	a0
 	rts
 
 
+	.ifne	OPT_ENABLE_LOGGING
+	.macro	LOG_REGS	z80pc
+	move.w	sr,-(a7)
+	move.w	#0x\z80pc,-(a7)
+	move.w	#0,-(a7)
+	jbsr	osd_log_cpu
+	addq.w	#4,a7
+	move.w	(a7)+,sr
+	.endm
+	
+	.macro	ENABLE_REGS_LOG
+	moveq	#1,d6		| enable
+	moveq	#0,d7		| main cpu
+	jbsr	osd_cpu_logging_control	
+	.endm
+	.macro	DISABLE_REGS_LOG
+	moveq	#0,d6		| disable
+	moveq	#0,d7		| main cpu
+	jbsr	osd_cpu_logging_control	
+	.endm	
 
+	.endif
+	

@@ -276,8 +276,7 @@ osd_enter_\@:
 	.global osd_blitz		| for debug
 	.global osd_read_dsw1
 	.global osd_read_dsw2
-	.global	osd_main_loop_hook
-	.global	osd_set_bank
+
 	.global	osd_read_system
 	.global	osd_read_p1_inputs
 	.global	osd_read_p2_inputs
@@ -793,7 +792,6 @@ demo_game:
 
 	* enable interrupts. Game doesn't use them
 	* but relies on vbl sync flags
-	jbsr	cpu_init		| zero most registers
 	
 	jbsr	cache_fg_tiles_address
 	jbsr	cache_bg_tiles_address
@@ -831,6 +829,7 @@ demo_game:
 	pea		level1_interrupt(pc)
 	move.l	(a7)+,(0x64,a1)
 
+	jbsr	cpu_init		| zero most registers
 
 	GET_MEMORY_START_IN_A6	
 	jmp		reset_0000								| pass control to the mpatrol core
@@ -4922,7 +4921,7 @@ display_slots:
 	.ifne	OPT_ENABLE_LOGGING
 
 osd_get_last_known_pc:
-	move.w	last_known_z80_pc,d6
+	move.w	last_known_z80_pc,d7
 	rts
 	
 	
@@ -4968,13 +4967,7 @@ osd_log_cpu:
 	CHECK_ZERO_MSW	d4		| U
 	CHECK_ZERO_MSW	d5		| S
 
-*	check that stack is in RAM
-*   we had to disable it because at some point the game uses
-*   puls/pulu to read data
-*	cmp.l	#0x3000,d5
-*	jcs		0f
-*	BREAKPOINT	"target stack is not in RAM"
-*0:
+
 	move.w	(6,a7),last_known_z80_pc
 	
 	move.w	last_known_z80_pc,0x100

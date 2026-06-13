@@ -67,7 +67,7 @@ DECL_VERSION:MACRO
 		incbin	datetime
 	ENDC
 	ENDM
-_data   dc.b    "data",0
+_data   dc.b    0
 _name	dc.b	"Commando (arcade)"
 	IFD	CD32_SLAVE
 	dc.b	" (CD32)"
