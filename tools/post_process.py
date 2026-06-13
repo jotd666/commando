@@ -8,12 +8,17 @@ input_dict = {
 #"dip_switches_7800":"read_dipswitches",
 "sound_c800":"sound_start",
 
-"background_scroll_x_c808":"set_background_scroll_x_lsb",
-"background_scroll_x_c809":"set_background_scroll_x_msb",
-"background_scroll_y_c80a":"set_background_scroll_y_lsb",
-"background_scroll_y_c80b":"set_background_scroll_y_msb",
+##"background_scroll_x_c808":"set_background_scroll_x_lsb",
+##"background_scroll_x_c809":"set_background_scroll_x_msb",
+##"background_scroll_y_c80a":"set_background_scroll_y_lsb",
+##"background_scroll_y_c80b":"set_background_scroll_y_msb",
 "sound_and_screen_orientation_c804":"",
 }
+
+single_line_to_cc_protect = {0x1a14,0x96ec}
+remove_error_in_next_line = {0x1119,0x129d,0x1a17,0x96ef,0x96ea,0x96f8,0X8551,0x8553,0x6D21}
+line_to_push_cc_protect = {0x8552,0x854d} | single_line_to_cc_protect
+line_to_pull_cc_protect = {0x8551} | single_line_to_cc_protect
 
 store_to_video = re.compile("GET_ADDRESS\s+(0xd\w\w\w|video_ram_d)",flags=re.I)   # game_specific
 
@@ -181,7 +186,6 @@ with open(source_dir / "conv.s") as f:
 ##\tmove.b\t(a0),d6
 ##\tabcd\td6,d0
 ##"""
-        single_line_to_cc_protect = [0x0209,0x272,0x39ba,0x225,0x22A,0x023f,0x248,0x0275,0x027c,0x0279]
         address = get_line_address(line)
 
         if "[address_pop]" in line:
@@ -249,6 +253,9 @@ with open(source_dir / "conv.s") as f:
             # no need to swap F with F', ever in this game
             lines[i-1] = "* just swap A/A'\n"+change_instruction("EXG_A_A_PRIME",lines,i-1)
             line = remove_error(line)
+        elif "abcd/sbcd/subx/addx" in line:
+            # those have been analyzed, no risk (worse case: score not working properly, easy to debug)
+            line = remove_error(line)
 
         if address == 0x0018:
             # replace routine altogether
@@ -271,6 +278,11 @@ with open(source_dir / "conv.s") as f:
         elif address == 0x004a:
             lines[i-1] = remove_error(lines[i-1])
             line = remove_instruction(lines,i)
+        elif address == 0x1115:
+            line = swap_lines(lines,i,i-1)  # preserve flag, independent operations
+        elif address == 0x6d20:
+            line = swap_lines(lines,i,i-1)  # preserve flag, independent operations
+
         elif address == 0x0a94:
             # useless test, we test d6.w afterwards
             lines[i-1] = ""  # no need for MAKE_H
@@ -279,24 +291,34 @@ with open(source_dir / "conv.s") as f:
         elif address == 0x0a99:
             lines[i+1] = remove_error(lines[i+1])  # flags are consistent
 
+        elif address == 0x3bd0:
+            line = remove_instruction(lines,i)
+            lines[i+1] = change_instruction("add.b\t#0x20,d4",lines,i+1)
+            lines[i+2] = remove_instruction(lines,i+2,False)
+            lines[i+4] = remove_error(lines[i+4])
         elif address == 0x92f4:
             line = change_instruction("moveq\t#1,d7",lines,i)+"\tCLR_XC_FLAGS\n"
         elif address == 0x92f5:
             line = change_instruction("sbcd\td7,d0",lines,i)
-##        elif address in [0x31A,0x316]+single_line_to_cc_protect:
-##            # protect the sub instructions
-##            line = "\tPUSH_SR\n"+line
-##        elif address in [0x0319,0x31D] and "MAKE_HL" in line:
-##            lines[i+1] = remove_error(lines[i+1])
-##        elif address in [0x020b,0x0274,0x027b,0x39bc]:
-##            lines[i-1] = remove_error(lines[i-1],True)
-##
-##        if address in [0x31B,0x317]+single_line_to_cc_protect:
-##            # protect the sub instructions
-##            line += "\tPOP_SR\n"
-
+        elif address == 0x96f3:
+            line = """\tmovem.w\td1/d2,-(a7)
+\tjbsr\tl_970a\t| [$96f4: call $970a]
+\tmovem.w\t(a7)+,d1/d2
+\tjne\t0f\t| [ret  z]
+"""
+            kill_code(lines,i+1,0x96f8)
+        elif address == 0x8553:
+            lines[i-1] += "\tPOP_SR\n"
         # end game_specific
         ###############################################
+        if address in line_to_pull_cc_protect:
+            # protect the sub instructions
+            line += "\tPOP_SR\n"
+        elif address in line_to_push_cc_protect:
+            # protect the sub instructions
+            line = "\tPUSH_SR\n"+line
+        elif address in remove_error_in_next_line:
+            lines[i+1] = remove_error(lines[i+1])
         if "GET_ADDRESS" in line:
             val = line.split()[1].split(",")[0]
             osd_call = input_dict.get(val)

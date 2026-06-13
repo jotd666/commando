@@ -259,6 +259,13 @@ port_state_c001_bit4_bits_e00c = $e00c
 port_state_c001_bit5_bits_e00d = $e00d
 sound_c800 = $c800
 
+fg_tiles_address_d000 = $d000
+fg_tiles_color_address_d400 = $d400
+bg_tiles_address_d800 = $d800
+bg_tiles_color_address_dc00 = $dc00
+
+
+
 ; set to 1 if dip switches report an upright cabinet 
 is_cabinet_upright_e025 = $e025
  ; set to 2 if dip switches report upright cabinet with one stick (see $012D)                  
@@ -342,7 +349,7 @@ system_c000 = $c000
 ;    BYTE X;                          ; LSB of sprite X coordinate
 ;}
 
-boot_0000:   ; [global]
+reset_0000:   ; [global]
 0000: 3E 40       ld   a,$04
 0002: 32 00 0E    ld   ($E000),a
 0005: C3 A4 00    jp   startup_004a
@@ -437,28 +444,28 @@ startup_004a:
 006B: ED B0       ldir
 
 ; clear Video RAM
-006D: 21 00 1C    ld   hl,$D000
+006D: 21 00 1C    ld   hl,fg_tiles_address_d000
 0070: 11 01 1C    ld   de,$D001
 0073: 36 02       ld   (hl),$20
 0075: 01 FF 21    ld   bc,$03FF
 0078: ED B0       ldir
 
 ; clear colour RAM
-007A: 21 00 5C    ld   hl,$D400
+007A: 21 00 5C    ld   hl,fg_tiles_color_address_d400
 007D: 11 01 5C    ld   de,$D401
 0080: 36 00       ld   (hl),$00
 0082: 01 FF 21    ld   bc,$03FF
 0085: ED B0       ldir			; [video_address]
 
 ; clear background video RAM
-0087: 21 00 9C    ld   hl,$D800
+0087: 21 00 9C    ld   hl,bg_tiles_address_d800
 008A: 11 01 9C    ld   de,$D801
 008D: 01 FF 21    ld   bc,$03FF
 0090: 36 9E       ld   (hl),$F8
 0092: ED B0       ldir			; [video_address]
 
 ; clear background colour RAM
-0094: 21 00 DC    ld   hl,$DC00
+0094: 21 00 DC    ld   hl,bg_tiles_color_address_dc00
 0097: 11 01 DC    ld   de,$DC01
 009A: 01 FF 21    ld   bc,$03FF
 009D: 36 00       ld   (hl),$00
@@ -613,6 +620,8 @@ startup_004a:
 02B2: 78          ld   a,b
 02B3: 32 61 0E    ld   (port_state_dsw2_e007),a             ; write to PORT_STATE_DSW2 
 02B6: C9          ret
+
+irq_02b7:    ; [global]
 02B7: F5          push af
 02B8: C5          push bc
 02B9: D5          push de
@@ -2998,17 +3007,7 @@ startup_004a:
 1C15: C9          ret
 1C16: E1          pop  hl
 1C17: C3 14 D0    jp   $1C50
-1C1A: 3E 5E       ld   a,$F4
-1C1C: 3E 5E       ld   a,$F4
-1C1E: 5E          ld   e,(hl)
-1C1F: 5E          ld   e,(hl)
-1C20: DE 5E       sbc  a,$F4
-1C22: 01 5E 40    ld   bc,$04F4
-1C25: 5E          ld   e,(hl)
-1C26: C0          ret  nz
-1C27: 5E          ld   e,(hl)
-1C28: E0          ret  po
-1C29: 5E          ld   e,(hl)
+
 1C2A: DD 7E 50    ld   a,(ix+$14)
 1C2D: 3C          inc  a
 1C2E: E6 01       and  $01
@@ -4568,16 +4567,15 @@ startup_004a:
 2B6B: 1E 41       ld   e,$05
 2B6D: FF          rst  $38
 2B6E: C9          ret
-2B6F: 48          ld   c,b
-2B70: C8          ret  z
-2B71: 29          add  hl,hl
-2B72: 97          sub  a
+
+; doesn't seem reached?
 2B73: DD 7E 51    ld   a,(ix+$15)
 2B76: 0F          rrca
 2B77: 0F          rrca
 2B78: 0F          rrca
 2B79: E6 F1       and  $1F
 2B7B: C3 69 A3    jp   $2B87
+; doesn't seem reached?
 2B7E: DD 7E 51    ld   a,(ix+$15)
 2B81: 0F          rrca
 2B82: 0F          rrca
@@ -5025,18 +5023,9 @@ startup_004a:
 307C: 63          ld   h,e
 307D: 6A          ld   l,d
 307E: C3 DF 39    jp   $93FD
-3081: 3E 5E       ld   a,$F4
-3083: 3E 5E       ld   a,$F4
-3085: 5E          ld   e,(hl)
-3086: 5E          ld   e,(hl)
-3087: DE 5E       sbc  a,$F4
-3089: 01 5E 40    ld   bc,$04F4
-308C: 5E          ld   e,(hl)
-308D: C0          ret  nz
-308E: 5E          ld   e,(hl)
-308F: E0          ret  po
-3090: 5E          ld   e,(hl)
+
 3091: C9          ret
+
 3092: CD BC 12    call $30DA
 3095: 3A 20 0E    ld   a,(timing_variable_e002)
 3098: 0F          rrca
@@ -6709,43 +6698,43 @@ startup_004a:
 8273: C3 D8 D8    jp   $9C9C
 
 
-82CF:  43 52 45 44 49 54 20 30 30 40 9F D0 06 31 55 50  ;CREDIT 00@...1UP
-82DF:  40 3F D3 06 32 55 50 40 9F D1 06 54 4F 50 5F 53  ;@?..2UP@...TOP_S
-82EF:  43 4F 52 45 40 33 D1 01 52 41 4E 4B 49 4E 47 20  ;CORE@3..RANKING 
-82FF:  42 45 53 54 20 37 40 A8 D0 00 53 45 4C 45 43 54  ;BEST 7@...SELECT
-830F:  20 31 20 4F 52 20 32 20 50 4C 41 59 45 52 53 40  ; 1 OR 2 PLAYERS@
-831F:  4D D1 01 49 4E 53 45 52 54 20 43 4F 49 4E 40 A0  ;M..INSERT COIN@.
-832F:  D2 00 46 52 45 45 20 50 4C 41 59 40 EC D0 00 50  ;..FREE PLAY@...P
-833F:  55 53 48 20 53 54 41 52 54 20 42 55 54 54 4F 4E  ;USH START BUTTON
-834F:  20 40 EA D0 00 4F 4E 45 20 4F 52 20 54 57 4F 20  ; @...ONE OR TWO 
-835F:  50 4C 41 59 45 52 53 40 EA D0 00 20 4F 4E 45 20  ;PLAYERS@... ONE 
-836F:  50 4C 41 59 45 52 20 4F 4E 4C 59 20 40 8F D1 00  ;PLAYER ONLY @...
-837F:  50 4C 41 59 45 52 20 31 40 8F D1 00 50 4C 41 59  ;PLAYER 1@...PLAY
-838F:  45 52 20 32 40 8D D1 00 20 52 45 41 44 59 20 40  ;ER 2@... READY @
-839F:  8D D1 00 47 41 4D 45 20 4F 56 45 52 40 EB D0 00  ;...GAME OVER@...
-83AF:  31 53 54 20 42 4F 4E 55 53 20 31 30 30 30 30 20  ;1ST BONUS 10000 
-83BF:  50 54 53 40 E9 D0 00 41 4E 44 20 45 56 45 52 59  ;PTS@...AND EVERY
-83CF:  20 31 30 30 30 30 30 20 50 54 53 40 E9 D0 00 41  ; 100000 PTS@...A
-83DF:  4E 44 20 45 56 45 52 59 20 35 30 30 30 30 20 50  ;ND EVERY 50000 P
-83EF:  54 53 40 A3 D1 05 43 41 50 43 4F 4D 40 22 D1 05  ;TS@...CAPCOM@"..
-83FF:  43 4F 50 59 52 49 47 48 54 20 31 39 38 35 40 C1  ;COPYRIGHT 1985@.
-840F:  D0 05 41 4C 4C 20 52 49 47 48 54 53 20 52 45 53  ;..ALL RIGHTS RES
-841F:  45 52 56 45 44 40 F5 D1 00 50 4C 41 59 45 52 20  ;ERVED@...PLAYER 
-842F:  40 4D D1 02 49 4E 53 45 52 54 20 43 4F 49 4E 40  ;@M..INSERT COIN@
-843F:  B1 D0 00 31 53 54 40 AF D0 00 32 4E 44 40 AD D0  ;...1ST@...2ND@..
-844F:  00 33 52 44 40 AB D0 00 34 54 48 40 A9 D0 00 35  ;.3RD@...4TH@...5
-845F:  54 48 40 A7 D0 00 36 54 48 40 A5 D0 00 37 54 48  ;TH@...6TH@...7TH
-846F:  40 E6 D2 40 67 68 69 40 E5 D2 40 77 78 79 40 00  ;@..@ghi@..@wxy@.
-847F:  D0 00 40 7C D0 01 54 49 4D 45 52 20 20 20 40 79  ;..@|..TIMER   @y
-848F:  D1 05 2E 2E 2E 2E 2E 2E 2E 2E 2E 2E 7E 40 00 D0  ;............~@..
-849F:  00 40 88 D0 40 6A 6B 6C 6D 6E 6F 40 87 D0 40 7A  ;.@..@jklmno@..@z
-84AF:  7B 7C 7D 7E 7F 40 40 96 D0 00 20 20 20 20 20 43  ;{|}~.@@...     C
-84BF:  4F 4E 47 52 41 54 55 4C 41 54 49 4F 4E 40 94 D0  ;ONGRATULATION@..
-84CF:  00 59 4F 55 52 20 46 49 52 53 54 20 44 55 54 59  ;.YOUR FIRST DUTY
-84DF:  20 46 49 4E 49 53 48 45 44 40 96 D0 00 20 20 20  ; FINISHED@...   
-84EF:  20 20 43 4F 4E 47 52 41 54 55 4C 41 54 49 4F 4E  ;  CONGRATULATION
-84FF:  40 94 D0 00 59 4F 55 52 20 45 56 45 52 59 20 44  ;@...YOUR EVERY D
-850F:  55 54 59 20 46 49 4E 49 53 48 45 44 40 B2 00 E0  ;UTY FINISHED@...
+;82CF:  43 52 45 44 49 54 20 30 30 40 9F D0 06 31 55 50  ;CREDIT 00@...1UP
+;82DF:  40 3F D3 06 32 55 50 40 9F D1 06 54 4F 50 5F 53  ;@?..2UP@...TOP_S
+;82EF:  43 4F 52 45 40 33 D1 01 52 41 4E 4B 49 4E 47 20  ;CORE@3..RANKING 
+;82FF:  42 45 53 54 20 37 40 A8 D0 00 53 45 4C 45 43 54  ;BEST 7@...SELECT
+;830F:  20 31 20 4F 52 20 32 20 50 4C 41 59 45 52 53 40  ; 1 OR 2 PLAYERS@
+;831F:  4D D1 01 49 4E 53 45 52 54 20 43 4F 49 4E 40 A0  ;M..INSERT COIN@.
+;832F:  D2 00 46 52 45 45 20 50 4C 41 59 40 EC D0 00 50  ;..FREE PLAY@...P
+;833F:  55 53 48 20 53 54 41 52 54 20 42 55 54 54 4F 4E  ;USH START BUTTON
+;834F:  20 40 EA D0 00 4F 4E 45 20 4F 52 20 54 57 4F 20  ; @...ONE OR TWO 
+;835F:  50 4C 41 59 45 52 53 40 EA D0 00 20 4F 4E 45 20  ;PLAYERS@... ONE 
+;836F:  50 4C 41 59 45 52 20 4F 4E 4C 59 20 40 8F D1 00  ;PLAYER ONLY @...
+;837F:  50 4C 41 59 45 52 20 31 40 8F D1 00 50 4C 41 59  ;PLAYER 1@...PLAY
+;838F:  45 52 20 32 40 8D D1 00 20 52 45 41 44 59 20 40  ;ER 2@... READY @
+;839F:  8D D1 00 47 41 4D 45 20 4F 56 45 52 40 EB D0 00  ;...GAME OVER@...
+;83AF:  31 53 54 20 42 4F 4E 55 53 20 31 30 30 30 30 20  ;1ST BONUS 10000 
+;83BF:  50 54 53 40 E9 D0 00 41 4E 44 20 45 56 45 52 59  ;PTS@...AND EVERY
+;83CF:  20 31 30 30 30 30 30 20 50 54 53 40 E9 D0 00 41  ; 100000 PTS@...A
+;83DF:  4E 44 20 45 56 45 52 59 20 35 30 30 30 30 20 50  ;ND EVERY 50000 P
+;83EF:  54 53 40 A3 D1 05 43 41 50 43 4F 4D 40 22 D1 05  ;TS@...CAPCOM@"..
+;83FF:  43 4F 50 59 52 49 47 48 54 20 31 39 38 35 40 C1  ;COPYRIGHT 1985@.
+;840F:  D0 05 41 4C 4C 20 52 49 47 48 54 53 20 52 45 53  ;..ALL RIGHTS RES
+;841F:  45 52 56 45 44 40 F5 D1 00 50 4C 41 59 45 52 20  ;ERVED@...PLAYER 
+;842F:  40 4D D1 02 49 4E 53 45 52 54 20 43 4F 49 4E 40  ;@M..INSERT COIN@
+;843F:  B1 D0 00 31 53 54 40 AF D0 00 32 4E 44 40 AD D0  ;...1ST@...2ND@..
+;844F:  00 33 52 44 40 AB D0 00 34 54 48 40 A9 D0 00 35  ;.3RD@...4TH@...5
+;845F:  54 48 40 A7 D0 00 36 54 48 40 A5 D0 00 37 54 48  ;TH@...6TH@...7TH
+;846F:  40 E6 D2 40 67 68 69 40 E5 D2 40 77 78 79 40 00  ;@..@ghi@..@wxy@.
+;847F:  D0 00 40 7C D0 01 54 49 4D 45 52 20 20 20 40 79  ;..@|..TIMER   @y
+;848F:  D1 05 2E 2E 2E 2E 2E 2E 2E 2E 2E 2E 7E 40 00 D0  ;............~@..
+;849F:  00 40 88 D0 40 6A 6B 6C 6D 6E 6F 40 87 D0 40 7A  ;.@..@jklmno@..@z
+;84AF:  7B 7C 7D 7E 7F 40 40 96 D0 00 20 20 20 20 20 43  ;{|}~.@@...     C
+;84BF:  4F 4E 47 52 41 54 55 4C 41 54 49 4F 4E 40 94 D0  ;ONGRATULATION@..
+;84CF:  00 59 4F 55 52 20 46 49 52 53 54 20 44 55 54 59  ;.YOUR FIRST DUTY
+;84DF:  20 46 49 4E 49 53 48 45 44 40 96 D0 00 20 20 20  ; FINISHED@...   
+;84EF:  20 20 43 4F 4E 47 52 41 54 55 4C 41 54 49 4F 4E  ;  CONGRATULATION
+;84FF:  40 94 D0 00 59 4F 55 52 20 45 56 45 52 59 20 44  ;@...YOUR EVERY D
+;850F:  55 54 59 20 46 49 4E 49 53 48 45 44 40 B2 00 E0  ;UTY FINISHED@...
 
 851C: 3A 00 0E    ld   a,($E000)
 851F: 3D          dec  a
@@ -6777,6 +6766,7 @@ startup_004a:
 8551: 27          daa
 8552: 77          ld   (hl),a
 8553: D0          ret  nc
+; carry is set, add 1
 8554: 2B          dec  hl
 8555: 7E          ld   a,(hl)
 8556: C6 01       add  a,$01
@@ -9799,13 +9789,7 @@ A045: E6 01       and  $01
 A047: 32 DE 0E    ld   ($E0FC),a
 A04A: C9          ret
 
-A2CF: 3A 37 0F    ld   a,($E173)
-A2D2: E6 21       and  $03
-A2D4: 21 AD 2A    ld   hl,$A2CB
-A2D7: E7          rst  $20                   ; call RETURN_BYTE_AT_HL_PLUS_A
-A2D8: 21 A8 0E    ld   hl,$E08A
-A2DB: 86          add  a,(hl)
-A2DC: 77          ld   (hl),a
+; seems unreached
 A2DD: 7E          ld   a,(hl)
 A2DE: 0F          rrca
 A2DF: 0F          rrca

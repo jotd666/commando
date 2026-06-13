@@ -9,12 +9,13 @@ OPT_ENABLE_LOGGING = 1
 OPT_ALIGNED_MEMORY = 1
 	.endif
 	
-* makes random routines return 0. Can lock up the game
+* makes random routines return 0
 *OPT_FIX_RANDOM = 1
 
-RAM_START = 0x4000
+RAM_START = 0xC000
 ROM_START = 0x0000
-
+ROM_SIZE = RAM_START
+RAM_SIZE = 0x10000-RAM_START
 
 	.ifdef	RELEASE
 	.macro	BREAKPOINT comment
@@ -37,7 +38,7 @@ next\@:
 	.endm
 	.endif
 	
-	.macro	GET_MEMORY_START
+	.macro	GET_MEMORY_START_IN_A6
 	.ifeq	OPT_ALIGNED_MEMORY
 	lea		rom_buffer,a6
 	.else

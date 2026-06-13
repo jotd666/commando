@@ -33,19 +33,19 @@
 
 	.align	4
 
-rom_buffer:
-	.skip	0x4000
-ram_buffer:
+* rom starts before RAM, at 0
 	.ifeq	OPT_ALIGNED_MEMORY
-	.skip	0x1000
+rom_buffer:
+	.skip	ROM_SIZE
+ram_buffer:
+	.skip	RAM_SIZE
 	.else
 dev_ram_buffer:
 	.skip	0x20000
 rom_start_0000:
 	.long	0
 	.endif
-bank_1:
-	.skip	0x1000
+
 	
 * game uses a 16-bit value, we replace by a longword
 stack_save:
