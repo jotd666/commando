@@ -9829,7 +9829,7 @@ A30F: FD 19       add  iy,de
 A311: 10 2F       djnz $A2F6
 A313: C9          ret
 
-A318: FD 2A F4 0E ld   iy,($E05E)
+A318: FD 2A F4 0E ld   iy,($E05E)		; [breakpoint]
 A31C: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
 A31F: 67          ld   h,a
 A320: 3A D4 0E    ld   a,($E05C)

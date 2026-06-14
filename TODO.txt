@@ -1,5 +1,7 @@
+- converter: data.inc is empty
+- rip fg tiles see if displaying
+- rip sounds
 - A318: load iy not working
-- test.asm: problems
 - remove code at 870C
 - after dec/inc HL, we have to MAKE_H too
 - set DSW difficulty lives, etc.

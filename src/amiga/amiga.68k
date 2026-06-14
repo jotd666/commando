@@ -105,10 +105,18 @@ NTSC_Y_SHIFT = 12
 
 AGA_X_SHIFT = 0x37
 
-FG_SCREEN_TILE_ADDRESS = 0x2000
-FG_SCREEN_COLOR_ADDRESS = 0x2400
-BG_SCREEN_TILE_ADDRESS = 0x2800
-BG_SCREEN_COLOR_ADDRESS = 0x2C00
+
+fg_tiles_address_d000 = 0xd000
+fg_tiles_color_address_d400 = 0xd400
+bg_tiles_address_d800 = 0xd800
+bg_tiles_color_address_dc00 = 0xdc00
+
+
+FG_SCREEN_TILE_ADDRESS = fg_tiles_address_d000
+FG_SCREEN_COLOR_ADDRESS = fg_tiles_color_address_d400
+BG_SCREEN_TILE_ADDRESS = bg_tiles_address_d800
+BG_SCREEN_COLOR_ADDRESS = bg_tiles_color_address_dc00
+
 SPRITE_ADDRESS = 0x1E00  | to 0x1FFF
 SPRITE_BUFFER_SIZE = 0x100
 
@@ -1963,18 +1971,18 @@ copy_80:
 	CPU_COPY_POST
 
 
-*void gng_state::draw_sprites(bitmap_ind16 &bitmap, const rectangle &cliprect)
-*{
-*	uint8_t *buffered_spriteram = m_spriteram->buffer();
-*	gfx_element *gfx = m_gfxdecode->gfx(2);
-*
+
 *	for (int offs = m_spriteram->bytes() - 4; offs >= 0; offs -= 4)
 *	{
-*		uint8_t attributes = buffered_spriteram[offs + 1];
-*		int sx = buffered_spriteram[offs + 3] - 0x100 * (attributes & 0x01);
+*		// bit 1 of attr is not used
+*		int const attr = buffered_spriteram[offs + 1];
+*		int const bank = (attr & 0xc0) >> 6;
+*		int const code = buffered_spriteram[offs] + 256 * bank;
+*		int const color = (attr & 0x30) >> 4;
+*		int flipx = attr & 0x04;
+*		int flipy = attr & 0x08;
+*		int sx = buffered_spriteram[offs + 3] - ((attr & 0x01) << 8);
 *		int sy = buffered_spriteram[offs + 2];
-*		int flipx = attributes & 0x04;
-*		int flipy = attributes & 0x08;
 *
 *		if (flip_screen())
 *		{
@@ -1984,13 +1992,9 @@ copy_80:
 *			flipy = !flipy;
 *		}
 *
-*		gfx->transpen(bitmap,cliprect,
-*				buffered_spriteram[offs] + ((attributes << 2) & 0x300),
-*				(attributes >> 4) & 3,
-*				flipx, flipy,
-*				sx + 128, sy + 6, 15);
+*		if (bank < 3)
+*			m_gfxdecode->gfx(2)->transpen(bitmap, cliprect, code, color, flipx, flipy, sx + 128, sy + 6, 15);
 *	}
-*}
 
 really_update_sprites:
 
@@ -4953,6 +4957,7 @@ osd_log_cpu:
 	tst.w	(16,a7)
 	jne		0f			| not cpu 0
 	move.w	(18,a7),last_known_z80_pc
+	move.w	last_known_z80_pc,0x100
 	* check if cpu log is enabled
 	tst.b	cpu_log_enable
 	jeq		445f
