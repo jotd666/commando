@@ -391,6 +391,10 @@ ldir_video:
     MAKE_DE_NO_AR
     MAKE_AR_UNCHECKED_FROM_HL	a1
     MAKE_AR_UNCHECKED_FROM_DE	a0
+    add.w	d2,d6
+    add.w	d2,d4
+    MAKE_HL_NO_AR
+    MAKE_DE_NO_AR
     subq.w    #1,d2
 0:
     move.b    (a1)+,(a0)
@@ -398,6 +402,7 @@ ldir_video:
 	addq	#1,a0
     dbf        d2,0b
     moveq	#0,d2
+	moveq	#0,d1
     rts
 
 
@@ -434,20 +439,18 @@ get_address:
 	.macro	LOG_REGS	z80pc
 	move.w	sr,-(a7)
 	move.w	#0x\z80pc,-(a7)
-	move.w	#0,-(a7)
+	move.w	#0,-(a7)  | cpu 0
 	jbsr	osd_log_cpu
 	addq.w	#4,a7
 	move.w	(a7)+,sr
 	.endm
 	
-	.macro	ENABLE_REGS_LOG
-	moveq	#1,d6		| enable
-	moveq	#0,d7		| main cpu
+	.macro	ENABLE_LOG_REGS
+	moveq	#1,d7		| enable
 	jbsr	osd_cpu_logging_control	
 	.endm
-	.macro	DISABLE_REGS_LOG
-	moveq	#0,d6		| disable
-	moveq	#0,d7		| main cpu
+	.macro	DISABLE_LOG_REGS
+	moveq	#0,d7		| disable
 	jbsr	osd_cpu_logging_control	
 	.endm	
 
