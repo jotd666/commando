@@ -585,7 +585,7 @@ startup_004a:
 
 
 
-0276: 3A 21 0C    ld   a,(dsw1_c003)             ; read DSW1 
+0276: 3A 21 0C    ld   a,(dsw1_c003)             ; read DSW1 [unchecked_address]
 0279: 2F          cpl
 027A: 17          rla
 027B: CB 18       rr   b
@@ -605,7 +605,7 @@ startup_004a:
 0290: CB 18       rr   b
 0292: 78          ld   a,b
 0293: 32 60 0E    ld   (port_state_dsw1_e006),a             ; write to PORT_STATE_DSW1
-0296: 3A 40 0C    ld   a,(dsw2_c004)             ; read DSW2
+0296: 3A 40 0C    ld   a,(dsw2_c004)             ; read DSW2 [unchecked_address]
 0299: 2F          cpl
 029A: 17          rla
 029B: CB 18       rr   b
@@ -676,7 +676,7 @@ irq_02b7:    ; [global]
 02FA: 21 20 0E    ld   hl,timing_variable_e002              ; load HL with address of TIMING_VARIABLE
 02FD: 34          inc  (hl)                  ; increment TIMING_VARIABLE
 02FE: 21 B3 0E    ld   hl,$E03B
-0301: 3A 40 0C    ld   a,(dsw2_c004)             ; read DSW2 
+0301: 3A 40 0C    ld   a,(dsw2_c004)             ; read DSW2 [unchecked_address]
 0304: 07          rlca
 0305: 07          rlca
 0306: E6 08       and  $80
@@ -691,13 +691,13 @@ irq_02b7:    ; [global]
 0317: E6 F7       and  $7F
 0319: 81          add  a,c
 031A: 32 B3 0E    ld   ($E03B),a
-031D: 3A 00 0C    ld   a,(system_c000)             ; read IN0
+031D: 3A 00 0C    ld   a,(system_c000)             ; read IN0 [unchecked_address]
 0320: 2F          cpl
 0321: 32 21 0E    ld   (port_state_c000_in0_e003),a             ; save in PORT_STATE_C000_IN0  
-0324: 3A 01 0C    ld   a,(port_1_c001)             ; read IN1
+0324: 3A 01 0C    ld   a,(port_1_c001)             ; read IN1 [unchecked_address]
 0327: 2F          cpl
 0328: 32 40 0E    ld   (port_state_c001_in1_e004),a             ; save in PORT_STATE_C001_IN1_e004
-032B: 3A 20 0C    ld   a,(port_2_c002)             ; read IN2
+032B: 3A 20 0C    ld   a,(port_2_c002)             ; read IN2 [unchecked_address]
 032E: 2F          cpl
 032F: 32 41 0E    ld   (port_state_c002_in2_e005),a             ; save in PORT_STATE_C005
 
@@ -803,7 +803,7 @@ irq_02b7:    ; [global]
 03D1: 3A C0 0E    ld   a,(port_state_c001_bit4_bits_e00c)
 03D4: A7          and  a
 03D5: C2 DE 41    jp   nz,$05FC
-03D8: CD 06 E0    call $0E60
+03D8: CD 06 E0    call print_text_0e60
 03DB: 3A 20 0E    ld   a,(timing_variable_e002)
 03DE: E6 21       and  $03
 03E0: C0          ret  nz
@@ -1044,7 +1044,7 @@ irq_02b7:    ; [global]
 05D7: C3 92 00    jp   $0038
 
 05DA: CD 7B 21    call $03B7
-05DD: 16 81       ld   d,$09		; [breakpoint]
+05DD: 16 81       ld   d,$09
 05DF: FF          rst  $38
 05E0: 16 40       ld   d,$04
 05E2: FF          rst  $38
@@ -1075,9 +1075,9 @@ irq_02b7:    ; [global]
 0609: 21 04 1C    ld   hl,$D040
 060C: 0E D0       ld   c,$1C
 060E: 06 F0       ld   b,$1E
-0610: 36 02       ld   (hl),$20
-0612: CB D4       set  2,h
-0614: 36 00       ld   (hl),$00
+0610: 36 02       ld   (hl),$20   ; [unchecked_address]
+0612: CB D4       set  2,h        
+0614: 36 00       ld   (hl),$00   ; [video_address]
 0616: CB 94       res  2,h
 0618: 2C          inc  l
 0619: 10 5F       djnz $0610
@@ -1467,9 +1467,9 @@ irq_02b7:    ; [global]
 09A0: 1A          ld   a,(de)
 09A1: 13          inc  de
 09A2: 77          ld   (hl),a
-09A3: 1A          ld   a,(de)
-09A4: CB D4       set  2,h
-09A6: 77          ld   (hl),a
+09A3: 1A          ld   a,(de)    ; [unchecked_address]
+09A4: CB D4       set  2,h       
+09A6: 77          ld   (hl),a    ; [video_address]
 09A7: CB 94       res  2,h
 09A9: 23          inc  hl
 09AA: 13          inc  de
@@ -1480,7 +1480,7 @@ irq_02b7:    ; [global]
 09B1: DF          rst  $18                   ; call ADD_A_TO_HL
 09B2: C3 F8 81    jp   $099E
 
-0A6D: CD 06 E0    call $0E60
+0A6D: CD 06 E0    call print_text_0e60
 0A70: 3A 8B CF    ld   a,($EDA9)
 0A73: E6 21       and  $03
 0A75: FE 21       cp   $03
@@ -1619,9 +1619,9 @@ irq_02b7:    ; [global]
 0B89: 0E 20       ld   c,$02
 0B8B: 06 20       ld   b,$02
 0B8D: 1A          ld   a,(de)
-0B8E: 77          ld   (hl),a
-0B8F: CB D4       set  2,h
-0B91: 36 E1       ld   (hl),$0F
+0B8E: 77          ld   (hl),a         ; [unchecked_address]
+0B8F: CB D4       set  2,h            
+0B91: 36 E1       ld   (hl),$0F       ; [video_address]
 0B93: CB 94       res  2,h
 0B95: 13          inc  de
 0B96: 2B          dec  hl
@@ -1803,7 +1803,7 @@ irq_02b7:    ; [global]
 ; $E0B1 = pointer to video RAM
 ; $E0B3 = pointer to text to print 
 ;
-
+print_text_0e60:
 0E60: 3A 20 0E    ld   a,(timing_variable_e002)
 0E63: E6 21       and  $03
 0E65: C0          ret  nz
@@ -1814,7 +1814,7 @@ irq_02b7:    ; [global]
 0E70: C8          ret  z
 0E71: FE 23       cp   $23
 0E73: 28 31       jr   z,$0E88
-0E75: 12          ld   (de),a
+0E75: 12          ld   (de),a	; [video_address]
 0E76: 23          inc  hl
 0E77: 22 3B 0E    ld   ($E0B3),hl
 0E7A: 21 02 00    ld   hl,$0020
@@ -6522,9 +6522,9 @@ irq_02b7:    ; [global]
 80F9: C9          ret
 80FA: 1A          ld   a,(de)
 80FB: 13          inc  de
-80FC: 77          ld   (hl),a
-80FD: CB D4       set  2,h
-80FF: 1A          ld   a,(de)
+80FC: 77          ld   (hl),a     ; [unchecked_address]
+80FD: CB D4       set  2,h        
+80FF: 1A          ld   a,(de)     ; [video_address]
 8100: 13          inc  de
 8101: 77          ld   (hl),a
 8102: CB 94       res  2,h
@@ -6545,9 +6545,9 @@ irq_02b7:    ; [global]
 813C: 0E 20       ld   c,$02
 813E: CD 03 68    call $8621
 8141: 2D          dec  l
-8142: 36 B2       ld   (hl),$3A
-8144: CB D4       set  2,h
-8146: 71          ld   (hl),c
+8142: 36 B2       ld   (hl),$3A     ; [unchecked_address]
+8144: CB D4       set  2,h          
+8146: 71          ld   (hl),c       ; [video_address]
 8147: CB 94       res  2,h
 8149: 21 0E 1D    ld   hl,$D1E0
 814C: 3A 8A CF    ld   a,(num_grenades_eda8)             ; read NUM_GRENADES
@@ -6573,9 +6573,9 @@ irq_02b7:    ; [global]
 8172: CD 96 09    call $8178
 8175: 78          ld   a,b
 8176: E6 E1       and  $0F
-8178: 77          ld   (hl),a
-8179: CB D4       set  2,h
-817B: 71          ld   (hl),c
+8178: 77          ld   (hl),a    ; [unchecked_address]
+8179: CB D4       set  2,h       
+817B: 71          ld   (hl),c    ; [video_address]
 817C: CB 94       res  2,h
 817E: 3E 02       ld   a,$20
 8180: C3 90 00    jp   $0018
@@ -6600,9 +6600,9 @@ irq_02b7:    ; [global]
 81A2: 21 00 1C    ld   hl,$D000
 81A5: 0E 02       ld   c,$20
 81A7: 06 F0       ld   b,$1E
-81A9: 36 02       ld   (hl),$20
+81A9: 36 02       ld   (hl),$20		; [unchecked_address]
 81AB: CB D4       set  2,h
-81AD: 36 00       ld   (hl),$00
+81AD: 36 00       ld   (hl),$00		; [video_address]
 81AF: CB 94       res  2,h
 81B1: 2C          inc  l
 81B2: 10 5F       djnz $81A9
@@ -6659,7 +6659,7 @@ irq_02b7:    ; [global]
 8212: DD E5       push ix
 8214: D1          pop  de
 8215: CD F1 D9    call write_number_to_screen_9d1f
-8218: 36 12       ld   (hl),$30		; [video_address]
+8218: 36 12       ld   (hl),$30		; [unchecked_address]
 821A: CB D4       set  2,h
 821C: 71          ld   (hl),c		; [video_address]
 821D: CB 94       res  2,h
@@ -6670,7 +6670,7 @@ irq_02b7:    ; [global]
 8225: 06 A0       ld   b,$0A
 8227: DD 7E 00    ld   a,(ix+$00)
 822A: DD 23       inc  ix
-822C: 77          ld   (hl),a		; [video_address]
+822C: 77          ld   (hl),a		; [unchecked_address]
 822D: FE D4       cp   $5C
 822F: 30 90       jr   nc,$8249
 8231: CB D4       set  2,h
@@ -6876,9 +6876,9 @@ irq_02b7:    ; [global]
 8622: D5          push de
 8623: E5          push hl
 8624: 7A          ld   a,d
-8625: 77          ld   (hl),a
+8625: 77          ld   (hl),a	; [unchecked_address]
 8626: CB D4       set  2,h
-8628: 73          ld   (hl),e
+8628: 73          ld   (hl),e	; [video_address]
 8629: CB 94       res  2,h
 862B: 2B          dec  hl
 862C: C6 10       add  a,$10
@@ -8841,10 +8841,10 @@ irq_02b7:    ; [global]
 98EE: 06 A0       ld   b,$0A
 98F0: E5          push hl
 98F1: CB D4       set  2,h
-98F3: 36 00       ld   (hl),$00
+98F3: 36 00       ld   (hl),$00		; [unchecked_address]
 98F5: CB 94       res  2,h
 98F7: 1A          ld   a,(de)
-98F8: 77          ld   (hl),a
+98F8: 77          ld   (hl),a		; [video_address]
 98F9: 3E 04       ld   a,$40
 98FB: DF          rst  $18                   ; call ADD_A_TO_HL
 98FC: 13          inc  de
@@ -9230,9 +9230,9 @@ irq_02b7:    ; [global]
 9C33: CD 47 D8    call $9C65
 9C36: DD 7E 01    ld   a,(ix+$01)
 9C39: 83          add  a,e
-9C3A: 77          ld   (hl),a
-9C3B: CB D4       set  2,h
-9C3D: 72          ld   (hl),d
+9C3A: 77          ld   (hl),a     ; [unchecked_address]
+9C3B: CB D4       set  2,h        
+9C3D: 72          ld   (hl),d     ; [video_address]
 9C3E: C9          ret
 
 
@@ -9263,9 +9263,9 @@ print_text_9c6d:
 9C74: 1A          ld   a,(de)
 9C75: FE 04       cp   $40
 9C77: C8          ret  z
-9C78: 77          ld   (hl),a
+9C78: 77          ld   (hl),a			; [unchecked_address]
 9C79: CB D4       set  2,h
-9C7B: 71          ld   (hl),c
+9C7B: 71          ld   (hl),c			; [video_address]
 9C7C: CB 94       res  2,h
 9C7E: 3E 02       ld   a,$20
 9C80: DF          rst  $18                   ; call ADD_A_TO_HL
@@ -9282,9 +9282,9 @@ print_text_9c6d:
 9C8B: 1A          ld   a,(de)
 9C8C: FE 04       cp   $40
 9C8E: C8          ret  z
-9C8F: 36 02       ld   (hl),$20
-9C91: CB D4       set  2,h
-9C93: 71          ld   (hl),c
+9C8F: 36 02       ld   (hl),$20     ; [unchecked_address]
+9C91: CB D4       set  2,h          
+9C93: 71          ld   (hl),c       ; [video_address]
 9C94: CB 94       res  2,h
 9C96: 3E 02       ld   a,$20
 9C98: DF          rst  $18                   ; call ADD_A_TO_HL
@@ -9299,9 +9299,9 @@ print_text_9c6d:
 9CA3: CD 8B D8    call $9CA9
 9CA6: 78          ld   a,b
 9CA7: E6 E1       and  $0F
-9CA9: 77          ld   (hl),a
-9CAA: CB D4       set  2,h
-9CAC: 71          ld   (hl),c
+9CA9: 77          ld   (hl),a    ; [unchecked_address]
+9CAA: CB D4       set  2,h       
+9CAC: 71          ld   (hl),c    ; [video_address]
 9CAD: CB 94       res  2,h
 9CAF: 3E 02       ld   a,$20
 9CB1: DF          rst  $18                   ; call ADD_A_TO_HL
@@ -9309,9 +9309,9 @@ print_text_9c6d:
 9CB3: 3E 00       ld   a,$00
 9CB5: 4F          ld   c,a
 9CB6: 21 F0 1D    ld   hl,$D11E
-9CB9: 36 12       ld   (hl),$30
-9CBB: CB D4       set  2,h
-9CBD: 71          ld   (hl),c
+9CB9: 36 12       ld   (hl),$30    ; [unchecked_address]
+9CBB: CB D4       set  2,h         
+9CBD: 71          ld   (hl),c      ; [video_address]
 9CBE: 21 F4 1C    ld   hl,$D05E
 9CC1: 11 19 EE    ld   de,$EE91
 9CC4: C3 F1 D9    jp   write_number_to_screen_9d1f
@@ -9319,9 +9319,9 @@ print_text_9c6d:
 9CC8: 3E 00       ld   a,$00
 9CCA: 4F          ld   c,a
 9CCB: 21 FA 3D    ld   hl,$D3BE
-9CCE: 36 12       ld   (hl),$30
-9CD0: CB D4       set  2,h
-9CD2: 71          ld   (hl),c
+9CCE: 36 12       ld   (hl),$30   ; [unchecked_address]
+9CD0: CB D4       set  2,h        
+9CD2: 71          ld   (hl),c     ; [video_address]
 9CD3: 21 FE 3C    ld   hl,$D2FE
 9CD6: 11 58 EE    ld   de,$EE94
 9CD9: C3 F1 D9    jp   write_number_to_screen_9d1f
@@ -9378,9 +9378,9 @@ write_number_to_screen_9d1f:
 9D2F: E6 E1       and  $0F
 9D31: 28 B1       jr   z,$9D4E
 9D33: 32 45 0E    ld   ($E045),a
-9D36: 77          ld   (hl),a
-9D37: CB D4       set  2,h
-9D39: 71          ld   (hl),c
+9D36: 77          ld   (hl),a     ; [unchecked_address]
+9D37: CB D4       set  2,h        
+9D39: 71          ld   (hl),c     ; [video_address]
 9D3A: CB 94       res  2,h
 9D3C: 3E 02       ld   a,$20
 9D3E: DF          rst  $18                   ; call ADD_A_TO_HL
@@ -9444,9 +9444,9 @@ write_number_to_screen_9d1f:
 9DB1: 06 40       ld   b,$04
 9DB3: D9          exx
 9DB4: 06 80       ld   b,$08
-9DB6: 77          ld   (hl),a
-9DB7: CB D4       set  2,h
-9DB9: 71          ld   (hl),c
+9DB6: 77          ld   (hl),a    ; [unchecked_address]
+9DB7: CB D4       set  2,h       
+9DB9: 71          ld   (hl),c    ; [video_address]
 9DBA: CB 94       res  2,h
 9DBC: 3C          inc  a
 9DBD: 2C          inc  l
@@ -10321,12 +10321,12 @@ A75E: DD 6E C1    ld   l,(ix+$0d)
 A761: DD 56 E0    ld   d,(ix+$0e)
 A764: DD 5E E1    ld   e,(ix+$0f)
 A767: 06 10       ld   b,$10
-A769: 7E          ld   a,(hl)
-A76A: 12          ld   (de),a
+A769: 7E          ld   a,(hl)   ; [unchecked_address]
+A76A: 12          ld   (de),a   ; [unchecked_address]
 A76B: 23          inc  hl
-A76C: 7E          ld   a,(hl)
+A76C: 7E          ld   a,(hl)   ; [unchecked_address]
 A76D: CB D2       set  2,d
-A76F: 12          ld   (de),a
+A76F: 12          ld   (de),a   ; [video_address]
 A770: CB 92       res  2,d
 A772: 23          inc  hl
 A773: 13          inc  de

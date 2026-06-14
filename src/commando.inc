@@ -32,7 +32,13 @@
 * the function that accesses all memory (except banks)
 * without any check
 	.macro	GET_UNCHECKED_ADDRESS_FUNC	dest
+	.if \dest!=a0
+	exg	a0,\dest
+	.endif
 	lea	(a6,\dest\().l),\dest
+	.if \dest!=a0
+	exg	a0,\dest
+	.endif
 	.endm
 
 	.macro	WRITE_ADDRESS	src,dest
@@ -44,6 +50,18 @@
 	.macro	READ_ADDRESS	src,dest
 	MOVE_W_TO_REG	a0,d7
 	GET_ADDRESS_FUNC	d7
+	move.l	d7,\dest
+	.endm
+
+	.macro	WRITE_UNCHECKED_ADDRESS	src,dest
+	move.l	\src,d7
+	sub.l	a6,d7
+	MOVE_W_FROM_REG	d7,\dest
+	.endm
+
+	.macro	READ_UNCHECKED_ADDRESS	src,dest
+	MOVE_W_TO_REG	a0,d7
+	GET_UNCHECKED_ADDRESS_FUNC	\dest
 	move.l	d7,\dest
 	.endm
 
@@ -273,9 +291,9 @@
 	.endm
 
 	.macro    MOVE_W_TO_REG    src,dest
-	move.b	(\src),\dest
-	rol.w	#8,\dest
 	move.b	(1,\src),\dest
+	rol.w	#8,\dest
+	move.b	(\src),\dest
 	.endm
 
 	.macro	MOVE_W_FROM_REG    src,dest
@@ -393,8 +411,8 @@ ldir_video:
     MAKE_AR_UNCHECKED_FROM_DE	a0
     add.w	d2,d6
     add.w	d2,d4
-    MAKE_HL_NO_AR
-    MAKE_DE_NO_AR
+    MAKE_H
+    MAKE_D
     subq.w    #1,d2
 0:
     move.b    (a1)+,(a0)

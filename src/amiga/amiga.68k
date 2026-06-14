@@ -274,12 +274,6 @@ osd_enter_\@:
 	.global osd_set_tile_palette
 	.global osd_break		| for debug	
 	.global osd_blitz		| for debug
-	.global osd_read_dsw1
-	.global osd_read_dsw2
-
-	.global	osd_read_system
-	.global	osd_read_p1_inputs
-	.global	osd_read_p2_inputs
 	
 	.global	osd_video_byte_dirty
 	.global	osd_video_word_dirty
@@ -753,7 +747,7 @@ demo_game:
 	move.l	a6,d0
 	clr.w	d0
 	move.l	d0,d1
-	add.l	#0x10000+RAM_START,d1
+	add.l	#0x10000,d1
 	move.l	d1,rom_start_0000		| memory (0x1000-0xFFFF)
 	
 	* copy the ROM data
@@ -832,7 +826,16 @@ demo_game:
 
 	GET_MEMORY_START_IN_A6	
 	jbsr	cpu_init		| zero most registers
+	jbsr	hw_init
 	jmp		reset_0000								| pass control to the mpatrol core
+	
+hw_init:
+	st.b	(system_c000,a6)
+	st.b	(port_1_c001,a6)
+	st.b	(port_2_c002,a6)
+	st.b	(dsw1_c003,a6)
+	move.b	#0x1F,(dsw2_c004,a6)
+	rts
 	
 * zero all registers
 cpu_init:
@@ -1232,7 +1235,7 @@ level3_interrupt:
 	jbsr	_read_joystick
 	move.l	d0,joypad_1_state
 0:
-
+	GET_MEMORY_START_IN_A6
 	jbsr	update_controls
 	
 	move.l	joypad_1_state,d0
@@ -1377,8 +1380,8 @@ level1_interrupt:
 	COMMIT_BLITLIST
 
 	.if		OPT_BLIT_CHAIN_MODE==0
-	jbsr	set_scroll_values
-	jbsr		really_update_sprites
+	*jbsr	set_scroll_values
+	*jbsr		really_update_sprites
 
 	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
 	jbsr		switch_screen_buffers
@@ -4050,17 +4053,6 @@ osd_debug_hook:
 	
 	
 
-osd_read_p1_inputs:
-	move.b	 player_1_controls,d0
-	rts
-
-
-osd_read_p2_inputs:
-	st.B	d0
-	rts
-	
-
-
 	
 	.ifne	OPT_ENABLE_LOGGING
 purge_tile_log_data:
@@ -4122,10 +4114,7 @@ update_controls:
 	* directions + fire
 	move.l	joypad_1_state(pc),d1
 	jbsr	decode_joypad_controls
-	move.b	d0,player_1_controls
-
-	
-
+	move.b	d0,(port_1_c001,a6)
 
 	rts
 	
@@ -4157,17 +4146,8 @@ decode_joypad_controls:
 	rts
 	
 
-osd_read_dsw1:
-	* actual dipswitches
-	move.b	dip_switches_1,d0	| what MAME returns by default: demo sounds on. ~0x60: service mode
-	rts
-
-osd_read_dsw2:
-	* actual dipswitches
-	move.b	dip_switches_2,d0	| what MAME returns by default
-	rts
 	
-osd_read_system:
+read_system:
 	st.b	d0
 	movem.l	a0/d1,-(a7)
 	lea		keyboard_table(pc),a0
@@ -4972,6 +4952,7 @@ osd_log_cpu:
 	movem.l	a2/a3/a5,-(a7)
 	tst.w	(16,a7)
 	jne		0f			| not cpu 0
+	move.w	(18,a7),last_known_z80_pc
 	* check if cpu log is enabled
 	tst.b	cpu_log_enable
 	jeq		445f
@@ -5304,8 +5285,7 @@ color_copper_pointers:
 	.skip	TOTAL_NB_COLORS*4*4
 osd_entry_count:
 	.byte	0
-player_1_controls:
-	.byte	0
+
 flip_flop:
 	.byte	0
 bank_value:

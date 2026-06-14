@@ -5,8 +5,7 @@ gamename = "commando"
 # game_specific: replace or remove I/O addresses
 # if not done it will write in ROM here!!
 input_dict = {
-"dsw1_c003":"read_dsw1",
-"dsw2_c004":"read_dsw2",
+
 "sound_c800":"sound_start",
 
 ##"background_scroll_x_c808":"set_background_scroll_x_lsb",
@@ -183,8 +182,8 @@ with open(source_dir / "conv.s") as f:
         elif "[nop]" in line:
             line = remove_instruction(lines,i)
 
-        elif "[breakpoint]" in line:
-            line = change_instruction(f'BREAKPOINT "{address:04x}"',lines,i)
+        elif "[breakpoint]" in line and address:
+            line = f'\tBREAKPOINT "{address:04x}"\n{line}'
 
         elif "[cc_ok]" in line:
             if "rts" in line and "ret]" not in line: # conditional return
@@ -207,19 +206,16 @@ with open(source_dir / "conv.s") as f:
                 line = line.rstrip() + " [video_address]\n"
 
 
-        if "[unchecked_address" in line:
-            # give me the original instruction
-            line = line.replace("_ADDRESS","_UNCHECKED_ADDRESS")
-        elif "[video_address" in line:
+        elif "[video_address" in line or "[unchecked_address" in line:
             # give me the original instruction
             line = line.replace("_ADDRESS","_UNCHECKED_ADDRESS")
             if "MAKE" in line:
-                line = re.sub("(MAKE_\w\w)",r"\1_UNCHECKED",line)
+                line = re.sub(r"(MAKE_AR)",r"\1_UNCHECKED",line)
             elif "MAKE" in lines[i-1] and "UNCHECKED" not in lines[i-1]:
-                lines[i-1] = re.sub("(MAKE_\w\w)",r"\1_UNCHECKED",lines[i-1])
+                lines[i-1] = re.sub(r"(MAKE_AR)",r"\1_UNCHECKED",lines[i-1])
             elif "ldir" in line:
                 line = line.replace("ldir","ldir_video")
-            if ",(a0)" in line:
+            if "[video_address" in line and ",(a0)" in line:
                 line += "\tVIDEO_BYTE_DIRTY | [...]\n"
 
 
