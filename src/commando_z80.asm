@@ -6599,7 +6599,7 @@ print_text_0e60:
 
 81A2: 21 00 1C    ld   hl,$D000
 81A5: 0E 02       ld   c,$20
-81A7: 06 F0       ld   b,$1E
+81A7: 06 F0       ld   b,$1E  ; [breakpoint]
 81A9: 36 02       ld   (hl),$20		; [unchecked_address]
 81AB: CB D4       set  2,h
 81AD: 36 00       ld   (hl),$00		; [video_address]
@@ -10326,7 +10326,7 @@ A76A: 12          ld   (de),a   ; [unchecked_address]
 A76B: 23          inc  hl
 A76C: 7E          ld   a,(hl)   ; [unchecked_address]
 A76D: CB D2       set  2,d
-A76F: 12          ld   (de),a   ; [video_address]
+A76F: 12          ld   (de),a   ; [unchecked_address]
 A770: CB 92       res  2,d
 A772: 23          inc  hl
 A773: 13          inc  de

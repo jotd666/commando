@@ -3751,12 +3751,14 @@ compute_fg_tile_xy:
 	move.b	d7,d0
 	
 	and.b	#0x1F,d0	| x
+	neg.b	d0
+	add.b	#0x20,d0
 	move.w	d7,d1
 	lsr.w	#5,d1		| Y
 	and.b	#0x1F,d1	| Y
-	subq	#2,d1		| 2 first rows aren't visible
+	
+	exg		d0,d1
 	lsl.w	#3,d1		| times 8
-	*exg		d0,d1
 	rts
 
 *compute_tile_xy_portrait:

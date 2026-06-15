@@ -211,11 +211,13 @@ with open(source_dir / "conv.s") as f:
             line = line.replace("_ADDRESS","_UNCHECKED_ADDRESS")
             if "MAKE" in line:
                 line = re.sub(r"(MAKE_AR)",r"\1_UNCHECKED",line)
+                line = re.sub(r"(MAKE_[HDB]\w)",r"\1_UNCHECKED",line)
             elif "MAKE" in lines[i-1] and "UNCHECKED" not in lines[i-1]:
                 lines[i-1] = re.sub(r"(MAKE_AR)",r"\1_UNCHECKED",lines[i-1])
+                lines[i-1] = re.sub(r"(MAKE_[HDB]\w)",r"\1_UNCHECKED",lines[i-1])
             elif "ldir" in line:
                 line = line.replace("ldir","ldir_video")
-            if "[video_address" in line and ",(a0)" in line:
+            if "[video_address" in line and ",(a0)" in line or ("(a0)" in line and "clr.b" in line):
                 line += "\tVIDEO_BYTE_DIRTY | [...]\n"
 
 
@@ -271,7 +273,13 @@ with open(source_dir / "conv.s") as f:
             lines[i+1] = remove_instruction(lines,i+1)
         elif address == 0x0a99:
             lines[i+1] = remove_error(lines[i+1])  # flags are consistent
-
+        elif address == 0xa770:
+            # dirty if address matches
+            line = """\tcmp.w\t#0xE000,d4
+\tjcc\t0f
+\tVIDEO_BYTE_DIRTY
+0:
+"""+line
         elif address == 0x3bd0:
             line = remove_instruction(lines,i)
             lines[i+1] = change_instruction("add.b\t#0x20,d4",lines,i+1)

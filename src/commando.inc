@@ -105,6 +105,11 @@
 	MAKE_HL_NO_AR
 	MAKE_AR_FROM_HL	\dest
 	.endm
+	
+	.macro	MAKE_HL_UNCHECKED	dest
+	MAKE_HL_NO_AR
+	MAKE_AR_UNCHECKED_FROM_HL	\dest
+	.endm
 
 	.macro	MAKE_H
 * update d5 from d6.W = HL
@@ -125,6 +130,12 @@
 	MAKE_AR_FROM_BC	\dest
 	.endm
 
+	.macro	MAKE_BC_UNCHECKED	dest
+	MAKE_BC_NO_AR
+	MAKE_AR_UNCHECKED_FROM_BC	\dest
+	.endm
+
+
 	.macro	MAKE_B
 * update d1 from d2.W = HL
 	rol.w	#8,d2
@@ -142,6 +153,11 @@
 	.macro	MAKE_DE	dest
 	MAKE_DE_NO_AR
 	MAKE_AR_FROM_DE	\dest
+	.endm
+
+	.macro	MAKE_DE_UNCHECKED	dest
+	MAKE_DE_NO_AR
+	MAKE_AR_UNCHECKED_FROM_DE	\dest
 	.endm
 
 	.macro	MAKE_D
