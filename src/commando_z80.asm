@@ -6424,7 +6424,7 @@ print_text_0e60:
 	dc.w	$9f8b	; $8035
 	dc.w	$81dc	; $8037
 	dc.w	$8607	; $8039
-	dc.w	$81a2	; $803b
+	dc.w	clear_screen_81a2	; $803b
 	dc.w	$8183	; $803d
 	dc.w	$8130	; $803f
 	dc.w	$af28	; $8041
@@ -6579,6 +6579,7 @@ print_text_0e60:
 817C: CB 94       res  2,h
 817E: 3E 02       ld   a,$20
 8180: C3 90 00    jp   $0018
+
 8183: 3A 0A CF    ld   a,($EDA0)
 8186: 3D          dec  a
 8187: C8          ret  z
@@ -6597,9 +6598,10 @@ print_text_0e60:
 819F: 10 1F       djnz $8192
 81A1: C9          ret
 
+clear_screen_81a2:
 81A2: 21 00 1C    ld   hl,$D000
-81A5: 0E 02       ld   c,$20
-81A7: 06 F0       ld   b,$1E  ; [breakpoint]
+81A5: 0E 02       ld   c,$20			; 32 columns
+81A7: 06 F0       ld   b,$1E
 81A9: 36 02       ld   (hl),$20		; [unchecked_address]
 81AB: CB D4       set  2,h
 81AD: 36 00       ld   (hl),$00		; [video_address]
@@ -6611,6 +6613,7 @@ print_text_0e60:
 81B6: 23          inc  hl
 81B7: 23          inc  hl
 81B8: C3 6B 09    jp   $81A7
+
 81BB: 21 76 28    ld   hl,$8276
 81BE: 3A 48 CF    ld   a,($ED84)
 81C1: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
@@ -9829,7 +9832,7 @@ A30F: FD 19       add  iy,de
 A311: 10 2F       djnz $A2F6
 A313: C9          ret
 
-A318: FD 2A F4 0E ld   iy,($E05E)		; [breakpoint]
+A318: FD 2A F4 0E ld   iy,($E05E)
 A31C: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
 A31F: 67          ld   h,a
 A320: 3A D4 0E    ld   a,($E05C)
@@ -10182,7 +10185,9 @@ A64E: CD 90 2B    call $A318
 A651: CD 90 2B    call $A318
 A654: CD 90 2B    call $A318
 A657: CD 99 2B    call $A399
-A65A: C9          ret
+; here the background is completely drawn
+A65A: C9          ret   ; [breakpoint]
+
 A65B: 11 52 05    ld   de,$4134
 A65E: 2A 2A CF    ld   hl,($EDA2)
 A661: CB 74       bit  6,h
@@ -10315,6 +10320,7 @@ A750: E6 3F       and  $F3
 A752: DD 77 80    ld   (ix+$08),a
 A755: DD 73 81    ld   (ix+$09),e
 A758: C9          ret
+
 A759: 0E 40       ld   c,$04
 A75B: DD 66 C0    ld   h,(ix+$0c)
 A75E: DD 6E C1    ld   l,(ix+$0d)
@@ -10322,11 +10328,11 @@ A761: DD 56 E0    ld   d,(ix+$0e)
 A764: DD 5E E1    ld   e,(ix+$0f)
 A767: 06 10       ld   b,$10
 A769: 7E          ld   a,(hl)   ; [unchecked_address]
-A76A: 12          ld   (de),a   ; [unchecked_address]
+A76A: 12          ld   (de),a   ; [unchecked_address] background tiles!
 A76B: 23          inc  hl
 A76C: 7E          ld   a,(hl)   ; [unchecked_address]
 A76D: CB D2       set  2,d
-A76F: 12          ld   (de),a   ; [unchecked_address]
+A76F: 12          ld   (de),a   ; [video_address]
 A770: CB 92       res  2,d
 A772: 23          inc  hl
 A773: 13          inc  de
