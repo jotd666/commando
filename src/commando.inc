@@ -22,23 +22,17 @@
 	.endm
 
 	.macro	VIDEO_BYTE_DIRTY
-	| called when a byte write was done in a0
+	jbsr	osd_video_byte_dirty
 	.endm
 
-	.macro	VIDEO_WORD_DIRTY
-	| called when a word write was done in a0
-	.endm
+*	.macro	VIDEO_WORD_DIRTY
+*	| called when a word write was done in a0
+*	.endm
 
 * the function that accesses all memory (except banks)
 * without any check
 	.macro	GET_UNCHECKED_ADDRESS_FUNC	dest
-	.if \dest!=a0
-	exg	a0,\dest
-	.endif
 	lea	(a6,\dest\().l),\dest
-	.if \dest!=a0
-	exg	a0,\dest
-	.endif
 	.endm
 
 	.macro	WRITE_ADDRESS	src,dest
@@ -369,6 +363,8 @@
 	READ_BE_WORD	\dest
 	GET_ADDRESS_FUNC	\dest
 	.endm
+	
+	
 	.macro GET_REG_UNCHECKED_ADDRESS	offset,reg,dest
 	.ifeq	\offset
 	move.l	\reg,\dest
@@ -408,6 +404,9 @@ ldir_video:
     MAKE_HL_NO_AR
     MAKE_DE_NO_AR
     MAKE_AR_UNCHECKED_FROM_HL	a1
+	nop
+	nop
+	nop
     MAKE_AR_UNCHECKED_FROM_DE	a0
     add.w	d2,d6
     add.w	d2,d4
