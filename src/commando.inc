@@ -42,6 +42,7 @@
 	.endm
 
 	.macro	READ_ADDRESS	src,dest
+	moveq	#0,d7
 	MOVE_W_TO_REG	a0,d7
 	GET_ADDRESS_FUNC	d7
 	move.l	d7,\dest

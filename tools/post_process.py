@@ -111,6 +111,9 @@ def remove_code(pattern,lines,i):
         remove_continuing_lines(lines,i)
     return lines[i]
 
+def rebuild_lines(lines):
+    return "".join(lines).splitlines(True)
+
 def swap_lines(lines,i,j):
     lines[i],lines[j] = lines[j].rstrip()+ "| swapped\n",lines[i].rstrip()+ "| swapped\n"
     return lines[i]
@@ -194,6 +197,12 @@ with open(source_dir / "conv.s") as f:
 
         line = process_jump_table(line)
 
+        if "[push_function]" in line:
+            toks = line.split()
+            line = remove_instruction(lines,i)
+            pa = toks[1].strip("#")
+            lines[i+1] = change_instruction(f"pea\t{pa}",lines,i+1)
+
         # pre-add video_address tag if we find a store instruction to an explicit 3000-3FFF address
         m = store_to_video.search(line)
         if m:
@@ -201,12 +210,9 @@ with open(source_dir / "conv.s") as f:
             okay = True
             if g.startswith("0x"):
                 address = int(g,16)
-                okay = (0x4000<address<0x4340) or (0x4800<address<0x4B40)
-            if okay:
                 line = line.rstrip() + " [video_address]\n"
 
-
-        elif "[video_address" in line or "[unchecked_address" in line:
+        if "[video_address" in line or "[unchecked_address" in line:
             # give me the original instruction
             line = line.replace("_ADDRESS","_UNCHECKED_ADDRESS")
             if "MAKE" in line:
@@ -217,8 +223,11 @@ with open(source_dir / "conv.s") as f:
                 lines[i-1] = re.sub(r"(MAKE_[HDB]\w)",r"\1_UNCHECKED",lines[i-1])
             elif "ldir" in line:
                 line = line.replace("ldir","ldir_video")
-            if "[video_address" in line and ",(a0)" in line or ("(a0)" in line and "clr.b" in line):
-                line += "\tVIDEO_BYTE_DIRTY | [...]\n"
+            if "[video_address" in line:
+                if ",(a0)" in line or ("(a0)" in line and "clr.b" in line):
+                    line += "\tVIDEO_BYTE_DIRTY | [...]\n"
+                elif (",(a0)" in lines[i+1] or ("(a0)" in  lines[i+1]  and "clr.b" in lines[i+1] )):
+                    lines[i+1]  += "\tVIDEO_BYTE_DIRTY | [...]\n"
 
 
         ###############################################
@@ -240,6 +249,7 @@ with open(source_dir / "conv.s") as f:
             # replace routine altogether
             line = add_a_to_hl
             kill_code(lines,i+1,0x24)
+
         elif address == 0x0030:
             # jump table
             line = """\tmove.l\t(a7)+,a0   | get table address (just after rst instruction)
@@ -325,6 +335,17 @@ with open(source_dir / "conv.s") as f:
 
         lines[i] = line
 
+    # remove duplicate VIDEO_BYTE_DIRTY
+    lines = rebuild_lines(lines)
+    new_lines = []
+    prev_line = ""
+    for line in lines:
+        if "VIDEO_BYTE_DIRTY" in line and "VIDEO_BYTE_DIRTY" in prev_line:
+            pass
+        else:
+            new_lines.append(line)
+        prev_line = line
+
 with open(source_dir / "data.inc","w") as fw:
     fw.writelines(equates)
 
@@ -335,4 +356,4 @@ with open(source_dir / f"{gamename}.68k","w") as fw:
     for g in global_symbols:
         fw.write(f"\t.global\t{g}\n")
 
-    fw.writelines(lines)
+    fw.writelines(new_lines)

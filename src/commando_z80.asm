@@ -262,6 +262,9 @@ port_state_c001_bit2_bits_e00a = $e00a
 port_state_c001_bit3_bits_e00b = $e00b
 port_state_c001_bit4_bits_e00c = $e00c
 port_state_c001_bit5_bits_e00d = $e00d
+
+first_bonus_ten_thousands_e026 = $e026
+
 sound_c800 = $c800
 
 fg_tiles_address_d000 = $d000
@@ -569,7 +572,7 @@ startup_004a:
 0144: 87          add  a,a
 0145: 21 F7 01    ld   hl,$017F
 0148: E7          rst  $20                   ; call RETURN_BYTE_AT_HL_PLUS_A
-0149: 32 62 0E    ld   ($E026),a
+0149: 32 62 0E    ld   (first_bonus_ten_thousands_e026),a
 014C: 23          inc  hl
 014D: 7E          ld   a,(hl)
 014E: 32 82 0E    ld   ($E028),a
@@ -824,7 +827,7 @@ irq_02b7:    ; [global]
 03F9: FF          rst  $38
 03FA: C3 01 60    jp   $0601
 03FD: C3 BA B2    jp   $3ABA
-0400: 21 50 40    ld   hl,$0414
+0400: 21 50 40    ld   hl,return_0414	; [push_function]
 0403: E5          push hl
 0404: 3A 01 0E    ld   a,($E001)
 0407: F7          rst  $30    ; [jump_to_jump_table] [nb_entries=6]
@@ -836,6 +839,7 @@ irq_02b7:    ; [global]
 	dc.w	$04d4	; $0410
 	dc.w	$04eb	; $0412
 
+return_0414:
 0414: 3A 90 0E    ld   a,($E018)
 0417: A7          and  a
 0418: C2 16 41    jp   nz,$0570
@@ -984,7 +988,7 @@ irq_02b7:    ; [global]
 055C: C9          ret
 
 0561: C9          ret
-0562: 21 29 41    ld   hl,$0583
+0562: 21 29 41    ld   hl,return_0583		; [push_function]
 0565: E5          push hl
 0566: 3A 01 0E    ld   a,($E001)
 0569: F7          rst  $30    ; [jump_to_jump_table] [nb_entries=3]
@@ -1004,6 +1008,8 @@ irq_02b7:    ; [global]
 057F: 14          inc  d
 0580: FF          rst  $38
 0581: 18 81       jr   $058C
+
+return_0583:
 0583: 3A 20 0E    ld   a,(timing_variable_e002)
 0586: 47          ld   b,a
 0587: E6 F1       and  $1F
@@ -1127,7 +1133,7 @@ irq_02b7:    ; [global]
 066D: 32 0D CF    ld   ($EDC1),a
 0670: 3E 60       ld   a,$06
 0672: 32 8C CF    ld   ($EDC8),a
-0675: 3A 62 0E    ld   a,($E026)
+0675: 3A 62 0E    ld   a,(first_bonus_ten_thousands_e026)
 0678: A7          and  a
 0679: 28 54       jr   z,$06CF
 067B: 6F          ld   l,a
@@ -1845,11 +1851,13 @@ print_text_0e60:
 0FB1: 28 E1       jr   z,$0FC2
 0FB3: 21 55 0E    ld   hl,$E055
 0FB6: 34          inc  (hl)
-0FB7: 21 2C E1    ld   hl,$0FC2
+0FB7: 21 2C E1    ld   hl,entry_0fc2		; [push_function]
 0FBA: E5          push hl
 0FBB: 3C          inc  a
 0FBC: CA 1C E1    jp   z,$0FD0
 0FBF: C3 68 71    jp   $1786
+
+entry_0fc2:
 0FC2: C1          pop  bc
 0FC3: 11 02 00    ld   de,$0020
 0FC6: DD 19       add  ix,de
@@ -2352,7 +2360,7 @@ print_text_0e60:
 1465: C3 D4 51    jp   $155C
 
 1478: DD E5       push ix
-147A: 21 0C 50    ld   hl,$14C0
+147A: 21 0C 50    ld   hl,entry_14c0		; [push_function]
 147D: E5          push hl
 147E: DD 66 21    ld   h,(ix+$03)
 1481: DD 6E 41    ld   l,(ix+$05)
@@ -2382,6 +2390,8 @@ print_text_0e60:
 14B5: DD 36 31 C1 ld   (ix+$13),$0D
 14B9: DD 36 B0 01 ld   (ix+$1a),$01
 14BD: C3 06 02    jp   $2060
+
+entry_14c0:
 14C0: DD E1       pop  ix
 14C2: C9          ret
 14C3: CD 19 51    call $1591
@@ -5261,7 +5271,7 @@ print_text_0e60:
 3303: 81          add  a,c
 3304: C6 BF       add  a,$FB
 3306: DD 77 41    ld   (ix+$05),a
-3309: 21 5E 33    ld   hl,$33F4
+3309: 21 5E 33    ld   hl,entry_33f4		; [push_function]
 330C: E5          push hl
 330D: DD 7E 71    ld   a,(ix+$17)
 3310: FE 01       cp   $01
@@ -5339,6 +5349,8 @@ print_text_0e60:
 33D7: FD 36 20 00 ld   (iy+$02),$00
 33DB: C9          ret
 
+entry_33f4:
+33F4: C1          pop  bc
 33F5: DD 70 21    ld   (ix+$03),b
 33F8: DD 71 41    ld   (ix+$05),c
 33FB: C9          ret
@@ -6431,14 +6443,14 @@ print_text_0e60:
 	dc.w	$8076	; $8043
 	dc.w	$8047	; $8045
 
-8047: 3A 62 0E    ld   a,($E026)
+8047: 3A 62 0E    ld   a,(first_bonus_ten_thousands_e026)
 804A: A7          and  a
 804B: C8          ret  z
 804C: 21 CA 29    ld   hl,$83AC
 804F: CD C7 D8    call print_text_9c6d
-8052: 3A 62 0E    ld   a,($E026)
+8052: 3A 62 0E    ld   a,(first_bonus_ten_thousands_e026)
 8055: E6 E1       and  $0F
-8057: 32 A3 3C    ld   ($D22B),a
+8057: 32 A3 3C    ld   ($D22B),a		; first bonus ten-thousands screen address
 805A: 3A 82 0E    ld   a,($E028)
 805D: CB 67       bit  4,a
 805F: 20 E1       jr   nz,$8070
@@ -7416,7 +7428,7 @@ clear_screen_81a2:
 8B72: C9          ret
 
 8B93: DD E5       push ix
-8B95: 21 CC A9    ld   hl,$8BCC
+8B95: 21 CC A9    ld   hl,entry_8bcc	; [push_function]
 8B98: E5          push hl
 8B99: DD 66 61    ld   h,(ix+$07)
 8B9C: DD 6E 81    ld   l,(ix+$09)
@@ -7442,6 +7454,8 @@ clear_screen_81a2:
 8BC8: 10 FC       djnz $8BA8
 8BCA: AF          xor  a
 8BCB: C9          ret
+
+entry_8bcc:
 8BCC: DD E1       pop  ix
 8BCE: C9          ret
 8BCF: DD CB 31 F6 bit  7,(ix+$13)
@@ -7857,7 +7871,7 @@ clear_screen_81a2:
 903D: 18 09       jr   $8FC0
 
 903F: DD E5       push ix
-9041: 21 96 18    ld   hl,$9078
+9041: 21 96 18    ld   hl,entry_9078	; [push_function]
 9044: E5          push hl
 9045: DD 66 21    ld   h,(ix+$03)
 9048: DD 6E 41    ld   l,(ix+$05)
@@ -7885,6 +7899,7 @@ clear_screen_81a2:
 9076: AF          xor  a
 9077: C9          ret
 
+entry_9078:
 9078: DD E1       pop  ix
 907A: C9          ret
 
@@ -8692,7 +8707,7 @@ clear_screen_81a2:
 977C: 3A 55 0E    ld   a,($E055)
 977F: FE 20       cp   $02
 9781: D0          ret  nc
-9782: 21 AE 79    ld   hl,$97EA
+9782: 21 AE 79    ld   hl,entry_97ea		; [push_function]
 9785: E5          push hl
 9786: 3A BA 0E    ld   a,($E0BA)
 9789: 21 8C 7B    ld   hl,$B7C8
@@ -8732,6 +8747,8 @@ clear_screen_81a2:
 97E5: 0D          dec  c
 97E6: C8          ret  z
 97E7: C3 0B 79    jp   $97A1
+
+entry_97ea:
 97EA: 21 BB 0E    ld   hl,$E0BB
 97ED: 35          dec  (hl)
 97EE: C9          ret
@@ -9641,9 +9658,9 @@ write_number_to_screen_9d1f:
 9F0D: 3A F9 0E    ld   a,($E09F)
 9F10: A7          and  a
 9F11: C0          ret  nz
-9F12: 21 99 2B    ld   hl,$A399
+9F12: 21 99 2B    ld   hl,entry_a399		; [push_function]
 9F15: E5          push hl
-9F16: 21 90 2B    ld   hl,$A318
+9F16: 21 90 2B    ld   hl,entry_a318		; [push_function]
 9F19: E5          push hl
 9F1A: 2A 75 0E    ld   hl,($E057)
 9F1D: 7D          ld   a,l
@@ -9802,7 +9819,14 @@ A045: E6 01       and  $01
 A047: 32 DE 0E    ld   ($E0FC),a
 A04A: C9          ret
 
-; seems unreached
+entry_a2cf:
+A2CF: 3A 37 0F    ld   a,($E173)
+A2D2: E6 21       and  $03
+A2D4: 21 AD 2A    ld   hl,$A2CB
+A2D7: E7          rst  $20
+A2D8: 21 A8 0E    ld   hl,$E08A
+A2DB: 86          add  a,(hl)
+A2DC: 77          ld   (hl),a
 A2DD: 7E          ld   a,(hl)
 A2DE: 0F          rrca
 A2DF: 0F          rrca
@@ -9832,7 +9856,8 @@ A30F: FD 19       add  iy,de
 A311: 10 2F       djnz $A2F6
 A313: C9          ret
 
-A318: FD 2A F4 0E ld   iy,($E05E)
+entry_a318:
+A318: FD 2A F4 0E ld   iy,($E05E)		
 A31C: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
 A31F: 67          ld   h,a
 A320: 3A D4 0E    ld   a,($E05C)
@@ -9892,6 +9917,8 @@ A392: D9          exx
 A393: DD 09       add  ix,bc
 A395: D9          exx
 A396: C3 D4 2B    jp   $A35C
+
+entry_a399:
 A399: DD 21 00 8E ld   ix,$E800
 A39D: FD 21 12 FE ld   iy,$FE30
 A3A1: 3A 01 0E    ld   a,($E001)
@@ -9906,7 +9933,7 @@ A3B5: 06 81       ld   b,$09
 A3B7: D9          exx
 A3B8: DD 7E 00    ld   a,(ix+$00)
 A3BB: A7          and  a
-A3BC: 28 E2       jr   z,$A3EC
+A3BC: 28 E2       jr   z,entry_a3ec
 A3BE: 3C          inc  a
 A3BF: 20 44       jr   nz,$A405
 A3C1: 11 00 00    ld   de,$0000
@@ -9926,8 +9953,9 @@ A3DE: 7D          ld   a,l
 A3DF: FE 0E       cp   $E0
 A3E1: 30 60       jr   nc,$A3E9
 A3E3: DD 36 00 00 ld   (ix+$00),$00
-A3E7: 18 21       jr   $A3EC
+A3E7: 18 21       jr   entry_a3ec
 A3E9: CD 98 4A    call $A498
+entry_a3ec:
 A3EC: D9          exx
 A3ED: DD 19       add  ix,de
 A3EF: 10 6C       djnz $A3B7
@@ -9941,7 +9969,7 @@ A3FC: FD 36 60 00 ld   (iy+$06),$00
 A400: FD 19       add  iy,de
 A402: 10 5E       djnz $A3F8
 A404: C9          ret
-A405: 21 CE 2B    ld   hl,$A3EC
+A405: 21 CE 2B    ld   hl,entry_a3ec		; [push_function]
 A408: E5          push hl
 A409: DD 7E 00    ld   a,(ix+$00)
 A40C: FE F3       cp   $3F
@@ -10176,17 +10204,17 @@ A633: CD A9 F9    call $9F8B
 A636: CD A9 F9    call $9F8B
 A639: CD A9 F9    call $9F8B
 A63C: CD A9 F9    call $9F8B
-A63F: CD 90 2B    call $A318
-A642: CD 90 2B    call $A318
-A645: CD 90 2B    call $A318
-A648: CD 90 2B    call $A318
-A64B: CD 90 2B    call $A318
-A64E: CD 90 2B    call $A318
-A651: CD 90 2B    call $A318
-A654: CD 90 2B    call $A318
-A657: CD 99 2B    call $A399
+A63F: CD 90 2B    call entry_a318
+A642: CD 90 2B    call entry_a318
+A645: CD 90 2B    call entry_a318
+A648: CD 90 2B    call entry_a318
+A64B: CD 90 2B    call entry_a318
+A64E: CD 90 2B    call entry_a318
+A651: CD 90 2B    call entry_a318
+A654: CD 90 2B    call entry_a318
+A657: CD 99 2B    call entry_a399
 ; here the background is completely drawn
-A65A: C9          ret   ; [breakpoint]
+A65A: C9          ret
 
 A65B: 11 52 05    ld   de,$4134
 A65E: 2A 2A CF    ld   hl,($EDA2)
@@ -10238,7 +10266,7 @@ A6C8: DD 74 21    ld   (ix+$03),h
 A6CB: DD 75 40    ld   (ix+$04),l
 A6CE: 6F          ld   l,a
 A6CF: 26 00       ld   h,$00
-A6D1: 29          add  hl,hl
+A6D1: 29          add  hl,hl		; HL *= 32
 A6D2: 29          add  hl,hl
 A6D3: 29          add  hl,hl
 A6D4: 29          add  hl,hl
@@ -10649,7 +10677,7 @@ ABCE: CD 62 CB    call $AD26
 ABD1: DD 7E 00    ld   a,(ix+$00)
 ABD4: A7          and  a
 ABD5: C8          ret  z
-ABD6: 21 ED 2A    ld   hl,$A2CF
+ABD6: 21 ED 2A    ld   hl,entry_a2cf		; [push_function]
 ABD9: E5          push hl
 ABDA: DD 34 71    inc  (ix+$17)
 ABDD: DD 7E 71    ld   a,(ix+$17)

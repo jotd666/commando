@@ -14,6 +14,8 @@ A657: CD 99 2B    call $A399
 ; here the background is completely drawn: not reached
 A65A: C9          ret   ; [breakpoint]
 
+- a6d1: optimize hl *= 32
+- irq: optimize don't save regs
 - remove code at 870C
 - after dec/inc HL, we have to MAKE_H too
 - set DSW difficulty lives, etc.
