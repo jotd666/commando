@@ -806,7 +806,7 @@ irq_02b7:    ; [global]
 03D1: 3A C0 0E    ld   a,(port_state_c001_bit4_bits_e00c)
 03D4: A7          and  a
 03D5: C2 DE 41    jp   nz,$05FC
-03D8: CD 06 E0    call print_text_0e60
+03D8: CD 06 E0    call print_text_with_typing_effect_0e60
 03DB: 3A 20 0E    ld   a,(timing_variable_e002)
 03DE: E6 21       and  $03
 03E0: C0          ret  nz
@@ -1486,7 +1486,7 @@ return_0583:
 09B1: DF          rst  $18                   ; call ADD_A_TO_HL
 09B2: C3 F8 81    jp   $099E
 
-0A6D: CD 06 E0    call print_text_0e60
+0A6D: CD 06 E0    call print_text_with_typing_effect_0e60
 0A70: 3A 8B CF    ld   a,($EDA9)
 0A73: E6 21       and  $03
 0A75: FE 21       cp   $03
@@ -1809,7 +1809,7 @@ return_0583:
 ; $E0B1 = pointer to video RAM
 ; $E0B3 = pointer to text to print 
 ;
-print_text_0e60:
+print_text_with_typing_effect_0e60:
 0E60: 3A 20 0E    ld   a,(timing_variable_e002)
 0E63: E6 21       and  $03
 0E65: C0          ret  nz
@@ -6630,12 +6630,13 @@ clear_screen_81a2:
 81BE: 3A 48 CF    ld   a,($ED84)
 81C1: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 81C2: EB          ex   de,hl
-81C3: CD C7 D8    call print_text_9c6d
+81C3: C3 C7 D8    jp   print_text_9c6d
+
 81C6: 21 76 28    ld   hl,$8276
 81C9: 3A 48 CF    ld   a,($ED84)
 81CC: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 81CD: EB          ex   de,hl
-81CE: C3 48 D8    jp   $9C84
+81CE: C3 48 D8    jp   erase_text_9c84
 
 81D1: 3A 91 0E    ld   a,($E019)
 81D4: E6 01       and  $01
@@ -9272,16 +9273,18 @@ entry_97ea:
 9C6C: C9          ret
 
 
+; < HL: address then text to print
 print_text_9c6d:
 9C6D: 5E          ld   e,(hl)
 9C6E: 23          inc  hl
 9C6F: 56          ld   d,(hl)
 9C70: 23          inc  hl
-9C71: 4E          ld   c,(hl)
+; DE is now the destination address
+9C71: 4E          ld   c,(hl)		; attribute
 9C72: 23          inc  hl
-9C73: EB          ex   de,hl
-9C74: 1A          ld   a,(de)
-9C75: FE 04       cp   $40
+9C73: EB          ex   de,hl		; now HL is screen address
+9C74: 1A          ld   a,(de)		; source
+9C75: FE 04       cp   $40			; "@"? end of string
 9C77: C8          ret  z
 9C78: 77          ld   (hl),a			; [unchecked_address]
 9C79: CB D4       set  2,h
@@ -9292,6 +9295,7 @@ print_text_9c6d:
 9C81: 13          inc  de
 9C82: 18 1E       jr   $9C74
 
+erase_text_9c84:
 9C84: 5E          ld   e,(hl)
 9C85: 23          inc  hl
 9C86: 56          ld   d,(hl)
@@ -9310,6 +9314,7 @@ print_text_9c6d:
 9C98: DF          rst  $18                   ; call ADD_A_TO_HL
 9C99: 13          inc  de
 9C9A: 18 EF       jr   $9C8B
+
 9C9C: 47          ld   b,a
 9C9D: 0F          rrca
 9C9E: 0F          rrca

@@ -1,18 +1,10 @@
 - converter: data.inc is empty
 - rip sounds
-- A318: load iy not working??
-  trace cpu
-  A63F: CD 90 2B    call $A318
-A642: CD 90 2B    call $A318
-A645: CD 90 2B    call $A318
-A648: CD 90 2B    call $A318
-A64B: CD 90 2B    call $A318
-A64E: CD 90 2B    call $A318
-A651: CD 90 2B    call $A318
-A654: CD 90 2B    call $A318
-A657: CD 99 2B    call $A399
-; here the background is completely drawn: not reached
-A65A: C9          ret   ; [breakpoint]
+
+- top score not displayed
+- highscore table not displayed properly
+- CREDIT 00 appearing at the top, should be on bottom
+- display bg tiles now
 
 - a6d1: optimize hl *= 32
 - irq: optimize don't save regs

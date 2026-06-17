@@ -8,7 +8,7 @@ def add(contents,code,clut,nb_cluts):
 def rem(contents,code,clut,nb_cluts):
     contents[code*nb_cluts+clut] = 0
 
-def merge(used_name,nb_items,nb_cluts):
+def merge(used_name,nb_items,nb_cluts,overwrite=False):
     merged_path_file = used_graphics_dir
 
 
@@ -21,7 +21,7 @@ def merge(used_name,nb_items,nb_cluts):
         new_contents = bytearray(nb_cluts*nb_items)
 
     old_used = merged_path_file / used_name
-    if old_used.exists():
+    if old_used.exists() and not overwrite:
         with open(old_used,"rb") as f:
             old_contents = bytearray(f.read())
     else:
@@ -44,5 +44,5 @@ def merge(used_name,nb_items,nb_cluts):
         f.write(contents)
 
 merge("fg_used_tiles",FG_NB_TILES,FG_NB_CLUTS)
-#merge("bg_used_tiles",BG_NB_TILES,BG_NB_CLUTS)
+merge("bg_used_tiles",BG_NB_TILES,BG_NB_CLUTS)
 #merge("used_sprites",SPRITE_NB_TILES,SPRITE_NB_CLUTS)

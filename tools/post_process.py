@@ -149,6 +149,7 @@ source_dir = this_dir / "../src"
 add_a_to_hl = """\tMAKE_HL_NO_AR
 \tand.w #0xFF,d0
 \tadd.w\td0,d6
+\tmove.b\td6,d0   | so routine is equivalent to original
 \tMAKE_H
 """
 

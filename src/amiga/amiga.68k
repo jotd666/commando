@@ -64,7 +64,6 @@ BG_TILE_FILE_MAX_SIZE = 0x14000
 SPRITE_FILE_MAX_SIZE = 0x1F000
 *SPRITE_FILE_MAX_SIZE = 0x1C800   | 8k smaller without the white arremers
 
-BIGGEST_MUSIC_SIZE = 385000
 OPT_SPRITE_MIRRORING = 1
 
 	
@@ -80,7 +79,7 @@ FG_TILE_NB_CLUTS_POW = 4
 FG_TILE_NB_CLUTS = 1<<FG_TILE_NB_CLUTS_POW
 FG_TILE_COUNT = 0x400
 
-BG_TILE_NB_CLUTS_POW = 3
+BG_TILE_NB_CLUTS_POW = 4
 BG_TILE_NB_CLUTS = 1<<BG_TILE_NB_CLUTS_POW
 BG_TILE_COUNT = 0x400
 SPRITE_COUNT = 0x400
@@ -4061,31 +4060,7 @@ osd_debug_hook:
 	
 	
 
-	
-	.ifne	OPT_ENABLE_LOGGING
-purge_tile_log_data:
-	movem.l	d0-a6,-(a7)
-	lea		fg_tile_log_table,a0
-	lea		fg_tile_log_table_end,a1
-0:
-	clr.l (a0)+
-	cmp.l	a0,a1
-	jne		0b
-	
-	
-	movem.l	(a7)+,d0-a6
-	rts
-purge_sprite_log_data:
-	movem.l	d0-a6,-(a7)
-	lea		sprite_log_table,a0
-	lea		sprite_log_table_end,a1
-0:
-	clr.l (a0)+
-	cmp.l	a0,a1
-	jne		0b
-	movem.l	(a7)+,d0-a6
-	rts
-	.endif
+
 
 	
 * < D1: previous state
@@ -4240,6 +4215,7 @@ log_used_fg_tiles:
 	lea		fg_tile_log_table,a0
 	move	#(1<<FG_TILE_NB_CLUTS_POW)-1,d4		| clut mask
 	move	#FG_TILE_NB_CLUTS_POW,d5		| nb clut pow
+	move.w	#0x400-1,d7
 	jra		log_any_tiles
 	
 log_used_bg_tiles:
@@ -4252,19 +4228,11 @@ log_used_bg_tiles:
 	lea		bg_tile_log_table,a0
 	move	#(1<<BG_TILE_NB_CLUTS_POW)-1,d4		| clut mask
 	move	#BG_TILE_NB_CLUTS_POW,d5		| nb clut pow
+	move.w	#0x800-1,d7
 
 log_any_tiles:
-	move.w	#0x800-1,d7
 0:
-	tst.b	must_mirror_y_tiles
-	jne		1f
-	* if Y is > 0x10 don't log (that will be trash from previous level)
-	move.w	d7,d0
-	and.w	#0x1F,d0
-	cmp.w	#0x10,d0
-	jcs		1f
-	sub.w	#0x10,d7		| skip 10 rows
-1:
+
 	moveq	#0,d1
 	moveq	#0,d0
 	move.b	(a5,d7.w),d0	| tile code
@@ -4749,7 +4717,7 @@ osd_sound_start:
 
 	
 	move.w	(2,a0,d0.w),d1	| pattern number in .mod file
-	lea		module_buffer,a0
+	*lea		module_buffer,a0
 	moveq	#0,d0
 	move.w	d1,d0
     sub.l   a1,a1		| samples are in the module
@@ -5639,8 +5607,6 @@ mirror_buffer_end:
 sprite_table_buffer:
 	.skip	SPRITE_FILE_MAX_SIZE    | biggest contextual sprite file
 	
-module_buffer:
-	.skip	BIGGEST_MUSIC_SIZE		| biggest tune
 	
 hw_sprite_ram_buffer:
 	.skip	HW_SPRITE_BUFFER_SIZE*8	| 8 64-bit wide sprites + control words + align
