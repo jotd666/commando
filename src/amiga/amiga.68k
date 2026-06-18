@@ -3042,6 +3042,11 @@ platform_init:
 	move.w	#16,d0
 	jbsr	load_palette
 		
+	lea		bg_tile_palette,a0
+	move.l	color_copper_pointers,a1	| entries 0-31
+	move.w	#TOTAL_NB_COLORS/2,d0
+	jbsr	load_palette
+		
 	
 	lea		sprite_palette,a0
 	move.l	color_copper_pointers+TOTAL_NB_COLORS/2*4,a1	| entries 32-64
@@ -3512,9 +3517,7 @@ update_bg_tile:
 	
 	*cmp.b	#0x20,d2
 	*jeq		11f				| optim: blank tile
-	move.l		bg_tile_character_table,d0
-	jeq		100f			| no context loaded: out
-	move.l	d0,a0
+	lea		bg_character_table,a0
 	.ifdef	NO68020
 	add.w	d2,d2
 	add.w	d2,d2	
@@ -5408,12 +5411,7 @@ mirror_buffer_context_ptr:
 	.long	0
 context_sprite_table_ptr:
 	.long	0
-bg_tile_character_table:
-	.long 	0
-bg_character_table_buffer_ptr:
-	.long	0
-bg_character_table_buffer:
-	.skip	BG_TILE_FILE_MAX_SIZE
+
 	
 fg_tile_address_table:
 	.skip	0x400*2
@@ -5567,30 +5565,7 @@ pal_wait:
      .long    -2					
 	.ascii	"ENDCPLST"
 	
-	
-	.ifdef	NEED_ROWS
-	* moved out of the copperlist, we don't need this on this game
-	* I decided screw copper split
-first_rows:
-	.rept	NB_FIRST_ROWS
-	DECL_ROW
-	.endr
-first_rows_end:
-second_rows:
-	.rept	NB_SECOND_ROWS
-	DECL_ROW
-	.endr
 
-third_rows:
-	.rept	NB_THIRD_ROWS
-	DECL_ROW
-	.endr
-	.set	y_pos,0
-fourth_rows:
-	.rept	NB_FOURTH_ROWS
-	DECL_ROW
-	.endr
-	.endif
 	
 	* aligning on 8 bytes so .align will work
 	* in the next datachip sections

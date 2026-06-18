@@ -170,17 +170,17 @@
 
 	.macro	LOAD_HL	argument
 	move.w	\argument,d6
-	MAKE_H
+	move.b	\argument>>8,d5
 	.endm
 
 	.macro	LOAD_BC	argument
 	move.w	\argument,d2
-	MAKE_B
+	move.b	\argument>>8,d1
 	.endm
 
 	.macro	LOAD_DE	argument
 	move.w	\argument,d4
-	MAKE_D
+	move.b	\argument>>8,d3
 	.endm
 
 	.macro CLR_XC_FLAGS

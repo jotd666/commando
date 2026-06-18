@@ -452,7 +452,7 @@ def dump_tile_layer(tile_table,prefix,relative_root=None):
     for i,tile_entry in enumerate(tile_table):
         f.write(item_decl)
         if tile_entry and any(tile_entry):
-            f.write(f"{prefix}_tile_{i:02x}")
+            f.write(f"{prefix}tile_{i:02x}")
             if relative_root:
                 f.write(f"-{relative_root}")
         else:
@@ -461,12 +461,12 @@ def dump_tile_layer(tile_table,prefix,relative_root=None):
 
     for i,tile_entry in enumerate(tile_table):
         if tile_entry and any(tile_entry):
-            rr = f"{prefix}_tile_{i:02x}"
+            rr = f"{prefix}tile_{i:02x}"
             f.write(f"{rr}:\n")
             for j,t in enumerate(tile_entry):
                 f.write(item_decl)
                 if t:
-                    f.write(f"{prefix}_tile_{i:02x}_{j:02x}")
+                    f.write(f"{prefix}tile_{i:02x}_{j:02x}")
                     if relative_root:
                         f.write(f"-{relative_root}")
                 else:
@@ -478,7 +478,7 @@ def dump_tile_layer(tile_table,prefix,relative_root=None):
         if tile_entry and any(tile_entry):
             for j,t in enumerate(tile_entry):
                 if t:
-                    name = f"{prefix}_tile_{i:02x}_{j:02x}"
+                    name = f"{prefix}tile_{i:02x}_{j:02x}"
 
                     f.write(f"{name}:\n")
                     for orientation,_ in plane_orientations:
@@ -488,7 +488,7 @@ def dump_tile_layer(tile_table,prefix,relative_root=None):
                             for bitplane_id in data["bitplanes"]:
                                 f.write(item_decl)
                                 if bitplane_id:
-                                    f.write(f"tile_plane_{bitplane_id:02d}")
+                                    f.write(f"{prefix}tile_plane_{bitplane_id:02d}")
                                     if relative_root:
                                         f.write(f"-{relative_root}")
                                 else:
@@ -500,6 +500,7 @@ def dump_tile_layer(tile_table,prefix,relative_root=None):
                         else:
                             for _ in range(nb_planes):
                                 f.write(f"{item_decl}0\n")
+    return i+1
 
 
 def apply_color_replacement(sprite_set_list,quantized):
@@ -804,20 +805,22 @@ fg_tile_table = fg_tile_upper_table
 with open(src_dir / "graphics.68k","w") as f:
     f.write(generated_message)
     f.write("\t.global\tfg_character_table\n")
+    f.write("\t.global\tbg_character_table\n")
     f.write("\t.global\tshared_bob_table\n")
 
     f.write("fg_character_table:\n")
 
-    dump_tile_layer(fg_tile_table,"fg")
+    offset = dump_tile_layer(fg_tile_table,"fg_")
 
 
     for k,v in tile_plane_cache.items():
-        f.write(f"tile_plane_{v:02d}:")
+        f.write(f"fg_tile_plane_{v:02d}:")
         dump_asm_bytes(k,f)
 
-    dump_tile_layer(bg_tile_table,"bg")
+    f.write("bg_character_table:\n")
+    dump_tile_layer(bg_tile_table,"bg_")
     for k,v in bg_tile_plane_cache.items():
-        f.write(f"tile_plane_{v:02d}:")
+        f.write(f"bg_tile_plane_{v:02d}:")
         dump_asm_bytes(k,f)
 
     f.write("shared_bob_table:\n")

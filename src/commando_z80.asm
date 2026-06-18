@@ -1466,7 +1466,7 @@ return_0583:
 0990: 3A 8B CF    ld   a,($EDA9)
 0993: E6 61       and  $07
 0995: 21 5B 81    ld   hl,$09B5
-0998: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+0998: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 0999: 21 78 BC    ld   hl,$DA96
 099C: 0E 21       ld   c,$03
 099E: 06 40       ld   b,$04
@@ -1582,7 +1582,7 @@ return_0583:
 0B36: 3A 8B CF    ld   a,($EDA9)
 0B39: E6 61       and  $07
 0B3B: 21 DD A1    ld   hl,$0BDD
-0B3E: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+0B3E: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 0B3F: EB          ex   de,hl
 0B40: 3A 20 0E    ld   a,(timing_variable_e002)
 0B43: 0F          rrca
@@ -1594,7 +1594,7 @@ return_0583:
 0B4C: 0F          rrca
 0B4D: E6 61       and  $07
 0B4F: DD 21 1D A1 ld   ix,$0BD1
-0B53: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+0B53: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 0B54: CD 88 A3    call $2B88
 0B57: 3A 8B CF    ld   a,($EDA9)
 0B5A: E6 61       and  $07
@@ -1609,7 +1609,7 @@ return_0583:
 0B6D: 0F          rrca
 0B6E: E6 21       and  $03
 0B70: 21 77 A1    ld   hl,$0B77
-0B73: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+0B73: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 0B74: C3 9C D0    jp   $1CD8
 0B77: 37          scf
 0B78: 08          ex   af,af'
@@ -1620,7 +1620,7 @@ return_0583:
 0B7E: 88          adc  a,b
 0B7F: 21 0B A1    ld   hl,$0BA1
 0B82: 3A 2A 0E    ld   a,($E0A2)
-0B85: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+0B85: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 0B86: 21 ED 1D    ld   hl,$D1CF
 0B89: 0E 20       ld   c,$02
 0B8B: 06 20       ld   b,$02
@@ -1737,7 +1737,7 @@ return_0583:
 0DBF: 21 2F C1    ld   hl,$0DE3
 0DC2: 3A 6A 0E    ld   a,($E0A6)
 0DC5: 3D          dec  a
-0DC6: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+0DC6: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 0DC7: 21 19 EE    ld   hl,$EE91
 0DCA: 3A 91 0E    ld   a,($E019)
 0DCD: E6 01       and  $01
@@ -1794,7 +1794,7 @@ return_0583:
 0E4C: 7E          ld   a,(hl)
 0E4D: E6 61       and  $07
 0E4F: 21 59 E0    ld   hl,$0E95
-0E52: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+0E52: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 0E53: EB          ex   de,hl
 0E54: 5E          ld   e,(hl)
 0E55: 23          inc  hl
@@ -1927,7 +1927,7 @@ entry_0fc2:
 105D: 28 41       jr   z,$1064
 105F: 21 76 10    ld   hl,$1076
 1062: 0E 96       ld   c,$78
-1064: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1064: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1065: EB          ex   de,hl
 1066: 7E          ld   a,(hl)
 1067: DD 77 F0    ld   (ix+$1e),a
@@ -2099,7 +2099,7 @@ entry_0fc2:
 1218: DD 75 91    ld   (ix+$19),l
 121B: 7D          ld   a,l
 121C: 21 B4 30    ld   hl,$125A
-121F: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+121F: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1220: E1          pop  hl
 1221: 7B          ld   a,e
 1222: 84          add  a,h
@@ -2433,7 +2433,7 @@ entry_14c0:
 1560: 0F          rrca
 1561: 0F          rrca
 1562: E6 F1       and  $1F
-1564: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1564: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1565: EB          ex   de,hl
 1566: 7E          ld   a,(hl)
 1567: 47          ld   b,a
@@ -2451,7 +2451,7 @@ entry_14c0:
 157E: 0F          rrca
 157F: 0F          rrca
 1580: E6 F1       and  $1F
-1582: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1582: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1583: DD 66 41    ld   h,(ix+$05)
 1586: DD 6E 60    ld   l,(ix+$06)
 1589: 19          add  hl,de
@@ -2690,7 +2690,7 @@ entry_14c0:
 188B: CD 0F B1    call $1BE1
 188E: DD 7E 80    ld   a,(ix+$08)
 1891: 21 7D 90    ld   hl,$18D7
-1894: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1894: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1895: C3 9C D0    jp   $1CD8
 1898: 21 55 0E    ld   hl,$E055
 189B: 34          inc  (hl)
@@ -2716,7 +2716,7 @@ entry_14c0:
 18CA: 11 EF 90    ld   de,$18EF
 18CD: DD 7E 50    ld   a,(ix+$14)
 18D0: 21 6F 90    ld   hl,$18E7
-18D3: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+18D3: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 18D4: C3 88 A3    jp   $2B88
 
 191F: CD C9 B2    call $3A8D
@@ -2993,7 +2993,7 @@ entry_14c0:
 1BD4: CD 0F B1    call $1BE1
 1BD7: DD 7E 80    ld   a,(ix+$08)
 1BDA: 21 04 D0    ld   hl,$1C40
-1BDD: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1BDD: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1BDE: C3 9C D0    jp   $1CD8
 1BE1: DD 35 51    dec  (ix+$15)
 1BE4: 28 44       jr   z,$1C2A
@@ -3018,7 +3018,7 @@ entry_14c0:
 1C07: E6 61       and  $07
 1C09: DD 77 80    ld   (ix+$08),a
 1C0C: 21 B0 D0    ld   hl,$1C1A
-1C0F: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1C0F: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1C10: 63          ld   h,e
 1C11: 6A          ld   l,d
 1C12: CD DF 39    call $93FD
@@ -3069,7 +3069,7 @@ entry_14c0:
 1CA0: E6 21       and  $03
 1CA2: 21 0D D0    ld   hl,$1CC1
 1CA5: 87          add  a,a
-1CA6: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1CA6: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1CA7: DD 72 A1    ld   (ix+$0b),d
 1CAA: DD 73 C0    ld   (ix+$0c),e
 1CAD: 4E          ld   c,(hl)
@@ -3087,7 +3087,7 @@ entry_14c0:
 1CD3: 0F          rrca
 1CD4: 0F          rrca
 1CD5: E6 E1       and  $0F
-1CD7: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1CD7: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1CD8: FD 73 00    ld   (iy+$00),e
 1CDB: FD 72 01    ld   (iy+$01),d
 1CDE: DD 7E 21    ld   a,(ix+$03)
@@ -3110,7 +3110,7 @@ entry_14c0:
 1D08: 0F          rrca
 1D09: 0F          rrca
 1D0A: E6 21       and  $03
-1D0C: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1D0C: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1D0D: C3 88 A3    jp   $2B88
 1D10: 3A 26 0E    ld   a,($E062)
 1D13: A7          and  a
@@ -3156,7 +3156,7 @@ entry_14c0:
 1D70: 0F          rrca
 1D71: 0F          rrca
 1D72: E6 21       and  $03
-1D74: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1D74: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1D75: C3 88 A3    jp   $2B88
 
 
@@ -3207,7 +3207,7 @@ entry_14c0:
 1DD0: CD B7 F0    call $1E7B
 1DD3: DD 7E 80    ld   a,(ix+$08)
 1DD6: 21 92 F1    ld   hl,$1F38
-1DD9: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1DD9: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1DDA: CD 9C D0    call $1CD8
 1DDD: DD 7E 70    ld   a,(ix+$16)
 1DE0: A7          and  a
@@ -3216,7 +3216,7 @@ entry_14c0:
 1DE5: FD 19       add  iy,de
 1DE7: DD 7E 50    ld   a,(ix+$14)
 1DEA: 21 D0 F1    ld   hl,$1F1C
-1DED: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1DED: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1DEE: C3 88 A3    jp   $2B88
 1DF1: CD C9 B2    call $3A8D
 1DF4: DD 7E 41    ld   a,(ix+$05)
@@ -3224,7 +3224,7 @@ entry_14c0:
 1DF8: CA 6B B2    jp   z,$3AA7
 1DFB: DD 7E 80    ld   a,(ix+$08)
 1DFE: 21 92 F1    ld   hl,$1F38
-1E01: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1E01: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1E02: C3 9C D0    jp   $1CD8
 1E05: DD E5       push ix
 1E07: DD 66 21    ld   h,(ix+$03)
@@ -3258,7 +3258,7 @@ entry_14c0:
 1E55: E6 21       and  $03
 1E57: 21 0D D0    ld   hl,$1CC1
 1E5A: 87          add  a,a
-1E5B: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1E5B: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1E5C: DD 72 A1    ld   (ix+$0b),d
 1E5F: DD 73 C0    ld   (ix+$0c),e
 1E62: 4E          ld   c,(hl)
@@ -3359,7 +3359,7 @@ entry_14c0:
 1F99: DD 75 41    ld   (ix+$05),l
 1F9C: DD 7E 20    ld   a,(ix+$02)
 1F9F: 21 5B F1    ld   hl,$1FB5
-1FA2: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+1FA2: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1FA3: DD 7E 21    ld   a,(ix+$03)
 1FA6: 83          add  a,e
 1FA7: DD 77 21    ld   (ix+$03),a
@@ -3490,7 +3490,7 @@ entry_14c0:
 20D1: 0F          rrca
 20D2: 0F          rrca
 20D3: E6 E1       and  $0F
-20D5: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+20D5: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 20D6: C9          ret
 20D7: 21 55 0E    ld   hl,$E055
 20DA: 34          inc  (hl)
@@ -3773,7 +3773,7 @@ entry_14c0:
 23C8: DD 36 51 00 ld   (ix+$15),$00
 23CC: 79          ld   a,c
 23CD: 21 BD 23    ld   hl,$23DB
-23D0: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+23D0: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 23D1: DD 72 70    ld   (ix+$16),d
 23D4: DD 73 71    ld   (ix+$17),e
 23D7: CD 4C 59    call $95C4
@@ -4600,7 +4600,7 @@ entry_14c0:
 2B83: 0F          rrca
 2B84: 0F          rrca
 2B85: E6 E1       and  $0F
-2B87: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+2B87: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 2B88: DD 46 40    ld   b,(ix+$04)
 2B8B: DD 4E 41    ld   c,(ix+$05)
 2B8E: 1A          ld   a,(de)
@@ -4655,7 +4655,7 @@ entry_14c0:
 2BDD: 0F          rrca
 2BDE: 0F          rrca
 2BDF: E6 21       and  $03
-2BE1: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+2BE1: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 2BE2: C3 88 A3    jp   $2B88
 2BE5: DD 35 00    dec  (ix+$00)
 2BE8: 16 41       ld   d,$05
@@ -4786,7 +4786,7 @@ entry_14c0:
 2D4D: 0F          rrca
 2D4E: 0F          rrca
 2D4F: E6 01       and  $01
-2D51: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+2D51: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 2D52: C3 86 C3    jp   $2D68
 2D55: 21 88 73    ld   hl,$3788
 2D58: CB 50       bit  2,b
@@ -4797,7 +4797,7 @@ entry_14c0:
 2D63: 0F          rrca
 2D64: 0F          rrca
 2D65: E6 21       and  $03
-2D67: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+2D67: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 2D68: DD 7E 40    ld   a,(ix+$04)
 2D6B: F5          push af
 2D6C: DD CB 40 68 res  0,(ix+$04)
@@ -4924,7 +4924,7 @@ entry_14c0:
 2ED1: 28 21       jr   z,$2ED6
 2ED3: 21 37 E3    ld   hl,$2F73
 2ED6: DD 7E 80    ld   a,(ix+$08)
-2ED9: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+2ED9: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 2EDA: CD 9C D0    call $1CD8
 2EDD: 11 40 00    ld   de,$0004
 2EE0: FD 19       add  iy,de
@@ -4937,7 +4937,7 @@ entry_14c0:
 2EF0: 28 21       jr   z,$2EF5
 2EF2: 21 B3 E3    ld   hl,$2F3B
 2EF5: DD 7E 80    ld   a,(ix+$08)
-2EF8: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+2EF8: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 2EF9: 78          ld   a,b
 2EFA: 83          add  a,e
 2EFB: DD 77 21    ld   (ix+$03),a
@@ -4950,7 +4950,7 @@ entry_14c0:
 2F0A: 28 21       jr   z,$2F0F
 2F0C: 21 07 E3    ld   hl,$2F61
 2F0F: DD 7E 80    ld   a,(ix+$08)
-2F12: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+2F12: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 2F13: CD 9C D0    call $1CD8
 2F16: 11 40 00    ld   de,$0004
 2F19: FD 19       add  iy,de
@@ -4994,7 +4994,7 @@ entry_14c0:
 2FB5: D0          ret  nc
 2FB6: 21 2C E3    ld   hl,$2FC2
 2FB9: DD 77 80    ld   (ix+$08),a
-2FBC: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+2FBC: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 2FBD: 63          ld   h,e
 2FBE: 6A          ld   l,d
 2FBF: C3 DF 39    jp   $93FD
@@ -5017,7 +5017,7 @@ entry_14c0:
 303D: CD B4 12    call $305A
 3040: DD 7E 80    ld   a,(ix+$08)
 3043: 21 A4 12    ld   hl,$304A
-3046: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+3046: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 3047: C3 9C D0    jp   $1CD8
 
 305A: 3A 20 0E    ld   a,(timing_variable_e002)
@@ -5037,7 +5037,7 @@ entry_14c0:
 3073: E6 61       and  $07
 3075: DD 77 80    ld   (ix+$08),a
 3078: 21 09 12    ld   hl,$3081
-307B: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+307B: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 307C: 63          ld   h,e
 307D: 6A          ld   l,d
 307E: C3 DF 39    jp   $93FD
@@ -5055,7 +5055,7 @@ entry_14c0:
 30A1: 87          add  a,a
 30A2: 80          add  a,b
 30A3: 21 AA 12    ld   hl,$30AA
-30A6: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+30A6: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 30A7: C3 88 A3    jp   $2B88
 
 
@@ -5079,7 +5079,7 @@ entry_14c0:
 30FE: CD 6B 68    call $86A7
 3101: DD 7E 50    ld   a,(ix+$14)
 3104: 21 53 13    ld   hl,$3135
-3107: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+3107: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 3108: 3A 8A CF    ld   a,(num_grenades_eda8)             ; read NUM_GRENADES
 310B: BA          cp   d
 310C: 30 70       jr   nc,$3124
@@ -5456,7 +5456,7 @@ entry_33f4:
 34F4: C9          ret
 34F5: DD 7E 70    ld   a,(ix+$16)
 34F8: 21 77 53    ld   hl,$3577
-34FB: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+34FB: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 34FC: DD 7E 41    ld   a,(ix+$05)
 34FF: C6 41       add  a,$05
 3501: DD 77 41    ld   (ix+$05),a
@@ -5532,14 +5532,14 @@ entry_33f4:
 35C6: E6 61       and  $07
 35C8: DD 77 70    ld   (ix+$16),a
 35CB: 21 69 53    ld   hl,$3587
-35CE: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+35CE: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 35CF: 63          ld   h,e
 35D0: 6A          ld   l,d
 35D1: C3 DF 39    jp   $93FD
 35D4: CD C9 B2    call $3A8D
 35D7: DD 7E 50    ld   a,(ix+$14)
 35DA: 21 0B 53    ld   hl,$35A1
-35DD: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+35DD: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 35DE: DD 7E 40    ld   a,(ix+$04)
 35E1: DD 66 41    ld   h,(ix+$05)
 35E4: DD 6E 60    ld   l,(ix+$06)
@@ -5614,7 +5614,7 @@ entry_33f4:
 36BA: 0F          rrca
 36BB: E6 01       and  $01
 36BD: 21 C6 73    ld   hl,$376C
-36C0: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+36C0: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 36C1: 18 C0       jr   $36CF
 36C3: DD 7E 51    ld   a,(ix+$15)
 36C6: 0F          rrca
@@ -5622,7 +5622,7 @@ entry_33f4:
 36C8: 0F          rrca
 36C9: E6 21       and  $03
 36CB: 21 88 73    ld   hl,$3788
-36CE: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+36CE: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 36CF: DD 7E 40    ld   a,(ix+$04)
 36D2: F5          push af
 36D3: DD 36 40 00 ld   (ix+$04),$00
@@ -5742,7 +5742,7 @@ entry_33f4:
 3833: DD 7E 50    ld   a,(ix+$14)
 3836: E6 21       and  $03
 3838: 21 F3 92    ld   hl,$383F
-383B: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+383B: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 383C: C3 88 A3    jp   $2B88
 
 3859: DD 7E 50    ld   a,(ix+$14)
@@ -5803,7 +5803,7 @@ entry_33f4:
 38CD: FE 60       cp   $06
 38CF: CA 5E 92    jp   z,$38F4
 38D2: 21 F0 93    ld   hl,$391E
-38D5: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
+38D5: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 38D6: DD 46 21    ld   b,(ix+$03)
 38D9: DD 4E 41    ld   c,(ix+$05)
 38DC: C5          push bc
@@ -6461,7 +6461,8 @@ entry_33f4:
 806C: 32 83 3C    ld   ($D229),a
 806F: C9          ret
 8070: 21 BD 29    ld   hl,$83DB
-8073: CD C7 D8    call print_text_9c6d
+8073: C3 C7 D8    jp   print_text_9c6d
+
 8076: CD D1 09    call $811D
 8079: AF          xor  a
 807A: 32 1A 0E    ld   ($E0B0),a
@@ -9341,6 +9342,7 @@ erase_text_9c84:
 9CC1: 11 19 EE    ld   de,$EE91
 9CC4: C3 F1 D9    jp   write_number_to_screen_9d1f
 9CC7: C9          ret
+
 9CC8: 3E 00       ld   a,$00
 9CCA: 4F          ld   c,a
 9CCB: 21 FA 3D    ld   hl,$D3BE
@@ -9357,6 +9359,7 @@ erase_text_9c84:
 9CE4: CB D4       set  2,h
 9CE6: 71          ld   (hl),c		; [video_address]
 9CE7: CB 94       res  2,h
+; write top score to screen on top
 9CE9: 21 F8 1D    ld   hl,$D19E
 9CEC: 11 79 EE    ld   de,hi_score_ee97
 9CEF: C3 F1 D9    jp   write_number_to_screen_9d1f
