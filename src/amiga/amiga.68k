@@ -205,8 +205,8 @@ SPRITE_CODE = 0
 SPRITE_ATTRIBUTES = 1
 SPRITE_SIZEOF = 4
 
-BIT_COIN1 = 6
-BIT_COIN2 = 7
+BIT_COIN1 = 7
+BIT_COIN2 = 6
 
 BIT_START_1P = 0
 BIT_START_2P = 1
@@ -1234,6 +1234,7 @@ level3_interrupt:
 
 0:
 
+
 	move.l	joypad_1_state(pc),d1
 	move.l	d1,d2
 	moveq	#0,d0
@@ -1244,6 +1245,8 @@ level3_interrupt:
 0:
 	GET_MEMORY_START_IN_A6
 	jbsr	update_controls
+
+	jbsr	read_system
 	
 	move.l	joypad_1_state,d0
 	btst	#JPB_BTN_PLAY,d0
@@ -3792,7 +3795,6 @@ compute_fg_tile_xy:
 * < D1: tile attribute
 
 update_fg_tile:
-	move.b	#0,0x110
 	* if < 0x40 bail out as not visible
 	cmp.w	#0x40,d7
 	jcc		0f
@@ -4183,6 +4185,7 @@ read_system:
 0:
 
 1:	
+	move.b	d0,(system_c000,a6)
 	movem.l	(a7)+,a0/d1
 	rts
 

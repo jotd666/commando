@@ -1,10 +1,8 @@
 - converter: data.inc is empty
 - rip sounds
-
-- top score not displayed
-- highscore table not displayed properly
+- AB16: check stack pop?
 - CREDIT 00 appearing at the top, should be on bottom
-- display bg tiles now
+- display bg tiles not correct
 
 - a6d1: optimize hl *= 32
 - irq: optimize don't save regs
@@ -14,3 +12,8 @@
 - cheat add 10000 to score 
 - highscore load/save
 - detect not game in play for insert coin
+
+
+rip sounds:
+
+bpset 8717,,{A=5;g}

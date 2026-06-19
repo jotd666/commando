@@ -421,9 +421,6 @@ ldir_video:
     MAKE_HL_NO_AR
     MAKE_DE_NO_AR
     MAKE_AR_UNCHECKED_FROM_HL	a1
-	nop
-	nop
-	nop
     MAKE_AR_UNCHECKED_FROM_DE	a0
     add.w	d2,d6
     add.w	d2,d4
@@ -433,6 +430,28 @@ ldir_video:
 0:
     move.b    (a1)+,(a0)
 	VIDEO_BYTE_DIRTY
+	addq	#1,a0
+    dbf        d2,0b
+    moveq	#0,d2
+	moveq	#0,d1
+    rts
+	
+* < A0: source (HL)
+* < A1: destination (DE)
+* < D1: length (16 bit)
+ldir_unchecked:
+    MAKE_BC_NO_AR
+    MAKE_HL_NO_AR
+    MAKE_DE_NO_AR
+    MAKE_AR_UNCHECKED_FROM_HL	a1
+    MAKE_AR_UNCHECKED_FROM_DE	a0
+    add.w	d2,d6
+    add.w	d2,d4
+    MAKE_H
+    MAKE_D
+    subq.w    #1,d2
+0:
+    move.b    (a1)+,(a0)
 	addq	#1,a0
     dbf        d2,0b
     moveq	#0,d2

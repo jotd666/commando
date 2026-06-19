@@ -228,6 +228,7 @@ hi_score_4th_ee27    = $ee27
 hi_score_5th_ee34    = $ee34
 hi_score_6th_ee41    = $ee41
 hi_score_7th_ee4e    = $ee4e
+pointer_ed80 = $ed80
 
 timing_variable_e002 = $e002
 port_state_c000_in0_e003 = $e003
@@ -254,6 +255,7 @@ port_state_c001_in1_e004 = $e004
 port_state_c002_in2_e005 = $e005
 port_state_dsw1_e006     = $e006
 port_state_dsw2_e007     = $e007
+sound_command_e03a = $e03a
 
 ; These names are temporary until I work out what they are for.
 port_state_c001_bit0_bits_e008 = $e008
@@ -271,7 +273,7 @@ fg_tiles_address_d000 = $d000
 fg_tiles_color_address_d400 = $d400
 bg_tiles_address_d800 = $d800
 bg_tiles_color_address_dc00 = $dc00
-
+sound_queue_pointer_ed88 = $ed88
 
 
 ; set to 1 if dip switches report an upright cabinet 
@@ -421,8 +423,8 @@ jump_0030:
 
 
 
-
-0038: 2A 08 CF    ld   hl,($ED80)
+store_de_in_circular_buffer_0038:
+0038: 2A 08 CF    ld   hl,(pointer_ed80)
 003B: 72          ld   (hl),d
 003C: 2C          inc  l
 003D: 73          ld   (hl),e
@@ -431,7 +433,7 @@ jump_0030:
 0040: FE 04       cp   $40
 0042: 38 20       jr   c,$0046
 0044: 2E 00       ld   l,$00
-0046: 22 08 CF    ld   ($ED80),hl
+0046: 22 08 CF    ld   (pointer_ed80),hl
 0049: C9          ret
 
 startup_004a:
@@ -493,29 +495,24 @@ startup_004a:
 00AF: 11 00 EE    ld   de,hi_score_1st_ee00
 00B2: 01 28 00    ld   bc,$0082
 00B5: ED B0       ldir
-
 00B7: 21 00 CF    ld   hl,$ED00
 00BA: 22 28 CF    ld   ($ED82),hl
-00BD: 22 08 CF    ld   ($ED80),hl
+00BD: 22 08 CF    ld   (pointer_ed80),hl
 00C0: 11 01 CF    ld   de,$ED01
 00C3: 36 FF       ld   (hl),$FF
 00C5: 01 F3 00    ld   bc,$003F
 00C8: ED B0       ldir
-
 00CA: 21 04 CF    ld   hl,$ED40
-00CD: 22 88 CF    ld   ($ED88),hl
+00CD: 22 88 CF    ld   (sound_queue_pointer_ed88),hl
 00D0: 22 68 CF    ld   ($ED86),hl
 00D3: 11 05 CF    ld   de,$ED41
 00D6: 36 FF       ld   (hl),$FF
 00D8: 01 F1 00    ld   bc,$001F
 00DB: ED B0       ldir
-
 00DD: CD 7B 21    call $03B7
-
 00E0: 3E 00       ld   a,$00
 00E2: 32 93 0E    ld   (is_screen_yflipped_e039),a
 00E5: CD 76 20    call $0276
-
 00E8: 3A 60 0E    ld   a,(port_state_dsw1_e006)
 00EB: 47          ld   b,a
 00EC: E6 21       and  $03
@@ -644,7 +641,7 @@ irq_02b7:    ; [global]
 02C1: DD E5       push ix
 02C3: FD E5       push iy
 02C5: CD 78 21    call $0396
-02C8: CD 63 69    call $8727
+02C8: CD 63 69    call process_sound_queue_8727
 02CB: CD BE 20    call $02FA
 02CE: FD E1       pop  iy
 02D0: DD E1       pop  ix
@@ -772,7 +769,7 @@ irq_02b7:    ; [global]
 	dc.w	$0562	; $0392
 	dc.w	$0621	; $0394
 
-0396: 3A B2 0E    ld   a,($E03A)
+0396: 3A B2 0E    ld   a,(sound_command_e03a)
 0399: 32 00 8C    ld   (sound_c800),a
 039C: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
 039F: E6 01       and  $01
@@ -814,17 +811,17 @@ irq_02b7:    ; [global]
 03E4: 35          dec  (hl)
 03E5: C0          ret  nz
 03E6: 16 81       ld   d,$09
-03E8: FF          rst  $38
+03E8: FF          rst  $38   ; store_de_in_circular_buffer_0038
 03E9: 11 01 00    ld   de,$0001
-03EC: FF          rst  $38
+03EC: FF          rst  $38   ; store_de_in_circular_buffer_0038
 03ED: 11 21 00    ld   de,$0003
-03F0: FF          rst  $38
+03F0: FF          rst  $38   ; store_de_in_circular_buffer_0038
 03F1: 16 20       ld   d,$02
-03F3: FF          rst  $38
+03F3: FF          rst  $38   ; store_de_in_circular_buffer_0038
 03F4: 16 21       ld   d,$03
-03F6: FF          rst  $38
+03F6: FF          rst  $38   ; store_de_in_circular_buffer_0038
 03F7: 16 40       ld   d,$04
-03F9: FF          rst  $38
+03F9: FF          rst  $38   ; store_de_in_circular_buffer_0038
 03FA: C3 01 60    jp   $0601
 03FD: C3 BA B2    jp   $3ABA
 0400: 21 50 40    ld   hl,return_0414	; [push_function]
@@ -847,18 +844,18 @@ return_0414:
 041E: A7          and  a
 041F: C8          ret  z
 0420: 16 81       ld   d,$09
-0422: FF          rst  $38
+0422: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0423: C3 01 60    jp   $0601
 0426: 16 20       ld   d,$02
-0428: FF          rst  $38
+0428: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0429: 16 21       ld   d,$03
-042B: FF          rst  $38
+042B: FF          rst  $38   ; store_de_in_circular_buffer_0038
 042C: 11 21 00    ld   de,$0003
-042F: FF          rst  $38
+042F: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0430: 11 51 00    ld   de,$0015
-0433: FF          rst  $38
+0433: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0434: 16 E0       ld   d,$0E
-0436: FF          rst  $38
+0436: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0437: CD 93 41    call $0539
 043A: FD 21 92 FF ld   iy,$FF38
 043E: FD 36 20 94 ld   (iy+$02),$58
@@ -882,7 +879,7 @@ return_0414:
 0475: FD 36 A0 00 ld   (iy+$0a),$00
 0479: CD 81 60    call $0609
 047C: 16 80       ld   d,$08
-047E: FF          rst  $38
+047E: FF          rst  $38   ; store_de_in_circular_buffer_0038
 047F: CD 93 41    call $0539
 0482: 21 00 90    ld   hl,$1800
 0485: 22 2A CF    ld   ($EDA2),hl
@@ -895,13 +892,13 @@ return_0414:
 0496: 22 2A CF    ld   ($EDA2),hl
 0499: CD E8 4B    call $A58E
 049C: CD 81 60    call $0609
-049F: CD DC 09    call $81DC
+049F: CD DC 09    call display_high_scores_81dc
 04A2: 11 40 00    ld   de,$0004
-04A5: FF          rst  $38
+04A5: FF          rst  $38   ; store_de_in_circular_buffer_0038
 04A6: 16 61       ld   d,$07
-04A8: FF          rst  $38
+04A8: FF          rst  $38   ; store_de_in_circular_buffer_0038
 04A9: 16 80       ld   d,$08
-04AB: FF          rst  $38
+04AB: FF          rst  $38   ; store_de_in_circular_buffer_0038
 04AC: CD 93 41    call $0539
 04AF: 21 00 F1    ld   hl,$1F00
 04B2: 22 2A CF    ld   ($EDA2),hl
@@ -920,13 +917,13 @@ return_0414:
 04D1: C3 DE 41    jp   $05FC
 04D4: CD 07 41    call $0561
 04D7: 11 42 00    ld   de,$0024
-04DA: FF          rst  $38
+04DA: FF          rst  $38   ; store_de_in_circular_buffer_0038
 04DB: 1C          inc  e
-04DC: FF          rst  $38
+04DC: FF          rst  $38   ; store_de_in_circular_buffer_0038
 04DD: 11 F0 00    ld   de,$001E
-04E0: FF          rst  $38
+04E0: FF          rst  $38   ; store_de_in_circular_buffer_0038
 04E1: 1C          inc  e
-04E2: FF          rst  $38
+04E2: FF          rst  $38   ; store_de_in_circular_buffer_0038
 04E3: 3E 00       ld   a,$00
 04E5: 32 65 0E    ld   ($E047),a
 04E8: C3 DE 41    jp   $05FC
@@ -963,16 +960,16 @@ return_0414:
 052B: 28 20       jr   z,$052F
 052D: 1E 70       ld   e,$16
 052F: CB 60       bit  4,b
-0531: CA 92 00    jp   z,$0038
+0531: CA 92 00    jp   z,store_de_in_circular_buffer_0038
 0534: 14          inc  d
-0535: C3 92 00    jp   $0038
+0535: C3 92 00    jp   store_de_in_circular_buffer_0038
 0538: C9          ret
 0539: 11 30 00    ld   de,$0012
-053C: FF          rst  $38
+053C: FF          rst  $38   ; store_de_in_circular_buffer_0038
 053D: 11 31 00    ld   de,$0013
-0540: FF          rst  $38
+0540: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0541: 11 50 00    ld   de,$0014
-0544: FF          rst  $38
+0544: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0545: C9          ret
 0546: 3A 20 0E    ld   a,(timing_variable_e002)
 0549: 0F          rrca
@@ -1006,7 +1003,7 @@ return_0414:
 057B: CB 70       bit  6,b
 057D: 28 01       jr   z,$0580
 057F: 14          inc  d
-0580: FF          rst  $38
+0580: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0581: 18 81       jr   $058C
 
 return_0583:
@@ -1023,9 +1020,9 @@ return_0583:
 0599: C3 8A 41    jp   $05A8
 059C: 11 80 00    ld   de,$0008
 059F: CB 68       bit  5,b
-05A1: CA 92 00    jp   z,$0038
+05A1: CA 92 00    jp   z,store_de_in_circular_buffer_0038
 05A4: 14          inc  d
-05A5: C3 92 00    jp   $0038
+05A5: C3 92 00    jp   store_de_in_circular_buffer_0038
 05A8: 3A 12 0E    ld   a,(num_credits_e030)
 05AB: D6 01       sub  $01
 05AD: 27          daa
@@ -1047,25 +1044,25 @@ return_0583:
 05D0: 3E 21       ld   a,$03
 05D2: 32 00 0E    ld   ($E000),a
 05D5: 16 81       ld   d,$09
-05D7: C3 92 00    jp   $0038
+05D7: C3 92 00    jp   store_de_in_circular_buffer_0038
 
 05DA: CD 7B 21    call $03B7
 05DD: 16 81       ld   d,$09
-05DF: FF          rst  $38
+05DF: FF          rst  $38   ; store_de_in_circular_buffer_0038
 05E0: 16 40       ld   d,$04
-05E2: FF          rst  $38
+05E2: FF          rst  $38   ; store_de_in_circular_buffer_0038
 05E3: CD 93 41    call $0539
 05E6: 16 80       ld   d,$08
-05E8: FF          rst  $38
+05E8: FF          rst  $38   ; store_de_in_circular_buffer_0038
 05E9: 11 A0 00    ld   de,$000A
-05EC: FF          rst  $38
+05EC: FF          rst  $38   ; store_de_in_circular_buffer_0038
 05ED: C3 DE 41    jp   $05FC
 
 05F0: 3A 12 0E    ld   a,(num_credits_e030)
 05F3: 3D          dec  a
 05F4: C8          ret  z
 05F5: 11 81 00    ld   de,$0009
-05F8: FF          rst  $38
+05F8: FF          rst  $38   ; store_de_in_circular_buffer_0038
 05F9: C3 DE 41    jp   $05FC
 
 05FC: 21 01 0E    ld   hl,$E001
@@ -1109,13 +1106,13 @@ return_0583:
 
 063B: 06 61       ld   b,$07
 063D: 11 02 00    ld   de,$0020
-0640: 36 02       ld   (hl),$20
+0640: 36 02       ld   (hl),$20		; [video_address]
 0642: 19          add  hl,de
 0643: 10 BF       djnz $0640
 0645: C9          ret
 
 0646: 11 20 01    ld   de,$0102
-0649: FF          rst  $38
+0649: FF          rst  $38   ; store_de_in_circular_buffer_0038
 064A: 21 19 EE    ld   hl,$EE91
 064D: 06 60       ld   b,$06
 064F: 36 00       ld   (hl),$00
@@ -1126,7 +1123,7 @@ return_0583:
 065A: 21 FE 3C    ld   hl,$D2FE
 065D: CD B3 60    call $063B
 0660: 11 01 00    ld   de,$0001
-0663: FF          rst  $38
+0663: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0664: CD 3B D8    call $9CB3
 0667: 3A 42 0E    ld   a,($E024)
 066A: 32 0C CF    ld   ($EDC0),a
@@ -1162,7 +1159,7 @@ return_0583:
 06A7: 28 30       jr   z,$06BB
 06A9: CD 8C D8    call $9CC8
 06AC: 11 20 00    ld   de,$0002
-06AF: FF          rst  $38
+06AF: FF          rst  $38   ; store_de_in_circular_buffer_0038
 06B0: 21 0C CF    ld   hl,$EDC0
 06B3: 11 0E CF    ld   de,$EDE0
 06B6: 01 02 00    ld   bc,$0020
@@ -1187,18 +1184,18 @@ return_0583:
 06F0: ED B0       ldir
 06F2: CD B9 61    call $079B
 06F5: 16 81       ld   d,$09
-06F7: FF          rst  $38
+06F7: FF          rst  $38   ; store_de_in_circular_buffer_0038
 06F8: 16 A0       ld   d,$0A
-06FA: FF          rst  $38
+06FA: FF          rst  $38   ; store_de_in_circular_buffer_0038
 06FB: 16 C1       ld   d,$0D
-06FD: FF          rst  $38
+06FD: FF          rst  $38   ; store_de_in_circular_buffer_0038
 06FE: 3A 8A CF    ld   a,(num_grenades_eda8)             ; read NUM_GRENADES
 0701: FE 60       cp   $06
 0703: 30 41       jr   nc,$070A
 0705: 3E 60       ld   a,$06
 0707: 32 8A CF    ld   (num_grenades_eda8),a             ; update NUM_GRENADES
 070A: 16 A1       ld   d,$0B
-070C: FF          rst  $38
+070C: FF          rst  $38   ; store_de_in_circular_buffer_0038
 070D: CD E8 4B    call $A58E
 0710: 3A 0B CF    ld   a,($EDA1)
 0713: A7          and  a
@@ -1245,13 +1242,13 @@ return_0583:
 0772: 35          dec  (hl)
 0773: C2 8B 61    jp   nz,$07A9
 0776: 16 81       ld   d,$09
-0778: FF          rst  $38
+0778: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0779: 16 A0       ld   d,$0A
-077B: FF          rst  $38
+077B: FF          rst  $38   ; store_de_in_circular_buffer_0038
 077C: 16 A1       ld   d,$0B
-077E: FF          rst  $38
+077E: FF          rst  $38   ; store_de_in_circular_buffer_0038
 077F: 16 C1       ld   d,$0D
-0781: FF          rst  $38
+0781: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0782: CD 60 89    call $8906
 0785: 3E 40       ld   a,$04
 0787: 32 01 0E    ld   ($E001),a
@@ -1273,7 +1270,7 @@ return_0583:
 07A8: C9          ret
 
 07A9: 11 C1 00    ld   de,$000D
-07AC: FF          rst  $38
+07AC: FF          rst  $38   ; store_de_in_circular_buffer_0038
 07AD: 3A 20 0E    ld   a,(timing_variable_e002)
 07B0: 47          ld   b,a
 07B1: E6 E1       and  $0F
@@ -1289,11 +1286,11 @@ return_0583:
 07BF: E6 01       and  $01
 07C1: C6 A1       add  a,$0B
 07C3: 5F          ld   e,a
-07C4: FF          rst  $38
+07C4: FF          rst  $38   ; store_de_in_circular_buffer_0038
 07C5: 16 C1       ld   d,$0D
-07C7: FF          rst  $38
+07C7: FF          rst  $38   ; store_de_in_circular_buffer_0038
 07C8: 16 A1       ld   d,$0B
-07CA: C3 92 00    jp   $0038
+07CA: C3 92 00    jp   store_de_in_circular_buffer_0038
 07CD: 3A 65 0E    ld   a,($E047)
 07D0: A7          and  a
 07D1: 28 51       jr   z,$07E8
@@ -1302,13 +1299,13 @@ return_0583:
 07D9: 35          dec  (hl)
 07DA: 20 C0       jr   nz,$07E8
 07DC: 16 81       ld   d,$09
-07DE: FF          rst  $38
+07DE: FF          rst  $38   ; store_de_in_circular_buffer_0038
 07DF: 16 A0       ld   d,$0A
-07E1: FF          rst  $38
+07E1: FF          rst  $38   ; store_de_in_circular_buffer_0038
 07E2: 16 A1       ld   d,$0B
-07E4: FF          rst  $38
+07E4: FF          rst  $38   ; store_de_in_circular_buffer_0038
 07E5: 16 C1       ld   d,$0D
-07E7: FF          rst  $38
+07E7: FF          rst  $38   ; store_de_in_circular_buffer_0038
 07E8: CD 21 AA    call $AA03
 07EB: 3A 06 0F    ld   a,($E160)
 07EE: A7          and  a
@@ -1392,12 +1389,12 @@ return_0583:
 0898: 32 01 0E    ld   ($E001),a
 089B: C9          ret
 089C: 11 E0 00    ld   de,$000E
-089F: FF          rst  $38
+089F: FF          rst  $38   ; store_de_in_circular_buffer_0038
 08A0: 3A 91 0E    ld   a,($E019)
 08A3: E6 01       and  $01
 08A5: C6 A1       add  a,$0B
 08A7: 5F          ld   e,a
-08A8: FF          rst  $38
+08A8: FF          rst  $38   ; store_de_in_circular_buffer_0038
 08A9: CD 2C 80    call $08C2
 08AC: 36 00       ld   (hl),$00
 08AE: CD D3 68    call $863D
@@ -1526,9 +1523,9 @@ return_0583:
 0ABD: CB 68       bit  5,b
 0ABF: CA 2D A0    jp   z,$0AC3
 0AC2: 14          inc  d
-0AC3: FF          rst  $38
+0AC3: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0AC4: 1C          inc  e
-0AC5: FF          rst  $38
+0AC5: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0AC6: C9          ret
 0AC7: 3E 20       ld   a,$02
 0AC9: 32 7B 0E    ld   ($E0B7),a
@@ -1564,13 +1561,13 @@ return_0583:
 0B15: 21 8B CF    ld   hl,$EDA9
 0B18: 34          inc  (hl)
 0B19: 16 81       ld   d,$09
-0B1B: FF          rst  $38
+0B1B: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0B1C: 16 C1       ld   d,$0D
-0B1E: FF          rst  $38
+0B1E: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0B1F: 16 A0       ld   d,$0A
-0B21: FF          rst  $38
+0B21: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0B22: 16 A1       ld   d,$0B
-0B24: FF          rst  $38
+0B24: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0B25: C3 DE 41    jp   $05FC
 0B28: CD 72 A1    call $0B36
 0B2B: 3A 20 0E    ld   a,(timing_variable_e002)
@@ -1641,7 +1638,7 @@ return_0583:
 
 0CEB: 16 41       ld   d,$05
 0CED: 1E 10       ld   e,$10
-0CEF: FF          rst  $38
+0CEF: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0CF0: 21 4A CF    ld   hl,$EDA4
 0CF3: 34          inc  (hl)
 0CF4: 7E          ld   a,(hl)
@@ -1674,9 +1671,9 @@ return_0583:
 0D33: FE 80       cp   $08
 0D35: 28 50       jr   z,$0D4B
 0D37: 11 03 00    ld   de,$0021
-0D3A: FF          rst  $38
+0D3A: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0D3B: 11 22 00    ld   de,$0022
-0D3E: FF          rst  $38
+0D3E: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0D3F: CD F4 98    call $985E
 0D42: CD F5 98    call $985F
 0D45: CD 7F 68    call $86F7
@@ -1691,7 +1688,7 @@ return_0583:
 0D59: A7          and  a
 0D5A: 20 11       jr   nz,$0D6D
 0D5C: 16 81       ld   d,$09
-0D5E: FF          rst  $38
+0D5E: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0D5F: 3E 01       ld   a,$01
 0D61: 32 00 0E    ld   ($E000),a
 0D64: 3E 00       ld   a,$00
@@ -1708,7 +1705,7 @@ return_0583:
 0D7B: CD 7B 21    call $03B7
 0D7E: CD 4B C1    call $0DA5
 0D81: 16 61       ld   d,$07
-0D83: FF          rst  $38
+0D83: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0D84: CD A8 C1    call $0D8A
 0D87: C3 DE 41    jp   $05FC
 0D8A: CD D3 68    call $863D
@@ -1722,7 +1719,7 @@ return_0583:
 0D9F: 32 65 0E    ld   ($E047),a
 0DA2: C3 DE 68    jp   $86FC
 0DA5: 16 81       ld   d,$09
-0DA7: FF          rst  $38
+0DA7: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0DA8: 3A 6A 0E    ld   a,($E0A6)
 0DAB: FE 61       cp   $07
 0DAD: 28 10       jr   z,$0DBF
@@ -2641,7 +2638,7 @@ entry_14c0:
 17FD: DF          rst  $18                   ; call ADD_A_TO_HL
 17FE: 16 41       ld   d,$05
 1800: 5E          ld   e,(hl)
-1801: FF          rst  $38
+1801: FF          rst  $38   ; store_de_in_circular_buffer_0038
 1802: DD 7E 31    ld   a,(ix+$13)
 1805: FE A0       cp   $0A
 1807: C0          ret  nz
@@ -3053,6 +3050,7 @@ entry_14c0:
 1C6F: 10 7E       djnz $1C67
 1C71: DD E1       pop  ix
 1C73: C9          ret
+
 1C74: DD 36 00 FF ld   (ix+$00),$FF
 1C78: DD 36 01 04 ld   (ix+$01),$40
 1C7C: DD 36 20 04 ld   (ix+$02),$40
@@ -3793,31 +3791,31 @@ entry_14c0:
 23E7: 04          inc  b
 23E8: 0E 04       ld   c,$40
 23EA: 1E 08       ld   e,$80
-23EC: FF          rst  $38
+23EC: FF          rst  $38   ; store_de_in_circular_buffer_0038
 23ED: FB          ei
 23EE: 0C          inc  c
 23EF: 04          inc  b
 23F0: 0E 04       ld   c,$40
 23F2: 1E 08       ld   e,$80
-23F4: FF          rst  $38
+23F4: FF          rst  $38   ; store_de_in_circular_buffer_0038
 23F5: FB          ei
 23F6: 0C          inc  c
 23F7: 04          inc  b
 23F8: 0E 04       ld   c,$40
 23FA: 1E 08       ld   e,$80
-23FC: FF          rst  $38
+23FC: FF          rst  $38   ; store_de_in_circular_buffer_0038
 23FD: FB          ei
 23FE: 0C          inc  c
 23FF: 04          inc  b
 2400: 0E 04       ld   c,$40
 2402: 1E 08       ld   e,$80
-2404: FF          rst  $38
+2404: FF          rst  $38   ; store_de_in_circular_buffer_0038
 2405: FB          ei
 2406: 0C          inc  c
 2407: 04          inc  b
 2408: 0E 04       ld   c,$40
 240A: 1E 08       ld   e,$80
-240C: FF          rst  $38
+240C: FF          rst  $38   ; store_de_in_circular_buffer_0038
 240D: DD E1       pop  ix
 240F: C9          ret
 2410: 11 70 42    ld   de,$2416
@@ -4583,7 +4581,7 @@ entry_14c0:
 2B66: DD 77 41    ld   (ix+$05),a
 2B69: 16 41       ld   d,$05
 2B6B: 1E 41       ld   e,$05
-2B6D: FF          rst  $38
+2B6D: FF          rst  $38   ; store_de_in_circular_buffer_0038
 2B6E: C9          ret
 
 ; doesn't seem reached?
@@ -4660,7 +4658,7 @@ entry_14c0:
 2BE5: DD 35 00    dec  (ix+$00)
 2BE8: 16 41       ld   d,$05
 2BEA: 1E 80       ld   e,$08
-2BEC: FF          rst  $38
+2BEC: FF          rst  $38   ; store_de_in_circular_buffer_0038
 2BED: C3 CA 68    jp   $86AC
 2BF0: DD 7E 00    ld   a,(ix+$00)
 2BF3: FE F3       cp   $3F
@@ -4675,7 +4673,7 @@ entry_14c0:
 2C0A: CD 98 68    call $8698
 2C0D: 16 41       ld   d,$05
 2C0F: 1E 80       ld   e,$08
-2C11: FF          rst  $38
+2C11: FF          rst  $38   ; store_de_in_circular_buffer_0038
 2C12: C9          ret
 2C13: DD 7E 00    ld   a,(ix+$00)
 2C16: FE F3       cp   $3F
@@ -4691,7 +4689,7 @@ entry_14c0:
 2C5A: DD 36 51 02 ld   (ix+$15),$20
 2C5E: 16 41       ld   d,$05
 2C60: 1E 41       ld   e,$05
-2C62: FF          rst  $38
+2C62: FF          rst  $38   ; store_de_in_circular_buffer_0038
 2C63: C9          ret
 2C64: DD 7E 90    ld   a,(ix+$18)
 2C67: A7          and  a
@@ -4699,7 +4697,7 @@ entry_14c0:
 2C6A: CD 47 68    call $8665
 2C6D: 16 41       ld   d,$05
 2C6F: 1E 80       ld   e,$08
-2C71: FF          rst  $38
+2C71: FF          rst  $38   ; store_de_in_circular_buffer_0038
 2C72: CD 6B B2    call $3AA7
 2C75: DD 36 00 FF ld   (ix+$00),$FF
 2C79: C3 83 72    jp   $3629
@@ -4708,7 +4706,7 @@ entry_14c0:
 2C82: DD 36 00 FF ld   (ix+$00),$FF
 2C86: 16 41       ld   d,$05
 2C88: 1E 41       ld   e,$05
-2C8A: FF          rst  $38
+2C8A: FF          rst  $38   ; store_de_in_circular_buffer_0038
 2C8B: C9          ret
 2C8C: C9          ret
 2C8D: CD 06 68    call $8660
@@ -4718,7 +4716,7 @@ entry_14c0:
 2C97: CD F7 68    call $867F
 2C9A: 16 41       ld   d,$05
 2C9C: 1E 41       ld   e,$05
-2C9E: FF          rst  $38
+2C9E: FF          rst  $38   ; store_de_in_circular_buffer_0038
 2C9F: DD 7E 21    ld   a,(ix+$03)
 2CA2: C6 90       add  a,$18
 2CA4: DD 77 21    ld   (ix+$03),a
@@ -4739,7 +4737,7 @@ entry_14c0:
 2CCF: CD 6B B2    call $3AA7
 2CD2: 16 41       ld   d,$05
 2CD4: 1E 80       ld   e,$08
-2CD6: FF          rst  $38
+2CD6: FF          rst  $38   ; store_de_in_circular_buffer_0038
 2CD7: DD 36 00 FF ld   (ix+$00),$FF
 2CDB: C3 83 72    jp   $3629
 2CDE: DD 7E 00    ld   a,(ix+$00)
@@ -4758,7 +4756,7 @@ entry_14c0:
 2D0D: CD 98 68    call $8698
 2D10: 16 41       ld   d,$05
 2D12: 1E 20       ld   e,$02
-2D14: FF          rst  $38
+2D14: FF          rst  $38   ; store_de_in_circular_buffer_0038
 2D15: DD 35 00    dec  (ix+$00)
 2D18: DD 36 51 02 ld   (ix+$15),$20
 2D1C: C9          ret
@@ -5087,10 +5085,10 @@ entry_14c0:
 310F: 27          daa
 3110: 32 8A CF    ld   (num_grenades_eda8),a             ; update NUM_GRENADES 
 3113: 16 A1       ld   d,$0B
-3115: FF          rst  $38
+3115: FF          rst  $38   ; store_de_in_circular_buffer_0038
 3116: 16 41       ld   d,$05
 3118: 1E 80       ld   e,$08
-311A: FF          rst  $38
+311A: FF          rst  $38   ; store_de_in_circular_buffer_0038
 311B: DD 36 00 00 ld   (ix+$00),$00
 311F: DD 36 21 00 ld   (ix+$03),$00
 3123: C9          ret
@@ -5099,7 +5097,7 @@ entry_14c0:
 312C: 3E 99       ld   a,$99
 312E: 32 8A CF    ld   (num_grenades_eda8),a             ; set NUM_GRENADES
 3131: 16 A1       ld   d,$0B
-3133: FF          rst  $38
+3133: FF          rst  $38   ; store_de_in_circular_buffer_0038
 3134: C9          ret
 3135: 01 98 21    ld   bc,$0398
 3138: 78          ld   a,b
@@ -5495,7 +5493,7 @@ entry_33f4:
 3551: CD 15 68    call $8651
 3554: 16 41       ld   d,$05
 3556: 1E 20       ld   e,$02
-3558: FF          rst  $38
+3558: FF          rst  $38   ; store_de_in_circular_buffer_0038
 3559: DD 34 71    inc  (ix+$17)
 355C: DD 7E 71    ld   a,(ix+$17)
 355F: FE 61       cp   $07
@@ -6155,7 +6153,7 @@ entry_33f4:
 3F28: FE 01       cp   $01
 3F2A: C0          ret  nz
 3F2B: 7E          ld   a,(hl)
-3F2C: 32 B2 0E    ld   ($E03A),a
+3F2C: 32 B2 0E    ld   (sound_command_e03a),a
 3F2F: C9          ret
 3F30: 3A 80 0E    ld   a,(port_state_c001_bit0_bits_e008)
 3F33: E6 61       and  $07
@@ -6434,7 +6432,7 @@ entry_33f4:
 	dc.w	$8260	; $8031
 	dc.w	$851c	; $8033
 	dc.w	$9f8b	; $8035
-	dc.w	$81dc	; $8037
+	dc.w	display_high_scores_81dc	; $8037
 	dc.w	$8607	; $8039
 	dc.w	clear_screen_81a2	; $803b
 	dc.w	$8183	; $803d
@@ -6572,7 +6570,7 @@ entry_33f4:
 815B: CD 27 09    call $8163
 815E: 21 08 1D    ld   hl,$D180
 8161: 06 41       ld   b,$05
-8163: 36 02       ld   (hl),$20
+8163: 36 02       ld   (hl),$20		; [video_address]
 8165: 19          add  hl,de
 8166: 10 BF       djnz $8163
 8168: C9          ret
@@ -6644,21 +6642,21 @@ clear_screen_81a2:
 81D6: C2 8C D8    jp   nz,$9CC8
 81D9: C3 3B D8    jp   $9CB3
 
+display_high_scores_81dc:
 81DC: 11 71 00    ld   de,$0017
-81DF: FF          rst  $38
+81DF: FF          rst  $38   ; store_de_in_circular_buffer_0038
 81E0: 1E 90       ld   e,$18
-81E2: FF          rst  $38
+81E2: FF          rst  $38   ; store_de_in_circular_buffer_0038
 81E3: 1E 91       ld   e,$19
-81E5: FF          rst  $38
+81E5: FF          rst  $38   ; store_de_in_circular_buffer_0038
 81E6: 1E B0       ld   e,$1A
-81E8: FF          rst  $38
+81E8: FF          rst  $38   ; store_de_in_circular_buffer_0038
 81E9: 1E B1       ld   e,$1B
-81EB: FF          rst  $38
+81EB: FF          rst  $38   ; store_de_in_circular_buffer_0038
 81EC: 1E D0       ld   e,$1C
-81EE: FF          rst  $38
+81EE: FF          rst  $38   ; store_de_in_circular_buffer_0038
 81EF: 1E D1       ld   e,$1D
-81F1: FF          rst  $38
-
+81F1: FF          rst  $38   ; store_de_in_circular_buffer_0038
 81F2: FD 21 46 0E ld   iy,$E064
 81F6: DD 21 00 EE ld   ix,hi_score_1st_ee00
 81FA: 21 13 1D    ld   hl,$D131
@@ -6675,16 +6673,19 @@ clear_screen_81a2:
 8211: E1          pop  hl
 8212: DD E5       push ix
 8214: D1          pop  de
+; write score (all but last zero)
 8215: CD F1 D9    call write_number_to_screen_9d1f
+; write score last zero
 8218: 36 12       ld   (hl),$30		; [unchecked_address]
 821A: CB D4       set  2,h
 821C: 71          ld   (hl),c		; [video_address]
 821D: CB 94       res  2,h
 821F: 3E 04       ld   a,$40
-8221: DF          rst  $18                   ; call ADD_A_TO_HL
+8221: DF          rst  $18
 8222: D5          push de
 8223: DD E1       pop  ix
 8225: 06 A0       ld   b,$0A
+; loop to write name
 8227: DD 7E 00    ld   a,(ix+$00)
 822A: DD 23       inc  ix
 822C: 77          ld   (hl),a		; [unchecked_address]
@@ -6702,6 +6703,7 @@ clear_screen_81a2:
 8243: FD 35 00    dec  (iy+$00)
 8246: 20 0C       jr   nz,$8208
 8248: C9          ret
+
 8249: CB D4       set  2,h
 824B: 36 01       ld   (hl),$01		; [video_address]
 824D: CB 94       res  2,h
@@ -6909,89 +6911,94 @@ clear_screen_81a2:
 8638: 0D          dec  c
 8639: C8          ret  z
 863A: C3 03 68    jp   $8621
+
+; play sounds
+
 863D: 3E 00       ld   a,$00
-863F: C3 71 69    jp   $8717
+863F: C3 71 69    jp   queue_sound_8717
 8642: 3E 20       ld   a,$02
-8644: C3 71 69    jp   $8717
+8644: C3 71 69    jp   queue_sound_8717
 8647: 3E 21       ld   a,$03
-8649: C3 71 69    jp   $8717
+8649: C3 71 69    jp   queue_sound_8717
 864C: 3E 40       ld   a,$04
-864E: C3 71 69    jp   $8717
+864E: C3 71 69    jp   queue_sound_8717
 8651: 3E 41       ld   a,$05
-8653: C3 71 69    jp   $8717
+8653: C3 71 69    jp   queue_sound_8717
 8656: 3E 60       ld   a,$06
-8658: C3 71 69    jp   $8717
+8658: C3 71 69    jp   queue_sound_8717
 865B: 3E 61       ld   a,$07
-865D: C3 71 69    jp   $8717
+865D: C3 71 69    jp   queue_sound_8717
 8660: 3E 80       ld   a,$08
-8662: C3 71 69    jp   $8717
+8662: C3 71 69    jp   queue_sound_8717
 8665: 3E 81       ld   a,$09
-8667: C3 71 69    jp   $8717
+8667: C3 71 69    jp   queue_sound_8717
 866A: 3E A0       ld   a,$0A
-866C: C3 71 69    jp   $8717
+866C: C3 71 69    jp   queue_sound_8717
 866F: 3E A1       ld   a,$0B
-8671: C3 71 69    jp   $8717
+8671: C3 71 69    jp   queue_sound_8717
 8674: C9          ret
 8675: 3E C0       ld   a,$0C
-8677: C3 71 69    jp   $8717
+8677: C3 71 69    jp   queue_sound_8717
 867A: 3E C1       ld   a,$0D
-867C: C3 71 69    jp   $8717
+867C: C3 71 69    jp   queue_sound_8717
 867F: 3E E0       ld   a,$0E
-8681: C3 71 69    jp   $8717
+8681: C3 71 69    jp   queue_sound_8717
 8684: 3E E1       ld   a,$0F
-8686: C3 71 69    jp   $8717
+8686: C3 71 69    jp   queue_sound_8717
 8689: 3E 10       ld   a,$10
-868B: C3 71 69    jp   $8717
+868B: C3 71 69    jp   queue_sound_8717
 868E: 3E 11       ld   a,$11
-8690: C3 71 69    jp   $8717
+8690: C3 71 69    jp   queue_sound_8717
 8693: 3E 30       ld   a,$12
-8695: C3 71 69    jp   $8717
+8695: C3 71 69    jp   queue_sound_8717
 8698: 3E 50       ld   a,$14
-869A: C3 71 69    jp   $8717
+869A: C3 71 69    jp   queue_sound_8717
 869D: 3E 51       ld   a,$15
-869F: C3 71 69    jp   $8717
+869F: C3 71 69    jp   queue_sound_8717
 86A2: 3E 70       ld   a,$16
-86A4: C3 71 69    jp   $8717
+86A4: C3 71 69    jp   queue_sound_8717
 86A7: 3E 90       ld   a,$18
-86A9: C3 71 69    jp   $8717
+86A9: C3 71 69    jp   queue_sound_8717
 86AC: 3E 91       ld   a,$19
-86AE: C3 71 69    jp   $8717
+86AE: C3 71 69    jp   queue_sound_8717
+
+play_credit_sound_86b1:
 86B1: 3E B0       ld   a,$1A
-86B3: C3 71 69    jp   $8717
+86B3: C3 71 69    jp   queue_sound_8717
 86B6: 3E B1       ld   a,$1B
-86B8: C3 71 69    jp   $8717
+86B8: C3 71 69    jp   queue_sound_8717
 86BB: 3E C3       ld   a,$2D
-86BD: C3 71 69    jp   $8717
+86BD: C3 71 69    jp   queue_sound_8717
 86C0: 3E 02       ld   a,$20
-86C2: CD 71 69    call $8717
+86C2: CD 71 69    call queue_sound_8717
 86C5: 3E 03       ld   a,$21
-86C7: C3 71 69    jp   $8717
+86C7: C3 71 69    jp   queue_sound_8717
 86CA: 3E 22       ld   a,$22
-86CC: CD 71 69    call $8717
+86CC: CD 71 69    call queue_sound_8717
 86CF: 3E 03       ld   a,$21
-86D1: C3 71 69    jp   $8717
+86D1: C3 71 69    jp   queue_sound_8717
 86D4: 3E 03       ld   a,$21
-86D6: C3 71 69    jp   $8717
+86D6: C3 71 69    jp   queue_sound_8717
 86D9: 3E 23       ld   a,$23
-86DB: C3 71 69    jp   $8717
+86DB: C3 71 69    jp   queue_sound_8717
 86DE: 3E C2       ld   a,$2C
-86E0: C3 71 69    jp   $8717
+86E0: C3 71 69    jp   queue_sound_8717
 86E3: 3E 42       ld   a,$24
-86E5: C3 71 69    jp   $8717
+86E5: C3 71 69    jp   queue_sound_8717
 86E8: 3E 43       ld   a,$25
-86EA: C3 71 69    jp   $8717
+86EA: C3 71 69    jp   queue_sound_8717
 86ED: 3E 62       ld   a,$26
-86EF: C3 71 69    jp   $8717
+86EF: C3 71 69    jp   queue_sound_8717
 86F2: 3E 63       ld   a,$27
-86F4: C3 71 69    jp   $8717
+86F4: C3 71 69    jp   queue_sound_8717
 86F7: 3E 82       ld   a,$28
-86F9: C3 71 69    jp   $8717
+86F9: C3 71 69    jp   queue_sound_8717
 86FC: 3E 83       ld   a,$29
-86FE: C3 71 69    jp   $8717
+86FE: C3 71 69    jp   queue_sound_8717
 8701: 3E A2       ld   a,$2A
-8703: C3 71 69    jp   $8717
+8703: C3 71 69    jp   queue_sound_8717
 8706: 3E A3       ld   a,$2B
-8708: C3 71 69    jp   $8717
+8708: C3 71 69    jp   queue_sound_8717
 870B: C9          ret
 
 ; not reached??
@@ -7002,6 +7009,7 @@ clear_screen_81a2:
 8714: CB 96       res  2,(hl)
 8716: C9          ret
 
+queue_sound_8717:
 8717: 2A 68 CF    ld   hl,($ED86)
 871A: 77          ld   (hl),a
 871B: 23          inc  hl
@@ -7011,23 +7019,26 @@ clear_screen_81a2:
 8721: 2E 04       ld   l,$40
 8723: 22 68 CF    ld   ($ED86),hl
 8726: C9          ret
+
+process_sound_queue_8727:
 8727: 0E FF       ld   c,$FF
-8729: 2A 88 CF    ld   hl,($ED88)
+8729: 2A 88 CF    ld   hl,(sound_queue_pointer_ed88)
 872C: 7E          ld   a,(hl)
 872D: 3C          inc  a
-872E: 28 C0       jr   z,$873C
+872E: 28 C0       jr   z,$873C		; skip if $FF
 8730: 3D          dec  a
-8731: 4F          ld   c,a
-8732: 36 FF       ld   (hl),$FF
+8731: 4F          ld   c,a			; sound index
+8732: 36 FF       ld   (hl),$FF		; ack
 8734: 23          inc  hl
 8735: 7D          ld   a,l
 8736: FE 06       cp   $60
 8738: 38 20       jr   c,$873C
 873A: 2E 04       ld   l,$40
-873C: 22 88 CF    ld   ($ED88),hl
+873C: 22 88 CF    ld   (sound_queue_pointer_ed88),hl
 873F: 79          ld   a,c
-8740: 32 B2 0E    ld   ($E03A),a
+8740: 32 B2 0E    ld   (sound_command_e03a),a
 8743: C9          ret
+
 8744: DD 36 70 00 ld   (ix+$16),$00
 8748: 3A 8B CF    ld   a,($EDA9)
 874B: E6 21       and  $03
@@ -8090,7 +8101,7 @@ entry_9078:
 9207: E7          rst  $20                   ; call RETURN_BYTE_AT_HL_PLUS_A
 9208: 16 41       ld   d,$05
 920A: 5F          ld   e,a
-920B: FF          rst  $38
+920B: FF          rst  $38   ; store_de_in_circular_buffer_0038
 920C: C9          ret
 920D: 3E 10       ld   a,$10
 920F: 32 08 0E    ld   ($E080),a
@@ -8197,7 +8208,7 @@ entry_9078:
 92F5: 27          daa
 92F6: 32 8A CF    ld   (num_grenades_eda8),a             ; update NUM_GRENADES 
 92F9: 16 A1       ld   d,$0B
-92FB: FF          rst  $38
+92FB: FF          rst  $38   ; store_de_in_circular_buffer_0038
 92FC: 3E 80       ld   a,$08
 92FE: 32 70 0F    ld   ($E116),a
 9301: C9          ret
@@ -9444,16 +9455,16 @@ write_number_to_screen_9d1f:
 9D7A: 28 10       jr   z,$9D8C
 9D7C: C9          ret
 9D7D: 11 00 41    ld   de,$0500
-9D80: FF          rst  $38
+9D80: FF          rst  $38   ; store_de_in_circular_buffer_0038
 9D81: C9          ret
 9D82: 11 01 41    ld   de,$0501
-9D85: FF          rst  $38
+9D85: FF          rst  $38   ; store_de_in_circular_buffer_0038
 9D86: C9          ret
 9D87: 11 21 41    ld   de,$0503
-9D8A: FF          rst  $38
+9D8A: FF          rst  $38   ; store_de_in_circular_buffer_0038
 9D8B: C9          ret
 9D8C: 11 41 41    ld   de,$0505
-9D8F: FF          rst  $38
+9D8F: FF          rst  $38   ; store_de_in_circular_buffer_0038
 9D90: C9          ret
 9D91: AF          xor  a
 9D92: 32 85 0E    ld   ($E049),a
@@ -9543,10 +9554,11 @@ write_number_to_screen_9d1f:
 9E3A: A7          and  a
 9E3B: C0          ret  nz
 9E3C: CD B7 F8    call $9E7B
-9E3F: CD 64 F8    call $9E46
+9E3F: CD 64 F8    call check_credit_inserted_9e46
 9E42: CD F5 F8    call $9E5F
 9E45: C9          ret
 
+check_credit_inserted_9e46:
 9E46: 21 33 0E    ld   hl,$E033
 9E49: 3A 21 0E    ld   a,(port_state_c000_in0_e003)
 9E4C: 07          rlca
@@ -9556,7 +9568,7 @@ write_number_to_screen_9d1f:
 9E52: C8          ret  z
 9E53: FE 21       cp   $03
 9E55: C0          ret  nz
-9E56: CD 1B 68    call $86B1
+9E56: CD 1B 68    call play_credit_sound_86b1
 9E59: CD 4D F8    call $9EC5
 9E5C: C3 ED F8    jp   $9ECF
 9E5F: 21 52 0E    ld   hl,$E034
@@ -9569,10 +9581,11 @@ write_number_to_screen_9d1f:
 9E6C: C8          ret  z
 9E6D: FE 21       cp   $03
 9E6F: C0          ret  nz
-9E70: CD 1B 68    call $86B1
+9E70: CD 1B 68    call play_credit_sound_86b1
 9E73: CD AC F8    call $9ECA
 9E76: 0E 01       ld   c,$01
 9E78: C3 7E F8    jp   $9EF6
+
 9E7B: CD 09 F8    call $9E81
 9E7E: C3 2B F8    jp   $9EA3
 9E81: 21 53 0E    ld   hl,$E035
@@ -9649,7 +9662,7 @@ write_number_to_screen_9d1f:
 9EEE: FE 21       cp   $03
 9EF0: C8          ret  z
 9EF1: 16 40       ld   d,$04
-9EF3: C3 92 00    jp   $0038
+9EF3: C3 92 00    jp   store_de_in_circular_buffer_0038
 9EF6: 3A 23 0E    ld   a,($E023)
 9EF9: 47          ld   b,a
 9EFA: 21 32 0E    ld   hl,$E032
@@ -9719,7 +9732,7 @@ write_number_to_screen_9d1f:
 9F84: E6 F3       and  $3F
 9F86: C0          ret  nz
 9F87: 16 60       ld   d,$06
-9F89: FF          rst  $38
+9F89: FF          rst  $38   ; store_de_in_circular_buffer_0038
 9F8A: C9          ret
 9F8B: CD 7D F9    call $9FD7
 9F8E: DD 21 00 EF ld   ix,$EF00
@@ -10031,7 +10044,7 @@ A47A: C3 30 4B    jp   $A512
 A485: DD 36 00 10 ld   (ix+$00),$10
 A489: 16 41       ld   d,$05
 A48B: 1E 20       ld   e,$02
-A48D: FF          rst  $38
+A48D: FF          rst  $38   ; store_de_in_circular_buffer_0038
 A48E: C3 30 4B    jp   $A512
 A491: DD 36 00 00 ld   (ix+$00),$00
 A495: C3 30 4B    jp   $A512
@@ -10392,11 +10405,11 @@ A791: C9          ret
 A792: 21 00 9C    ld   hl,$D800
 A795: 11 01 9C    ld   de,$D801
 A798: 01 FF 21    ld   bc,$03FF
-A79B: 36 9E       ld   (hl),$F8
-A79D: ED B0       ldir
+A79B: 36 9E       ld   (hl),$F8		; [unchecked_address]
+A79D: ED B0       ldir				; [unchecked_address]
 A79F: 01 00 40    ld   bc,$0400
-A7A2: 36 00       ld   (hl),$00
-A7A4: ED B0       ldir
+A7A2: 36 00       ld   (hl),$00     ; [video_address]
+A7A4: ED B0       ldir			    ; [video_address]				
 A7A6: C9          ret
 
 A867: DD 21 06 0F ld   ix,$E160
@@ -10666,7 +10679,7 @@ AB0E: C9          ret
 AB0F: DD 74 51    ld   (ix+$15),h
 AB12: DD 75 70    ld   (ix+$16),l
 AB15: C9          ret
-AB16: E1          pop  hl
+AB16: E1          pop  hl			; [pop_stack]
 AB17: DD 36 00 00 ld   (ix+$00),$00
 AB1B: CD 2B 8B    call $A9A3
 AB1E: C9          ret
@@ -10981,7 +10994,7 @@ AF1F: D9          exx
 AF20: 10 FD       djnz $AF01
 AF22: C9          ret
 AF23: 16 C0       ld   d,$0C
-AF25: C3 92 00    jp   $0038
+AF25: C3 92 00    jp   store_de_in_circular_buffer_0038
 AF28: DD 21 00 2E ld   ix,player_bullets_e200
 AF2C: 0E 60       ld   c,$06
 AF2E: D9          exx

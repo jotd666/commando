@@ -223,13 +223,15 @@ with open(source_dir / "conv.s") as f:
                 lines[i-1] = re.sub(r"(MAKE_AR)",r"\1_UNCHECKED",lines[i-1])
                 lines[i-1] = re.sub(r"(MAKE_[HDB]\w)",r"\1_UNCHECKED",lines[i-1])
             elif "ldir" in line:
-                line = line.replace("ldir","ldir_video")
+                line = line.replace("ldir","ldir_video" if "[video_address" in line else "ldir_unchecked")
             if "[video_address" in line:
                 if ",(a0)" in line or ("(a0)" in line and "clr.b" in line):
                     line += "\tVIDEO_BYTE_DIRTY | [...]\n"
                 elif (",(a0)" in lines[i+1] or ("(a0)" in  lines[i+1]  and "clr.b" in lines[i+1] )):
                     lines[i+1]  += "\tVIDEO_BYTE_DIRTY | [...]\n"
 
+        if "[pop_stack]" in line:
+            line = change_instruction("addq\t#4,sp",lines,i)
 
         ###############################################
         # game_specific
