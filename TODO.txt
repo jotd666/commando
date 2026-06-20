@@ -1,3 +1,6 @@
+- trace path from video_byte_dirty to tile draw
+- remove legal text at start
+- converter: roxl/roxr after rol/ror: warn (check old z80 converter)
 - converter: data.inc is empty
 - rip sounds
 - AB16: check stack pop?

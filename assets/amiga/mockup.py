@@ -4,9 +4,9 @@ import os
 
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
-tilesdir = os.path.join(this_dir,os.pardir,"sheets","bg_tiles","level3")
+tilesdir = os.path.join(this_dir,os.pardir,"sheets","bg_tiles")
 
-with open(os.path.join(this_dir,"cavern"),"rb") as f:
+with open(os.path.join(this_dir,"title"),"rb") as f:
     contents = f.read()
 
 
@@ -38,7 +38,7 @@ def load_tileset(image_name,side,dump_prefix=""):
 
     return tileset_1
 
-ts_title_list = [load_tileset(f"pal_{p:02x}.png",16) for p in range(8)]
+ts_title_list = [load_tileset(f"pal_{p:02x}.png",16) for p in range(16)]
 layer = Image.new("RGB",(512,512))
 
 m_bgvideoram = contents
@@ -47,20 +47,23 @@ used_cluts = set()
 used_tiles = set()
 
 for address in range(0x400):
-    y = (address & 0x1F)*16
-    x = (address // 0x20)*16
+#    gng_y = (address & 0x1F)*16
+#    gng_x = (address // 0x20)*16
+
+    x = (address & 0x1F)*16
+    y = (0x1F - (address // 0x20))*16
 
     attr = m_bgvideoram[address + 0x400]
     tile_code = m_bgvideoram[address] + ((attr & 0xc0) << 2)
-    tile_color = attr & 0x07
+    tile_color = attr & 0x0F
     used_cluts.add(tile_color)
     used_tiles.add(tile_code)
 
     sheet = ts_title_list[tile_color]
     img = sheet[tile_code]
-    if attr & 0x30 == 0x10:
+    if attr & 0x30 == 0x20:
         img = ImageOps.mirror(img)
-    elif attr & 0x30 == 0x20:
+    elif attr & 0x30 == 0x10:
         img = ImageOps.flip(img)
 
     layer.paste(img,box=(x,y))

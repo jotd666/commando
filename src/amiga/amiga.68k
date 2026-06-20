@@ -1,5 +1,5 @@
 *
-*	Amiga-specific portions of Ghosts'n'Goblins
+*	Amiga-specific portions of Commando
 *
 * (c) JOTD 2026
 *
@@ -990,6 +990,14 @@ set_initial_scroll_values:
 	move.w	d1,max_scroll_x
 	rts
 	
+force_fg_tiles_redraw:
+	lea		(fg_tiles_address_d000,a6),a0
+	move.w	#0x3FF,d1	
+0:
+	jbsr	osd_video_byte_dirty
+	addq	#2,a0
+	dbf		d1,0b
+	rts
 force_all_screen_redraw:
 	lea		_custom,a5
 	REALLY_WAIT_BLIT
@@ -1002,6 +1010,7 @@ force_all_screen_redraw:
 	
 	move.w	d0,d5				| save scroll X
 	lea		(bg_tiles_address_d800,a6),a5
+	lea		gng2dd_table,a6
 	move.w	game_scroll_x,d0
 	lsr.w	#4,D0	| divide by 16 to get real X tile offset
 	* now compute start address to fetch data from
@@ -1025,15 +1034,22 @@ force_all_screen_redraw:
 	move.w	d0,x_offset
 	and.w	#0x3FF,d7		| wrap on memory
 	* force tile draw
-	lea		(a5,d7.w),a0
 
 	movem.l	d1-d2/d5-d6,-(a7)
-	move.b	(a0),d0
-	move.b	(0x400,a0),d1
-	jbsr	update_bg_tile	
+	.ifdef MC68020
+	move.w	(a6,d7.w*2),d6
+	.else
+	move.w	d7,d6
+	add.w	d7,d6
+	move.w	(a6,d6.w),d6
+	.endif
+	lea		(a5,d6.w),a0		| now DD address
+	move.b	(a0),d0			| read tile code
+	move.b	(0x400,a0),d1				| read tile color/attribute
+	jbsr	update_bg_tile_gng	
 	movem.l	(a7)+,d1-d2/d5-d6
 	
-	add.w	#0x1,d7		| next X
+	addq	#0x1,d7		| next X
 	dbf		d1,1b
 	add.w	#0x20,d6
 	add.w	#BG_TILE_WIDTH,d5	| keep track of current "scroll"
@@ -1080,6 +1096,7 @@ draw_column_tiles:
 	GET_MEMORY_START_IN_A6
 
 	lea		(bg_tiles_address_d800,a6),a5
+	lea		gng2dd_table,a6
 	lsr.w	#4,D0	| divide by 16 to get real X tile offset
 	* now compute start address to fetch data from
 	move.w	#0,d7		| first row is not visible with scroll=0, visible with=$10
@@ -1091,13 +1108,21 @@ draw_column_tiles:
 0:
 	and.w	#0x3FF,d7		| wrap
 	* force tile draw
-	lea		(a5,d7.w),a0
-		
-	move.b	(a0),d0
-	move.b	(0x400,a0),d1
+	* retrieve tile values
+	* this requires to convert the GnG address to DD address
+	.ifdef MC68020
+	move.w	(a6,d7.w*2),d6
+	.else
+	move.w	d7,d6
+	add.w	d7,d6
+	move.w	(a6,d6.w),d6
+	.endif
+	lea		(a5,d6.w),a0		| now DD address
+	move.b	(a0),d0			| read tile code
+	move.b	(0x400,a0),d1				| read tile color/attribute
 
 	move.w	d2,-(a7)
-	jbsr	update_bg_tile
+	jbsr	update_bg_tile_gng
 	move.w	(a7)+,d2
 	
 	addq	#1,d7			| next Y
@@ -3219,9 +3244,9 @@ osd_video_word_dirty:
 * a0=screen address (preserved)
 * a6=ram base
 * should preserve all registers
-* allows 2000-3000 range
-* 2000: foreground/HUD (2400: attributes)
-* 2800: background
+
+* D000: foreground/HUD (D400: attributes)
+* D800: background
 osd_video_byte_dirty:
 	OSD_ENTER
 	movem.l	d0-d7/a0-a2/a5,-(a7)
@@ -3269,18 +3294,24 @@ osd_w_videoram_out:
 	OSD_EXIT
 	rts	
 	
+	
+	
+	
 bg_tile:
 	and.w	#0x3FF,d7
 	
 	* we need to see if the tile is on screen considering X scolling
 	* positions. Compute first X & last X coord visible
 
+
+	lea		dd2gng_table,a0
+	move.w	(a0,d7.w),d6
+
 	jbsr	compute_x_offset
 	jmi		osd_w_videoram_out
 	
 	* tile is in screen considered the current scrolling: update it
 	* (don't check Y we need update no matter when in that case)
-	
 	
 	lea		(BG_SCREEN_TILE_ADDRESS,a6),a0
 	move.b	(a0,d7.w),d0
@@ -3449,6 +3480,13 @@ cache_bg_tiles_address:
 * uses x_offset computed from scrolling current params
 
 update_bg_tile:
+	* now convert address to GnG layout. The screen size is the same
+	* and all routines work, so let's not rewrite everything
+	* there's this damn layout by quadrant that we eliminate that way
+	lea	dd2gng_table,a1
+	move.w	(a1,d7.w),d7
+	
+update_bg_tile_gng:
 	moveq	#0,d2			| mask up to 255
 	move.b	d0,d2			| tile code
 	moveq	#0,d3
@@ -5356,6 +5394,7 @@ tiles_ptr:
 	.long	0
 
 
+	.include	"bg_conv_layout.68k"
 
 
 sprite_group_table:
