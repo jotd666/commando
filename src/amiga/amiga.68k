@@ -47,9 +47,8 @@ COPPER_NOP = 0x1FE
 
 START_X = 0
 START_Y = 0
-CORKSCREW_NB_SCREENS = 20
 BORDERBLANK = 1
-START_HOST_SCROLL_X = (CORKSCREW_NB_SCREENS/2)*0x100
+
 
 
 PREVIOUS_SPRITE_SIZE = 10
@@ -984,9 +983,6 @@ dump_and_quit:
 set_initial_scroll_values:
 	move.w	game_scroll_x,d0
 	move.w	d0,previous_scroll_x
-	add.w	#START_HOST_SCROLL_X,d0			| give us some leeway to the left: 10 screens before havoc
-	move.w	d0,host_scroll_x
-	move.w	d0,min_scroll_x
 	move.w	d0,d1
 	add.w	#VISIBLE_SCROLL_WIDTH+BG_TILE_WIDTH,d1		| after that it triggers tile refresh
 	move.w	d1,max_scroll_x
@@ -1000,211 +996,9 @@ force_fg_tiles_redraw:
 	addq	#2,a0
 	dbf		d1,0b
 	rts
-force_all_screen_redraw:
-	lea		_custom,a5
-	REALLY_WAIT_BLIT
-	jbsr	osd_disable_interrupts
-	GET_MEMORY_START_IN_A6
-	* given the current scroll X/Y, draw all tiles on screen
-	jbsr	set_initial_scroll_values
+
 	
-	move.w	host_scroll_x,d0
-	
-	move.w	d0,d5				| save scroll X
-	lea		(bg_tiles_address_d800,a6),a5
-	lea		gng2dd_table,a6
-	move.w	game_scroll_x,d0
-	lsr.w	#4,D0	| divide by 16 to get real X tile offset
-	* now compute start address to fetch data from
-	move.w	#0,d7
-	* atm Y=0
-	lsl.w	#5,d0	| times 32
-	add.w	d0,d7	| start address
 
-	move.w	d7,d6	| save current Y
-
-	move.w	#0x10,d2	| size of screen in tiles
-0:
-	move.w	d6,d7	| set current Y row
-	move.w	#COLUMN_SIZE-1,d1		|  (64 bit margin)
-1:
-	* compute X offset now align on 0x40
-	move.w	d5,d0
-	lsr.w	#8,d0
-	lsr.w	#1,d0
-	lsl.w	#6,d0
-	move.w	d0,x_offset
-	and.w	#0x3FF,d7		| wrap on memory
-	* force tile draw
-
-	movem.l	d1-d2/d5-d6,-(a7)
-	.ifdef MC68020
-	move.w	(a6,d7.w*2),d6
-	.else
-	move.w	d7,d6
-	add.w	d7,d6
-	move.w	(a6,d6.w),d6
-	.endif
-	lea		(a5,d6.w),a0		| now DD address
-	move.b	(a0),d0			| read tile code
-	move.b	(0x400,a0),d1				| read tile color/attribute
-	jbsr	update_bg_tile_gng	
-	movem.l	(a7)+,d1-d2/d5-d6
-	
-	addq	#0x1,d7		| next X
-	dbf		d1,1b
-	add.w	#0x20,d6
-	add.w	#BG_TILE_WIDTH,d5	| keep track of current "scroll"
-	dbf		d2,0b
-	clr.w	x_offset
-	
-	* last precaution, as some BOBs now are optimized to never erase
-	* if we're called that's because the scrolling has completely reset/changed
-	* so it's time to clear the last bob-only layer. Using the cpu is probably best at this point
-	move.l	playfield_drawn_screen_ptr,a0
-	add.l	#BG_SCREEN_PLANE_SIZE*NB_BG_PLANES,a0	| skip tile planes
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	move.l	playfield_displayed_screen_ptr,a1
-	add.l	#BG_SCREEN_PLANE_SIZE*NB_BG_PLANES,a1	| skip tile planes
-	.endif
-	move.l	#BG_SCREEN_PLANE_SIZE/4-1,d0
-0:
-	clr.l	(a0)+
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	clr.l	(a1)+
-	.endif
-	dbf		d0,0b
-	
-	jbsr	osd_enable_interrupts
-	
-	rts
-	
-	
-draw_left_tiles:
-	move.w	min_scroll_x,d0
-	sub.w	#BG_TILE_WIDTH,d0		| else refresh will be okay but visible
-	jra		draw_column_tiles
-draw_right_tiles:
-	move.w	max_scroll_x,d0
-
-draw_column_tiles:
-	* compute X offset
-	move.w	d0,-(a7)
-	lsr.w	#8,d0
-	lsr.w	#1,d0
-	lsl.w	#6,d0	
-	move.w	d0,x_offset
-	move.w	(a7)+,d0	
-	GET_MEMORY_START_IN_A6
-
-	lea		(bg_tiles_address_d800,a6),a5
-	lea		gng2dd_table,a6
-	lsr.w	#4,D0	| divide by 16 to get real X tile offset
-	* now compute start address to fetch data from
-	move.w	#0,d7		| first row is not visible with scroll=0, visible with=$10
-	* atm Y=0
-	lsl.w	#5,d0	| times 32
-	add.w	d0,d7	| start address
-
-	move.w	#COLUMN_SIZE-1,d2
-0:
-	and.w	#0x3FF,d7		| wrap
-	* force tile draw
-	* retrieve tile values
-	* this requires to convert the GnG address to DD address
-	.ifdef MC68020
-	move.w	(a6,d7.w*2),d6
-	.else
-	move.w	d7,d6
-	add.w	d7,d6
-	move.w	(a6,d6.w),d6
-	.endif
-	lea		(a5,d6.w),a0		| now DD address
-	move.b	(a0),d0			| read tile code
-	move.b	(0x400,a0),d1				| read tile color/attribute
-
-	move.w	d2,-(a7)
-	jbsr	update_bg_tile_gng
-	move.w	(a7)+,d2
-	
-	addq	#1,d7			| next Y
-	dbf		d2,0b
-	rts
-
-set_scroll_values:
-	* update host scroll
-	* handle 2 wrap points
-	move.w	game_scroll_x,d0
-	move.w	previous_scroll_x,d1
-	move.w	d0,d2
-	sub.w	d1,d2		| d2: diff between game scroll before / after
-	
-	cmp.w	#GAME_MAX_SCROLL_X-BG_TILE_WIDTH,d0
-	jcs		0f
-	* game scroll X >= 0x1F0
-	cmp.w	#BG_TILE_WIDTH,d1
-	jcc		0f
-	* previous scroll X < 0x10: wrap left
-	sub.w	#GAME_MAX_SCROLL_X,d2
-	jra		1f
-0:
-	cmp.w	#BG_TILE_WIDTH,d0
-	jcc		1f
-	* game scroll X < 0x10
-	cmp.w	#GAME_MAX_SCROLL_X-BG_TILE_WIDTH,d1
-	jcs		1f
-	* previous scroll X > 0x1F0: wrap right
-	add.w	#GAME_MAX_SCROLL_X,d2
-1:
-
-0:
-	* now let's check absolute value of scroll diff
-	move.w	d2,d3
-	jpl	2f
-	neg.w	d3
-2:
-	cmp.w	#BG_TILE_WIDTH*2,d3
-	jcs		3f
-	* before/after diff is too big: redraw all
-	* note that this screws the column updates if triggered
-	* from somewhere else than a starting point. It could happen on
-	* real hardware with BG_TILE_WIDTH value (screen "shake" because of high
-	* object redraw time + erratic behaviour from the player :))
-	jbsr	force_all_screen_redraw
-	
-	rts
-3:
-	move.w	d0,previous_scroll_x
-	* update unwrapped host scroll X
-	* we need it to be continuous!
-	move.w	host_scroll_x,d0
-	add.w	d2,d0
-	move.w	d0,host_scroll_x
-	
-	* now, are we still in min/max boundaries?
-	cmp.w	min_scroll_x,d0
-	jcc		0f
-	* min overshoot: we have to do something on the left
-
-	jbsr	draw_left_tiles
-	sub.w	#BG_TILE_WIDTH,max_scroll_x
-	sub.w	#BG_TILE_WIDTH,min_scroll_x
-	
-	jra		5f
-0:
-
-	add.w	#VISIBLE_SCROLL_WIDTH,d0
-	cmp.w	max_scroll_x,d0
-	jcs		5f
-	* max overshoot: we have to do something on the right: draw the tiles
-
-	jbsr	draw_right_tiles
-	add.w	#BG_TILE_WIDTH,max_scroll_x
-	add.w	#BG_TILE_WIDTH,min_scroll_x
-
-5:
-
-	rts
 
 	
 	
@@ -1384,7 +1178,6 @@ level1_interrupt:
 
 	
 	.if		OPT_BLIT_CHAIN_MODE==1
-	jbsr	set_scroll_values
 	jbsr	set_bobs_bitplanes
 	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
 	jbsr		switch_screen_buffers
@@ -1415,7 +1208,6 @@ level1_interrupt:
 	COMMIT_BLITLIST
 
 	.if		OPT_BLIT_CHAIN_MODE==0
-	*jbsr	set_scroll_values
 	*jbsr		really_update_sprites
 
 	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
@@ -1444,7 +1236,6 @@ level1_interrupt:
 	WRITE_HEX	game_scroll_x
 	WRITE_HEX	game_scroll_y
 	WRITE_HEX	host_scroll_x
-	WRITE_HEX	x_offset
 	lea		display_slots,a2
 	tst.b	(a2)
 	jeq		10f
@@ -3307,7 +3098,6 @@ bg_tile:
 	lea		dd2gng_table,a0
 	move.w	(a0,d7.w),d6
 
-	jbsr	compute_x_offset
 	jmi		osd_w_videoram_out
 	
 	* tile is in screen considered the current scrolling: update it
@@ -3344,89 +3134,22 @@ bg_tile:
 	add.l	d5,a2
 	.endm
 
-* compute X offset (0,0x40,0x80 ...) that makes up for
-* corkscrew effect
-* !only valable for a single random tile poke, not for a scroll column update
-* that computes its own x_offset!
-* < D7: address (0-0x400)
-* > N: set not in visible screen
-* > x_offset: updated
-compute_x_offset:
-	movem.w	d1-d2,-(a7)
-	* we need to see if the tile is on screen considering X scolling
-	* positions. Compute first X & last X coord visible
-	clr.w	x_offset
-	move.w	d7,d2
-	lsr.w	#5,d2
-	
-	* establish min & max bounds including invisible tile used for scroll
-	* which is outside the screen
-	move.w	game_scroll_x,d0  | left of screen
-	lsr.w	#4,d0		| divide by 16 match tile
-	move.w	d0,d1
-	add.w	#0x12,d1	| right part
-	
-	* is min X < d2
-	cmp.b	d0,d2
-	jcc		0f
-	move.w	d1,d3
-	and.w	#0x1F,d3
-	cmp.w	d0,d3
-	jcc		0f
-	* handle wrap
-	add.w	#0x20,d2
-	move.w	#0x40,x_offset		| wrapped: add 0x40 offset
-0:
-	cmp.w	d0,d2
-	jcs		10f
-	add.w	#0x11,d0			| visible tile span (including invisible scroll column)
-	cmp.b	d0,d2
-	jcc		10f	| tile x+screen width < scroll x
-
-	* tile is in screen: return x offset (0, 0x40, 0x80 ...)
-	
-	move.w	host_scroll_x,d0
-	* now reduce 0x200 => 0x40
-	lsr.w	#8,d0
-	lsr.w	#1,d0
-	lsl.w	#6,d0
-	add.w	d0,x_offset	
-2:
-	movem.w	(a7)+,d1-d2
-	rts
-10:
-	moveq	#-1,d0
-	jra		2b
-	
 * create 2 caches
 
 cache_bg_tiles_address:
-	* 1 cache: tile-accurate X,Y => address
-	lea		bg_tile_xy2address_cache,a0
-	moveq	#0,d1
-0:
-	moveq	#0,d0
-1:
-	move.w	d0,d2
-	lsl.w	#5,d2		| X*32
-	add.w	d1,d2		| plus Y
-	move.w	d2,(a0)+
-	addq	#1,d0
-	cmp.w	#0x20,d0
-	jne		1b
-	addq	#1,d1
-	cmp.w	#0x20,d1
-	jne		0b
 	
-	* 2 cache: address => tile-accurate X,Y
-	lea		bg_tile_address2xy_cache,a0
+	* cache: address => tile-accurate X,Y
+	lea		bg_tile_address_table,a0
 	move.w	#0,d7
 0:
 	move.w	d7,d0
-	lsr.w	#5,d0
+	and.w	#0x1F,d0
 	lsl.w	#8,d0
 	move.w	d7,d1
-	and.b	#0x1F,d1
+	lsr.w	#5,d1
+	neg.w	d1
+	add.w	#0x1F,d1
+	
 	or.b	d1,d0
 	move.w	d0,(a0)+
 	addq	#1,d7
@@ -3480,11 +3203,6 @@ cache_bg_tiles_address:
 * uses x_offset computed from scrolling current params
 
 update_bg_tile:
-	* now convert address to GnG layout. The screen size is the same
-	* and all routines work, so let's not rewrite everything
-	* there's this damn layout by quadrant that we eliminate that way
-	lea	dd2gng_table,a1
-	move.w	(a1,d7.w),d7
 	
 update_bg_tile_gng:
 	moveq	#0,d2			| mask up to 255
@@ -3498,17 +3216,18 @@ update_bg_tile_gng:
 	add.w	d4,d4
 	add.w	d4,d2			| full tile code
 
-
 	* compute address
+	lea		bg_tile_address_table,a1
+	.ifdef	NO68020
+	add.w	d7,d7
+	move.w	(a1,d7.w),d0
+	.else
+	move.w	(a1,d7.w*2),d0
+	.endif
+	moveq	#0,d1
+	move.b	d0,d1
+	lsr.w	#8,d0
 	
-	move.w	d7,d0
-	lsr.w	#5,d0	| divide by 0x20
-	add.w	d0,d0	| 16 pixels
-	add.w 	x_offset,d0		| add corkscrew makeup offset
-
-	move.w	d7,d1
-	subq.w	#1,d1		| first row is not shown with y scroll = 0
-	and.w	#0x1F,d1	| modulus 0x20
 	cmp.w	#0x10,d1
 	scs		d6			| repeat tile draw if Y tile  < 0x10
 	
@@ -3841,7 +3560,7 @@ update_fg_tile:
 	lsl.w	#2,d3
 	add.w	d3,d2	| extended tile code
 	move.b	d1,d3	| attribute + tile msbits
-	and.w	#0xF,d3	| clut
+	and.w	#(1<<FG_TILE_NB_CLUTS_POW)-1,d3	| clut
 
 
 	lea		fg_tile_address_table,a1
@@ -3853,8 +3572,7 @@ update_fg_tile:
 	.endif
 	moveq	#0,d1
 	move.b	d0,d1
-	rol.w	#8,d0
-	and.w	#0xFF,d0
+	lsr.w	#8,d0
 	
 	* select which destination sprites (0-3)
 	move.w	d0,d4
@@ -4338,11 +4056,6 @@ log_used_sprites:
 	rts
 	.endif
 	
-redraw_bg_tiles:
-	movem.l	d0-a6,-(a7)
-	jbsr 	force_all_screen_redraw
-	movem.l	(a7)+,d0-a6
-	rts
 	
 skip_level:
 	movem.l	d0-a6,-(a7)
@@ -4452,7 +4165,6 @@ handle_keyboard:
 	cmp.b	#0x55,d0	| F6 key: debug params
 	bne.b	0f
 	COLOR0_FLASH	0x0FF
-	jbsr	redraw_bg_tiles
 0:
 	cmp.b	#0x56,d0	| F7 key: debug params
 	bne.b	0f
@@ -5215,10 +4927,7 @@ diff_very_difficult:
 	.align	2
 	
 
-bg_tile_xy2address_cache:
-	.skip	0x800
-bg_tile_address2xy_cache:
-	.skip	0x800
+
 	
 old_intena:
 	.long	0
@@ -5297,8 +5006,6 @@ game_scroll_y:
 bobs_game_scroll_y = game_scroll_y
 bobs_host_scroll_x = host_scroll_x
 	
-x_offset:
-	.word	0
 
 
 
@@ -5459,6 +5166,8 @@ context_sprite_table_ptr:
 fg_tile_address_table:
 	.skip	0x400*2
 
+bg_tile_address_table:
+	.skip	0x400*2
 
 	
 	.ifne	OPT_ENABLE_LOGGING
@@ -5630,16 +5339,13 @@ hw_sprite_ram_buffer:
 	.skip	HW_SPRITE_BUFFER_SIZE*8	| 8 64-bit wide sprites + control words + align
 	
 background_restore_buffer:
-	.skip	BG_NB_BYTES_PER_ROW*CORKSCREW_NB_SCREENS		| margin for corkscrew
 	.skip	BG_SCREEN_SIZE
 		
 bobs_screen_buffer_1:
-	.skip	BG_NB_BYTES_PER_ROW*CORKSCREW_NB_SCREENS		| margin for corkscrew
 	.skip	BG_SCREEN_SIZE
 	.skip	BG_NB_BYTES_PER_ROW*48		| margin to avoid sprite blit wrap when game scrolls up
 	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
 bobs_screen_buffer_2:
-	.skip	BG_NB_BYTES_PER_ROW*CORKSCREW_NB_SCREENS		| margin for corkscrew
 	.skip	BG_SCREEN_SIZE
 	.skip	BG_NB_BYTES_PER_ROW*48
 	.endif

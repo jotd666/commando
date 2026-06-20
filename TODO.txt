@@ -1,4 +1,5 @@
-- trace path from video_byte_dirty to tile draw
+- remove corkscrew scrolling, remove address conversion
+  treat as normal vertical scroller
 - at start scroll is down/left
 - converter: roxl/roxr after rol/ror: warn (check old z80 converter)
 - converter: data.inc is empty
