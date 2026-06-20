@@ -1,10 +1,9 @@
 - trace path from video_byte_dirty to tile draw
-- remove legal text at start
+- at start scroll is down/left
 - converter: roxl/roxr after rol/ror: warn (check old z80 converter)
 - converter: data.inc is empty
-- rip sounds
+- rip sounds using service mode
 - AB16: check stack pop?
-- CREDIT 00 appearing at the top, should be on bottom
 - display bg tiles not correct
 
 - a6d1: optimize hl *= 32
@@ -20,3 +19,5 @@
 rip sounds:
 
 bpset 8717,,{A=5;g}
+
+service mode: put 1 in E001 during intro

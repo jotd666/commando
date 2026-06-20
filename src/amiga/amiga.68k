@@ -109,6 +109,8 @@ fg_tiles_address_d000 = 0xd000
 fg_tiles_color_address_d400 = 0xd400
 bg_tiles_address_d800 = 0xd800
 bg_tiles_color_address_dc00 = 0xdc00
+background_scroll_y_lsb_c808 = 0xc808
+background_scroll_x_lsb_c80a = 0xc80a
 
 
 FG_SCREEN_TILE_ADDRESS = fg_tiles_address_d000
@@ -1350,15 +1352,13 @@ level1_interrupt:
 	GET_MEMORY_START_IN_A6
 	
 	moveq	#0,d0
-	*move.w	(scroll_x_register_lsb_3b08,a6),d0
+	move.w	(background_scroll_x_lsb_c80a,a6),d0
 	ror.w	#8,d0		| hardware is in little endian
 	move.w	D0,game_scroll_x
-	*move.w	(scroll_y_register_lsb_3b0a,a6),d0
+	move.w	(background_scroll_y_lsb_c808,a6),d0
 	ror.w	#8,d0		| hardware is in little endian
-	jpl		0f
-	* scroll register is either 0 or negative FE00->FFFF->0000
-	add.w	#0x200,d0
-0:
+	add.w	#0x100,d0	| 0: bottom part
+	and.w	#0x1FF,d0
 	move.w	D0,game_scroll_y
 	
 	* ok now D5 can be used freely
@@ -2925,7 +2925,7 @@ platform_init:
 
  	*         VVHH
     move.w #0x89+((Y_START+0x10)<<8),d0
-    move.w #0x89+((Y_START-0x10)<<8),d1
+    move.w #0x89+((Y_START+0x10)<<8),d1
 	cmp.l	#NTSC_MONITOR_ID,monitor
 	jne		0f
 	sub.w	#NTSC_Y_SHIFT<<8,d0
@@ -3498,6 +3498,7 @@ update_bg_tile_gng:
 	add.w	d4,d4
 	add.w	d4,d2			| full tile code
 
+
 	* compute address
 	
 	move.w	d7,d0
@@ -3508,19 +3509,9 @@ update_bg_tile_gng:
 	move.w	d7,d1
 	subq.w	#1,d1		| first row is not shown with y scroll = 0
 	and.w	#0x1F,d1	| modulus 0x20
-	tst.b	must_mirror_y_tiles
-	jeq		666f
 	cmp.w	#0x10,d1
 	scs		d6			| repeat tile draw if Y tile  < 0x10
-	jra		667f
-666:
-	* full horizontal level: don't draw anything below tile 0x10, don't mirror
-	sf		d6
-	cmp.w	#0x10,d1
-	jcs		667f
-	* do nothing, this tile will never be shown
-	rts
-667:
+	
 	* updating bitplanes
 	.if	BG_SCREEN_PLANE_SIZE>0x7FFF
 	move.l	#BG_SCREEN_PLANE_SIZE,d5
@@ -3556,7 +3547,7 @@ update_bg_tile_gng:
 	add.w	d0,a3
 
 	
-	*cmp.b	#0x20,d2
+	*cmp.w	#0xF8,d2
 	*jeq		11f				| optim: blank tile
 	lea		bg_character_table,a0
 	.ifdef	NO68020
@@ -3585,7 +3576,7 @@ update_bg_tile_gng:
 	lsr.w	#4,d1
 	and.w	#3,d1		| mirror/flip
 	
-	and.w	#0x7,d3
+	and.w	#(1<<BG_TILE_NB_CLUTS_POW)-1,d3
 	.ifdef	NO68020
 	add.w	d3,d3
 	add.w	d3,d3
@@ -3795,7 +3786,7 @@ compute_fg_tile_xy:
 	
 	and.b	#0x1F,d0	| x
 	neg.b	d0
-	add.b	#0x20,d0
+	add.b	#0x1F,d0
 	move.w	d7,d1
 	lsr.w	#5,d1		| Y
 	and.b	#0x1F,d1	| Y
@@ -3833,11 +3824,15 @@ compute_fg_tile_xy:
 * < D1: tile attribute
 
 update_fg_tile:
-	* if < 0x40 bail out as not visible
+	* if < 0x40 bail out as not visible (same as in Ghosts'n'Goblins)
 	cmp.w	#0x40,d7
 	jcc		0f
 	rts
 0:
+*	cmp.w	#0x2A0,d7
+*	jne		11f
+*	BREAKPOINT	"CREDIT"
+*11:
 	moveq	#0,d2
 	moveq	#0,d3
 	move.b	d0,d2	| code
@@ -4259,7 +4254,8 @@ log_used_fg_tiles:
 	lea		fg_tile_log_table,a0
 	move	#(1<<FG_TILE_NB_CLUTS_POW)-1,d4		| clut mask
 	move	#FG_TILE_NB_CLUTS_POW,d5		| nb clut pow
-	move.w	#0x400-1,d7
+	rts
+	
 	jra		log_any_tiles
 	
 log_used_bg_tiles:
@@ -4272,15 +4268,20 @@ log_used_bg_tiles:
 	lea		bg_tile_log_table,a0
 	move	#(1<<BG_TILE_NB_CLUTS_POW)-1,d4		| clut mask
 	move	#BG_TILE_NB_CLUTS_POW,d5		| nb clut pow
-	move.w	#0x800-1,d7
+
+* both layers are of the same logical size
+* fg layer is 256x256 with 8x8 tiles
+* bg layer is 512x512 with 16x16 tiles
 
 log_any_tiles:
+	move.w	#0x400-1,d7
 0:
 
 	moveq	#0,d1
 	moveq	#0,d0
 	move.b	(a5,d7.w),d0	| tile code
 	move.b	(a4,d7.w),d1	| tile attribute
+
 
 	moveq	#0,d2
 	moveq	#0,d3

@@ -278,7 +278,9 @@ with open(source_dir / "conv.s") as f:
             line = swap_lines(lines,i,i-1)  # preserve flag, independent operations
         elif address == 0x6d20:
             line = swap_lines(lines,i,i-1)  # preserve flag, independent operations
-
+        elif address == 0x3D1:
+            # remove boring japan import message at boot
+            line = change_instruction("jra\tend_message_03e6",lines,i)
         elif address == 0x0a94:
             # useless test, we test d6.w afterwards
             lines[i-1] = ""  # no need for MAKE_H

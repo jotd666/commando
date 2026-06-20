@@ -234,11 +234,14 @@ timing_variable_e002 = $e002
 port_state_c000_in0_e003 = $e003
 sound_and_screen_orientation_c804 = $c804
 dma_trigger_c806 = $c806
-background_scroll_x_c808 = $c808
-background_scroll_x_c809 = $c809
-background_scroll_y_c80a = $c80a
-background_scroll_y_c80b = $c80b
-background_scroll_x_shadow_e05b = $e05b
+; the main vertical scrolling registers
+background_scroll_y_lsb_c808 = $c808
+background_scroll_y_msb_c809 = $c809
+; rarely used (except in end of stage)
+background_scroll_x_lsb_c80a = $c80a
+background_scroll_x_msb_c80b = $c80b
+global_y_msb_e05b = $e05b
+global_y_lsb_e05c = $e05c
 
 ; PORT_STATE_C001_IN1_e004 holds the state of IN1 after a bit flip (2's complement) - see $0328
 ; Bit 0: player moving RIGHT
@@ -442,10 +445,10 @@ startup_004a:
 004E: 3E 10       ld   a,$10
 0050: 32 40 8C    ld   (sound_and_screen_orientation_c804),a		; reset sound cpu & screen orientation
 0053: AF          xor  a
-0054: 32 80 8C    ld   (background_scroll_x_c808),a   ; set background scroll X  [unchecked_address]
-0057: 32 A1 8C    ld   (background_scroll_y_c80b),a   ; set background scroll Y  [unchecked_address]
-005A: 32 81 8C    ld   (background_scroll_x_c809),a   ; set background scroll X  [unchecked_address]
-005D: 32 A0 8C    ld   (background_scroll_y_c80a),a   ; set background scroll Y  [unchecked_address]
+0054: 32 80 8C    ld   (background_scroll_y_lsb_c808),a   ; set background scroll X  [unchecked_address]
+0057: 32 A1 8C    ld   (background_scroll_x_msb_c80b),a   ; set background scroll Y  [unchecked_address]
+005A: 32 81 8C    ld   (background_scroll_y_msb_c809),a   ; set background scroll X  [unchecked_address]
+005D: 32 A0 8C    ld   (background_scroll_x_lsb_c80a),a   ; set background scroll Y  [unchecked_address]
 
 ; clear all RAM
 0060: 21 00 0E    ld   hl,$E000
@@ -771,11 +774,11 @@ irq_02b7:    ; [global]
 
 0396: 3A B2 0E    ld   a,(sound_command_e03a)
 0399: 32 00 8C    ld   (sound_c800),a
-039C: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
+039C: 3A B5 0E    ld   a,(global_y_msb_e05b)
 039F: E6 01       and  $01
-03A1: 32 81 8C    ld   (background_scroll_x_c809),a		; [unchecked_address]
-03A4: 3A D4 0E    ld   a,($E05C)
-03A7: 32 80 8C    ld   (background_scroll_x_c808),a		; [unchecked_address]
+03A1: 32 81 8C    ld   (background_scroll_y_msb_c809),a		; [unchecked_address]
+03A4: 3A D4 0E    ld   a,(global_y_lsb_e05c)
+03A7: 32 80 8C    ld   (background_scroll_y_lsb_c808),a		; [unchecked_address]
 03AA: 3A B3 0E    ld   a,($E03B)
 03AD: 32 40 8C    ld   (sound_and_screen_orientation_c804),a
 03B0: 32 60 8C    ld   (dma_trigger_c806),a
@@ -797,9 +800,10 @@ irq_02b7:    ; [global]
 03C9: 3A 01 0E    ld   a,($E001)
 03CC: F7          rst  $30    ; [jump_to_jump_table] [nb_entries=2]
 ; jump_table_03cd:
-	dc.w	$03d1	; $03cd
-	dc.w	$03fd	; $03cf
+	dc.w	japan_import_warning_03d1	; $03cd
+	dc.w	service_mode_03fd	; $03cf
 
+japan_import_warning_03d1:
 03D1: 3A C0 0E    ld   a,(port_state_c001_bit4_bits_e00c)
 03D4: A7          and  a
 03D5: C2 DE 41    jp   nz,$05FC
@@ -810,6 +814,7 @@ irq_02b7:    ; [global]
 03E1: 21 65 0E    ld   hl,$E047
 03E4: 35          dec  (hl)
 03E5: C0          ret  nz
+end_message_03e6:
 03E6: 16 81       ld   d,$09
 03E8: FF          rst  $38   ; store_de_in_circular_buffer_0038
 03E9: 11 01 00    ld   de,$0001
@@ -823,6 +828,7 @@ irq_02b7:    ; [global]
 03F7: 16 40       ld   d,$04
 03F9: FF          rst  $38   ; store_de_in_circular_buffer_0038
 03FA: C3 01 60    jp   $0601
+service_mode_03fd:
 03FD: C3 BA B2    jp   $3ABA
 0400: 21 50 40    ld   hl,return_0414	; [push_function]
 0403: E5          push hl
@@ -1332,10 +1338,10 @@ return_0583:
 0824: 3A F9 0E    ld   a,($E09F)
 0827: A7          and  a
 0828: 20 42       jr   nz,$084E
-082A: 3A D4 0E    ld   a,($E05C)
+082A: 3A D4 0E    ld   a,(global_y_lsb_e05c)
 082D: A7          and  a
 082E: C0          ret  nz
-082F: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
+082F: 3A B5 0E    ld   a,(global_y_msb_e05b)
 0832: 3C          inc  a
 0833: E6 F7       and  $7F
 0835: C8          ret  z
@@ -1452,8 +1458,8 @@ return_0583:
 0973: FE 21       cp   $03
 0975: 28 A1       jr   z,$0982
 0977: CD 38 6B    call $A792
-097A: 3E 01       ld   a,$01
-097C: 32 A1 8C    ld   (background_scroll_y_c80b),a
+097A: 3E 01       ld   a,$01		; lower part
+097C: 32 A1 8C    ld   (background_scroll_x_msb_c80b),a
 097F: C3 18 81    jp   $0990
 0982: 21 08 20    ld   hl,$0280
 0985: 22 5B 0E    ld   ($E0B5),hl
@@ -1533,7 +1539,7 @@ return_0583:
 0ACD: 32 65 0E    ld   ($E047),a
 0AD0: 32 0B 0E    ld   ($E0A1),a
 0AD3: 21 00 04    ld   hl,$4000
-0AD6: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
+0AD6: 3A B5 0E    ld   a,(global_y_msb_e05b)
 0AD9: 84          add  a,h
 0ADA: E6 04       and  $40
 0ADC: 67          ld   h,a
@@ -1648,8 +1654,8 @@ return_0583:
 0CFB: CD 60 89    call $8906
 0CFE: 3E 40       ld   a,$04
 0D00: 32 01 0E    ld   ($E001),a
-0D03: 3E 00       ld   a,$00
-0D05: 32 A1 8C    ld   (background_scroll_y_c80b),a
+0D03: 3E 00       ld   a,$00		; higher part
+0D05: 32 A1 8C    ld   (background_scroll_x_msb_c80b),a
 0D08: C9          ret
 0D09: 3A 8B CF    ld   a,($EDA9)
 0D0C: E6 21       and  $03
@@ -4163,7 +4169,7 @@ entry_14c0:
 2751: 67          ld   h,a
 2752: FE FF       cp   $FF
 2754: C8          ret  z
-2755: ED 5B B5 0E ld   de,(background_scroll_x_shadow_e05b)
+2755: ED 5B B5 0E ld   de,(global_y_msb_e05b)
 2759: 7A          ld   a,d
 275A: 53          ld   d,e
 275B: 5F          ld   e,a
@@ -8436,7 +8442,7 @@ entry_9078:
 9507: DD 2A 78 0E ld   ix,($E096)
 950B: DD 66 01    ld   h,(ix+$01)
 950E: DD 6E 00    ld   l,(ix+$00)
-9511: ED 5B B5 0E ld   de,(background_scroll_x_shadow_e05b)
+9511: ED 5B B5 0E ld   de,(global_y_msb_e05b)
 9515: 7B          ld   a,e
 9516: 5A          ld   e,d
 9517: 57          ld   d,a
@@ -9693,17 +9699,17 @@ check_credit_inserted_9e46:
 9F2A: 19          add  hl,de
 9F2B: DD 74 01    ld   (ix+$01),h
 9F2E: DD 75 20    ld   (ix+$02),l
-9F31: 3A D4 0E    ld   a,($E05C)
+9F31: 3A D4 0E    ld   a,(global_y_lsb_e05c)
 9F34: 57          ld   d,a
 9F35: 7C          ld   a,h
-9F36: 32 D4 0E    ld   ($E05C),a
+9F36: 32 D4 0E    ld   (global_y_lsb_e05c),a
 9F39: 32 2A CF    ld   ($EDA2),a
 9F3C: 7D          ld   a,l
 9F3D: 32 D5 0E    ld   ($E05D),a
 9F40: DD 7E 00    ld   a,(ix+$00)
 9F43: CE 00       adc  a,$00
 9F45: DD 77 00    ld   (ix+$00),a
-9F48: 32 B5 0E    ld   (background_scroll_x_shadow_e05b),a
+9F48: 32 B5 0E    ld   (global_y_msb_e05b),a
 9F4B: 32 2B CF    ld   ($EDA3),a
 9F4E: 6F          ld   l,a
 9F4F: 7C          ld   a,h
@@ -9723,10 +9729,10 @@ check_credit_inserted_9e46:
 9F6D: 7C          ld   a,h
 9F6E: E6 BF       and  $FB
 9F70: DD 77 10    ld   (ix+$10),a
-9F73: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
+9F73: 3A B5 0E    ld   a,(global_y_msb_e05b)
 9F76: 21 D5 1C    ld   hl,$D05D
 9F79: 0E 00       ld   c,$00
-9F7B: 3A D4 0E    ld   a,($E05C)
+9F7B: 3A D4 0E    ld   a,(global_y_lsb_e05c)
 9F7E: 21 D9 1C    ld   hl,$D09D
 9F81: DD 7E 01    ld   a,(ix+$01)
 9F84: E6 F3       and  $3F
@@ -9772,7 +9778,7 @@ check_credit_inserted_9e46:
 9FD0: 38 70       jr   c,$9FE8
 9FD2: 36 E2       ld   (hl),$2E
 9FD4: C3 8E F9    jp   $9FE8
-9FD7: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
+9FD7: 3A B5 0E    ld   a,(global_y_msb_e05b)
 9FDA: 32 BF 0E    ld   ($E0FB),a
 9FDD: 11 A5 0A    ld   de,$A04B
 9FE0: CB 77       bit  6,a
@@ -9823,7 +9829,7 @@ A029: 32 9F 0E    ld   ($E0F9),a
 A02C: 7E          ld   a,(hl)
 A02D: 23          inc  hl
 A02E: 32 BE 0E    ld   ($E0FA),a
-A031: 3A D4 0E    ld   a,($E05C)
+A031: 3A D4 0E    ld   a,(global_y_lsb_e05c)
 A034: A7          and  a
 A035: C0          ret  nz
 A036: 7E          ld   a,(hl)
@@ -9879,9 +9885,9 @@ A313: C9          ret
 
 entry_a318:
 A318: FD 2A F4 0E ld   iy,($E05E)		
-A31C: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
+A31C: 3A B5 0E    ld   a,(global_y_msb_e05b)
 A31F: 67          ld   h,a
-A320: 3A D4 0E    ld   a,($E05C)
+A320: 3A D4 0E    ld   a,(global_y_lsb_e05c)
 A323: 6F          ld   l,a
 A324: FD 7E 21    ld   a,(iy+$03)
 A327: FE FF       cp   $FF
@@ -10211,10 +10217,10 @@ A612: DD 74 10    ld   (ix+$10),h
 A615: DD 75 11    ld   (ix+$11),l
 A618: CD B5 6A    call $A65B
 A61B: 11 00 9C    ld   de,$D800
-A61E: 3A B5 0E    ld   a,(background_scroll_x_shadow_e05b)
+A61E: 3A B5 0E    ld   a,(global_y_msb_e05b)
 A621: E6 01       and  $01
 A623: 67          ld   h,a
-A624: 3A D4 0E    ld   a,($E05C)
+A624: 3A D4 0E    ld   a,(global_y_lsb_e05c)
 A627: 6F          ld   l,a
 A628: 29          add  hl,hl
 A629: 19          add  hl,de
@@ -10243,10 +10249,10 @@ A661: CB 74       bit  6,h
 A663: 28 21       jr   z,$A668
 A665: 11 56 25    ld   de,$4374
 A668: 7D          ld   a,l
-A669: 32 D4 0E    ld   ($E05C),a
+A669: 32 D4 0E    ld   (global_y_lsb_e05c),a
 A66C: DD 77 01    ld   (ix+$01),a
 A66F: 7C          ld   a,h
-A670: 32 B5 0E    ld   (background_scroll_x_shadow_e05b),a
+A670: 32 B5 0E    ld   (global_y_msb_e05b),a
 A673: DD 77 00    ld   (ix+$00),a
 A676: 3E 00       ld   a,$00
 A678: 32 D5 0E    ld   ($E05D),a
