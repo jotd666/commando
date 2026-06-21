@@ -66,8 +66,7 @@ for address in range(0x400):
     elif attr & 0x30 == 0x10:
         img = ImageOps.flip(img)
 
-    if address == (0xD961 & 0x3FF):
-        print("ffff",hex(attr),hex(attr & 0x30),hex(tile_code),hex(tile_color))
+
     layer.paste(img,box=(x,y))
             #TILE_FLIPYX(() >> 4));
 layer.save("bg.png")

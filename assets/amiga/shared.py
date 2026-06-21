@@ -47,7 +47,7 @@ sr2 = lambda a,b : set(range(a,b,2))
 sr3 = lambda a,b : set(range(a,b,3))
 sr4 = lambda a,b : set(range(a,b,4))
 
-group_sprite_pairs = set()
+group_sprite_pairs ={0x202,0x210}
 
 group_sprite_triplets = set()
 

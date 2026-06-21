@@ -76,7 +76,7 @@ def doit(binname):
         elif flipy:
             img = ImageOps.flip(img)
 
-        print(f"offset={offs:04x}, code={tile_code:02x}: name={name}, x={sx}, y={sy}")
+        print(f"offset={offs:04x}, code={tile_code:02x}, clut={tile_color}: name={name}, x={sx}, y={sy}")
         layer.paste(img,box=(sx,sy))
 
 
