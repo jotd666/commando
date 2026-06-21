@@ -41,6 +41,7 @@ NB_PLAYFIELD_PLANES = 6
 	.endif
 
 
+
 * proportional to the number of bitplanes
 BLITTER_LIST_SIZE = 10000*NB_PLAYFIELD_PLANES
 COPPER_NOP = 0x1FE
@@ -162,6 +163,9 @@ OPT_AGA_MODE=1
 	.else
 OPT_AGA_MODE=0
 	.endif
+
+FG_TILE_HEIGHT = 8
+BG_TILE_HEIGHT = 16
 
 * a plane of attached sprites	
 NB_FG_PLANES = 4
@@ -2715,8 +2719,8 @@ platform_init:
 
 
  	*         VVHH
-    move.w #0x89+((Y_START+0x10)<<8),d0
-    move.w #0x89+((Y_START+0x10)<<8),d1
+    move.w #0x99+((Y_START+0x10)<<8)-EXTRA_WIDTH,d0  | let's show the valid pixels!
+    move.w #0x79+((Y_START+0x10)<<8),d1  | on the right, they're not valid during play
 	cmp.l	#NTSC_MONITOR_ID,monitor
 	jne		0f
 	sub.w	#NTSC_Y_SHIFT<<8,d0
@@ -3091,14 +3095,7 @@ osd_w_videoram_out:
 bg_tile:
 	and.w	#0x3FF,d7
 	
-	* we need to see if the tile is on screen considering X scolling
-	* positions. Compute first X & last X coord visible
 
-
-	lea		dd2gng_table,a0
-	move.w	(a0,d7.w),d6
-
-	jmi		osd_w_videoram_out
 	
 	* tile is in screen considered the current scrolling: update it
 	* (don't check Y we need update no matter when in that case)
@@ -3203,8 +3200,6 @@ cache_bg_tiles_address:
 * uses x_offset computed from scrolling current params
 
 update_bg_tile:
-	
-update_bg_tile_gng:
 	moveq	#0,d2			| mask up to 255
 	move.b	d0,d2			| tile code
 	moveq	#0,d3
@@ -3227,7 +3222,13 @@ update_bg_tile_gng:
 	moveq	#0,d1
 	move.b	d0,d1
 	lsr.w	#8,d0
-	
+	cmp.w	#0x10,d0
+	jcs		0f
+	* don't display right part ATM (used in level "well done" screen)
+	rts
+0:
+	add.w	d0,d0		| 16 pixels per tile
+	* D0.B: X, D1.B: Y (0-1F)
 	cmp.w	#0x10,d1
 	scs		d6			| repeat tile draw if Y tile  < 0x10
 	
@@ -3266,8 +3267,8 @@ update_bg_tile_gng:
 	add.w	d0,a3
 
 	
-	*cmp.w	#0xF8,d2
-	*jeq		11f				| optim: blank tile
+	cmp.w	#0xF8,d2
+	jeq		11f				| optim: blank tile
 	lea		bg_character_table,a0
 	.ifdef	NO68020
 	add.w	d2,d2
@@ -3328,9 +3329,7 @@ update_bg_tile_gng:
 	move.l	(a0,d1.w*4),a0
 	.endif
 	
-	* we wait just in case a blitter operation is in progress
-	* it rarely conflicts, as only animated tiles are the windows at level 2
-	* from where the flying small pests arrive
+	* no need to sync with sprites, tile update is done off-screen
 	*lea		_custom,a5
 	*REALLY_WAIT_BLIT
 	tst.b 	d6
@@ -3379,8 +3378,8 @@ flipped_tile16:
 	move.l	(a2)+,d0		| next plane
 	jeq		5f
 	move.l	d0,a0
-	.set	offset,8*BG_NB_BYTES_PER_ROW
-	.rept	16
+	.set	offset,BG_TILE_HEIGHT*BG_NB_BYTES_PER_ROW
+	.rept	BG_TILE_HEIGHT
 	.set	offset,offset-BG_NB_BYTES_PER_ROW
 	move.w	(a0)+,d0
 	COPY_TILE16_PLANE_ROW
@@ -3407,7 +3406,7 @@ mirror_tile16:
 	jeq		5f
 	move.l	d0,a0
 	.set	offset,0
-	.rept	16
+	.rept	BG_TILE_HEIGHT
 	.ifdef	MC68020
 	move.w	(a0)+,d1
 	move.w	(a5,d1.l*2),d0	| mirror
@@ -3441,8 +3440,8 @@ mirror_flipped_tile16:
 	move.l	(a2)+,d0		| next plane
 	jeq		5f
 	move.l	d0,a0
-	.set	offset,8*BG_NB_BYTES_PER_ROW
-	.rept	16
+	.set	offset,BG_TILE_HEIGHT*BG_NB_BYTES_PER_ROW
+	.rept	BG_TILE_HEIGHT
 	.set	offset,offset-BG_NB_BYTES_PER_ROW
 	.ifdef	MC68020
 	move.w	(a0)+,d1
@@ -3475,10 +3474,14 @@ mirror_flipped_tile16:
 2:
 	rts
 
+* all tile orientations are used, which is expected for a
+* top-down game. Ghosts'N'Goblins has this flipx/y capability
+* but never uses the Y flip, only X mirror
+
 mirror_jump_table:
 	.long	standard_tile16
-	.long	mirror_tile16
 	.long	flipped_tile16
+	.long	mirror_tile16
 	.long	mirror_flipped_tile16
 	
 	
@@ -3972,7 +3975,6 @@ log_used_fg_tiles:
 	lea		fg_tile_log_table,a0
 	move	#(1<<FG_TILE_NB_CLUTS_POW)-1,d4		| clut mask
 	move	#FG_TILE_NB_CLUTS_POW,d5		| nb clut pow
-	rts
 	
 	jra		log_any_tiles
 	
@@ -5102,7 +5104,6 @@ tiles_ptr:
 	.long	0
 
 
-	.include	"bg_conv_layout.68k"
 
 
 sprite_group_table:

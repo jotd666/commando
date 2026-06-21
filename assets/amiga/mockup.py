@@ -6,7 +6,7 @@ this_dir = os.path.dirname(os.path.abspath(__file__))
 
 tilesdir = os.path.join(this_dir,os.pardir,"sheets","bg_tiles")
 
-with open(os.path.join(this_dir,"title"),"rb") as f:
+with open(os.path.join(this_dir,"jungle"),"rb") as f:
     contents = f.read()
 
 
@@ -66,6 +66,8 @@ for address in range(0x400):
     elif attr & 0x30 == 0x10:
         img = ImageOps.flip(img)
 
+    if address == (0xD961 & 0x3FF):
+        print("ffff",hex(attr),hex(attr & 0x30),hex(tile_code),hex(tile_color))
     layer.paste(img,box=(x,y))
             #TILE_FLIPYX(() >> 4));
 layer.save("bg.png")
