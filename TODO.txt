@@ -1,13 +1,20 @@
 - converter: roxl/roxr after rol/ror: warn (check old z80 converter)
 - converter: data.inc is empty
-- rip sounds using service mode
+- rip sounds using service mode, send tunes to no9 (https://vgmrips.net/packs/pack/commando-arcade)
 - invincibility
 - helicopter sprite wraps when going up, should be clipped or whatever
+
+- here in amiga.68k
+	move.l	(a0)+,d1		| current plane data  => d1 is bogus
+	jeq		1f				| no data: skip
+	move.l	d1,a2
+	cmp.b	(-2,a2),d3		| 2 bytes before: mirror flag  => access fault
+	jeq		1f
+
 
 - a6d1: optimize hl *= 32
 - irq: optimize don't save regs
 - remove code at 870C
-- after dec/inc HL, we have to MAKE_H too
 - set DSW difficulty lives, etc.
 - cheat add 10000 to score 
 - highscore load/save

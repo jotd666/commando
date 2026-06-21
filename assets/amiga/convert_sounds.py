@@ -11,26 +11,8 @@ sound_dir = this_dir / ".." / "sounds"
 # default channel = 3, default priority = 40
 # put below some exceptions
 sound_settings_dict = {
-0x1 : {"channel":2,"priority":100},   # lose armour
-0x10 : {"channel":2,"priority":100},  # wear armour
-0x2 : {"channel":2,"priority":100},
-0xb : {"channel":3,"priority":5},  # flying goblin (low pri)
-0x3 : {"channel":2,"priority":100},
-0x37 : {"channel":2,"priority":100},  # extra life
-0x20 : {"channel":2,"priority":50},
-0x23 : {"channel":3,"priority":100},
-0x12 : {"channel":3,"priority":100},
-0x19 : {"channel":3,"priority":100},  # bag enemies
-0x14 : {"channel":3,"priority":50},  # small enemy hit
-0x11 : {"channel":3,"priority":50},  # enemy hit
-0x1d : {"channel":3,"priority":50},  # bonus picked up
-0x1B : {"channel":3,"priority":50},  # enemy killed
-0x3A : {"channel":1,"priority":100},  # intro tune
-0xc : {"channel":3,"priority":1},  # giant stomps
-0xd : {"channel":3,"priority":60},  # shot bounces
-0xf : {"channel":3,"priority":100},
-0x6 : {"channel":3,"priority":5},   # player shot
-0x21 : {"channel":3,"priority":100},  # dragon
+#0x1 : {"channel":2,"priority":100},   # lose armour
+
 }
 
 def convert():
@@ -54,14 +36,26 @@ def convert():
     EMPTY_SND = "EMPTY_SND"
 
     dummy_sounds = {
-    0x28,  # second part of highscore (2nd place) tune
-    0x3F,  # stop tune
-    0,     # stop ???
-    0x39,  # unused jingle
-    0x11,  # unused?
-    0x13,  # unused step
-    0x15, 0x16, 0x9, 0xa,  # unmapped by game (skipped in self-test!)
-    0xFF}
+
+    0x36,  # stop tune
+    0,1,0xE,0x13,0x17,0x19,
+    0x20,  # intro
+    0x21,  # BGM 1
+    0x22,
+    0x23,  # fortress / boss
+    0x24,0x25,
+    0x26,  # all clear
+    0x27,  # game over
+    0x28,  # hihg?
+    0x29,  # ???
+    0x2A,
+    0x2B,  # jingle
+    0x2C, # bgm2?
+    0x14,  #???
+    0x16,
+    0x1B,0x1D,0x1e, 0x1f, 0x35, 0x37, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0xb, 0xc, 0xd,
+    0xFF
+    }
 
 
     sound_dict = {}

@@ -1459,9 +1459,11 @@ return_0583:
 0973: FE 21       cp   $03
 0975: 28 A1       jr   z,$0982
 0977: CD 38 6B    call $A792
+; set X on right side at the end of a level
 097A: 3E 01       ld   a,$01		; lower part
 097C: 32 A1 8C    ld   (background_scroll_x_msb_c80b),a
 097F: C3 18 81    jp   $0990
+
 0982: 21 08 20    ld   hl,$0280
 0985: 22 5B 0E    ld   ($E0B5),hl
 0988: 3E 00       ld   a,$00
@@ -1476,8 +1478,8 @@ return_0583:
 099E: 06 40       ld   b,$04
 09A0: 1A          ld   a,(de)
 09A1: 13          inc  de
-09A2: 77          ld   (hl),a
-09A3: 1A          ld   a,(de)    ; [unchecked_address]
+09A2: 77          ld   (hl),a    ; [unchecked_address]
+09A3: 1A          ld   a,(de)
 09A4: CB D4       set  2,h       
 09A6: 77          ld   (hl),a    ; [video_address]
 09A7: CB 94       res  2,h
@@ -3275,8 +3277,9 @@ entry_14c0:
 1E6D: DD 36 70 01 ld   (ix+$16),$01
 1E71: FD 36 60 00 ld   (iy+$06),$00
 1E75: FD 36 A0 00 ld   (iy+$0a),$00
-1E79: E1          pop  hl			; restore hl
+1E79: E1          pop  hl			; [pop_stack]
 1E7A: C9          ret
+
 1E7B: CD C9 B2    call $3A8D
 1E7E: DD 7E 41    ld   a,(ix+$05)
 1E81: FE 96       cp   $78
@@ -10958,7 +10961,7 @@ AED0: 82          add  a,d
 AED1: BB          cp   e
 AED2: 30 A0       jr   nc,$AEDE
 AED4: 3E F3       ld   a,$3F
-AED6: 32 00 0F    ld   ($E100),a
+AED6: 32 00 0F    ld   ($E100),a		; hit by bullet
 AED9: DD 36 00 01 ld   (ix+$00),$01
 AEDD: C9          ret
 

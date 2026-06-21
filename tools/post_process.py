@@ -288,6 +288,12 @@ with open(source_dir / "conv.s") as f:
             lines[i+1] = remove_instruction(lines,i+1)
         elif address == 0x0a99:
             lines[i+1] = remove_error(lines[i+1])  # flags are consistent
+        elif address in {0xaed6,0xaf18}:
+            # immune to bullets
+            line = change_instruction(f"""tst.b\tinvincible_flag
+\tjne\t0f
+{line}0:
+""",lines,i)
         elif address == 0xa770:
             # dirty if address matches
             line = """\tcmp.w\t#0xE000,d4
