@@ -5,7 +5,8 @@
 ; Tools used: MAME debugger & Visual Studio Code text editor.
 ; Date: 23 Feb 2020. Keep checking for updates. 
 ; 
-; Fake instructions cleanup, jump table discovery, entrypoints restorations by JOTD
+; Fake instructions cleanup, jump table discovery,
+; pop hl stack tagging, entrypoints restorations by JOTD
 ;
 ; Please send any questions, corrections and updates to scott.tunstall@ntlworld.com
 ;
@@ -419,7 +420,7 @@ multiply_a_by_2_add_to_hl_load_de_from_hl_0028:
 
 
 jump_0030:
-0030: E1          pop  hl
+0030: E1          pop  hl			; get return address: address of table
 0031: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 0032: EB          ex   de,hl
 0033: E9          jp   (hl)
@@ -492,7 +493,7 @@ startup_004a:
 00A8: ED A0       ldi                        ; copy top score from ROM...
 00AA: ED A0       ldi
 00AC: ED A0       ldi                        ; ..to current high score in RAM. 
-00AE: E1          pop  hl
+00AE: E1          pop  hl		; restore hl
 
 ; Copy high score table from ROM to RAM
 00AF: 11 00 EE    ld   de,hi_score_1st_ee00
@@ -648,13 +649,13 @@ irq_02b7:    ; [global]
 02CB: CD BE 20    call $02FA
 02CE: FD E1       pop  iy
 02D0: DD E1       pop  ix
-02D2: E1          pop  hl
+02D2: E1          pop  hl		; restore hl
 02D3: D1          pop  de
 02D4: C1          pop  bc
 02D5: F1          pop  af
 02D6: 08          ex   af,af'
 02D7: D9          exx
-02D8: E1          pop  hl
+02D8: E1          pop  hl		; restore hl
 02D9: D1          pop  de
 02DA: C1          pop  bc
 02DB: F1          pop  af
@@ -1896,7 +1897,7 @@ entry_0fc2:
 1008: DD 77 20    ld   (ix+$02),a
 100B: CD 9B 51    call $15B9
 100E: C3 94 31    jp   $1358
-1011: E1          pop  hl
+1011: E1          pop  hl		; [pop_stack]
 1012: C3 DD 71    jp   $17DD
 
 1025: DD 7E 11    ld   a,(ix+$11)
@@ -2091,7 +2092,7 @@ entry_0fc2:
 11FC: 28 10       jr   z,$120E
 11FE: DD 19       add  ix,de
 1200: 10 7E       djnz $11F8
-1202: E1          pop  hl
+1202: E1          pop  hl		; restore hl
 1203: DD E1       pop  ix
 1205: DD 36 51 A0 ld   (ix+$15),$0A
 1209: DD 36 50 00 ld   (ix+$14),$00
@@ -2103,7 +2104,7 @@ entry_0fc2:
 121B: 7D          ld   a,l
 121C: 21 B4 30    ld   hl,$125A
 121F: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
-1220: E1          pop  hl
+1220: E1          pop  hl		; restore hl
 1221: 7B          ld   a,e
 1222: 84          add  a,h
 1223: DD 77 21    ld   (ix+$03),a
@@ -2517,7 +2518,7 @@ entry_14c0:
 15FF: C9          ret
 1600: DD 36 31 01 ld   (ix+$13),$01
 1604: DD 36 51 00 ld   (ix+$15),$00
-1608: E1          pop  hl
+1608: E1          pop  hl		; [address_pop]
 1609: C9          ret
 160A: CD 2E C6    call $6CE2
 160D: DD 77 01    ld   (ix+$01),a
@@ -2737,7 +2738,7 @@ entry_14c0:
 193D: DD 7E 41    ld   a,(ix+$05)
 1940: FE 20       cp   $02
 1942: 30 40       jr   nc,$1948
-1944: E1          pop  hl
+1944: E1          pop  hl	; [address_pop]
 1945: C3 6B B2    jp   $3AA7
 1948: DD CB 50 64 bit  0,(ix+$14)
 194C: 28 90       jr   z,$1966
@@ -2750,7 +2751,7 @@ entry_14c0:
 195D: C6 02       add  a,$20
 195F: FE 21       cp   $03
 1961: D0          ret  nc
-1962: E1          pop  hl
+1962: E1          pop  hl	; [address_pop]
 1963: C3 6B B2    jp   $3AA7
 1966: DD 35 21    dec  (ix+$03)
 1969: 3A 20 0E    ld   a,(timing_variable_e002)
@@ -2761,7 +2762,7 @@ entry_14c0:
 1975: C6 10       add  a,$10
 1977: FE 21       cp   $03
 1979: D0          ret  nc
-197A: E1          pop  hl
+197A: E1          pop  hl		; [address_pop]
 197B: C3 6B B2    jp   $3AA7
 197E: CD C9 B2    call $3A8D
 1981: DD 66 40    ld   h,(ix+$04)
@@ -2776,7 +2777,7 @@ entry_14c0:
 1994: 7D          ld   a,l
 1995: FE 1C       cp   $D0
 1997: D0          ret  nc
-1998: E1          pop  hl
+1998: E1          pop  hl	; [address_pop]
 1999: C3 6B B2    jp   $3AA7
 199C: CD F6 91    call $197E
 199F: CD 8A 91    call $19A8
@@ -3026,7 +3027,7 @@ entry_14c0:
 1C11: 6A          ld   l,d
 1C12: CD DF 39    call $93FD
 1C15: C9          ret
-1C16: E1          pop  hl
+1C16: E1          pop  hl	; [address_pop]
 1C17: C3 14 D0    jp   $1C50
 
 1C2A: DD 7E 50    ld   a,(ix+$14)
@@ -3133,7 +3134,7 @@ entry_14c0:
 1D33: 7C          ld   a,h
 1D34: FE 9E       cp   $F8
 1D36: 38 40       jr   c,$1D3C
-1D38: E1          pop  hl
+1D38: E1          pop  hl	; [address_pop]
 1D39: C3 6B B2    jp   $3AA7
 1D3C: DD 66 41    ld   h,(ix+$05)
 1D3F: DD 6E 60    ld   l,(ix+$06)
@@ -3145,7 +3146,7 @@ entry_14c0:
 1D4F: DD 7E 41    ld   a,(ix+$05)
 1D52: FE 9E       cp   $F8
 1D54: D8          ret  c
-1D55: E1          pop  hl
+1D55: E1          pop  hl	; [address_pop]
 1D56: C3 6B B2    jp   $3AA7
 1D59: DD 7E 41    ld   a,(ix+$05)
 1D5C: FE 0A       cp   $A0
@@ -3274,7 +3275,7 @@ entry_14c0:
 1E6D: DD 36 70 01 ld   (ix+$16),$01
 1E71: FD 36 60 00 ld   (iy+$06),$00
 1E75: FD 36 A0 00 ld   (iy+$0a),$00
-1E79: E1          pop  hl
+1E79: E1          pop  hl			; restore hl
 1E7A: C9          ret
 1E7B: CD C9 B2    call $3A8D
 1E7E: DD 7E 41    ld   a,(ix+$05)
@@ -3429,7 +3430,7 @@ entry_14c0:
 	dc.w	$2060	; $2044
 	dc.w	$2048	; $2046
 
-2048: E1          pop  hl
+2048: E1          pop  hl	; [address_pop]
 2049: DD 36 00 00 ld   (ix+$00),$00
 204D: DD 66 21    ld   h,(ix+$03)
 2050: DD 6E 41    ld   l,(ix+$05)
@@ -3868,7 +3869,7 @@ entry_14c0:
 247D: DD 77 51    ld   (ix+$15),a
 2480: DD 36 50 00 ld   (ix+$14),$00
 2484: C9          ret
-2485: E1          pop  hl
+2485: E1          pop  hl	; [address_pop]
 2486: C3 AC 42    jp   $24CA
 2489: CD 2E C6    call $6CE2
 248C: 47          ld   b,a
@@ -3976,7 +3977,7 @@ entry_14c0:
 257A: 7C          ld   a,h
 257B: FE 9E       cp   $F8
 257D: D8          ret  c
-257E: E1          pop  hl
+257E: E1          pop  hl		; [address_pop]
 257F: DD 36 00 00 ld   (ix+$00),$00
 2583: FD 36 20 00 ld   (iy+$02),$00
 2587: C9          ret
@@ -4042,7 +4043,7 @@ entry_14c0:
 2626: DD 7E 41    ld   a,(ix+$05)
 2629: FE 10       cp   $10
 262B: D2 32 62    jp   nc,$2632
-262E: E1          pop  hl
+262E: E1          pop  hl		; [address_pop]
 262F: C3 6B B2    jp   $3AA7
 2632: DD 7E 90    ld   a,(ix+$18)
 2635: A7          and  a
@@ -5504,7 +5505,7 @@ entry_33f4:
 355C: DD 7E 71    ld   a,(ix+$17)
 355F: FE 61       cp   $07
 3561: 38 11       jr   c,$3574
-3563: E1          pop  hl
+3563: E1          pop  hl		; [address_pop]
 3564: DD 66 21    ld   h,(ix+$03)
 3567: DD 6E 41    ld   l,(ix+$05)
 356A: CD 6B B2    call $3AA7
@@ -5557,7 +5558,7 @@ entry_33f4:
 35F6: 7C          ld   a,h
 35F7: FE 0E       cp   $E0
 35F9: 30 40       jr   nc,$35FF
-35FB: E1          pop  hl
+35FB: E1          pop  hl			; [address_pop]
 35FC: C3 6B B2    jp   $3AA7
 35FF: DD 7E 50    ld   a,(ix+$14)
 3602: FE 01       cp   $01
@@ -5693,7 +5694,7 @@ entry_33f4:
 3758: DD 73 10    ld   (ix+$10),e
 375B: C9          ret
 
-3768: E1          pop  hl		; [stack_pop]
+3768: E1          pop  hl		; [address_pop]
 3769: C3 6B B2    jp   $3AA7
 
 
@@ -5789,7 +5790,7 @@ entry_33f4:
 38AA: 16 14       ld   d,$50
 38AC: C3 9C D0    jp   $1CD8
 38AF: FD E5       push iy
-38B1: E1          pop  hl
+38B1: E1          pop  hl		; iy->hl
 38B2: 11 40 00    ld   de,$0004
 38B5: 06 10       ld   b,$10
 38B7: 3E FF       ld   a,$FF
@@ -5904,7 +5905,7 @@ entry_33f4:
 3AA2: 7D          ld   a,l
 3AA3: FE 0C       cp   $C0
 3AA5: D0          ret  nc
-3AA6: E1          pop  hl
+3AA6: E1          pop  hl	; [address_pop]
 3AA7: DD 36 00 00 ld   (ix+$00),$00
 3AAB: DD 46 B0    ld   b,(ix+$1a)
 3AAE: 11 40 00    ld   de,$0004
@@ -6209,7 +6210,7 @@ entry_33f4:
 6C8B: 78          ld   a,b
 6C8C: 42          ld   b,d
 6C8D: 4B          ld   c,e
-6C8E: E1          pop  hl
+6C8E: E1          pop  hl		; restore hl
 6C8F: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 6C90: DD CB 01 F6 bit  7,(ix+$01)
 6C94: 28 80       jr   z,$6C9E
@@ -6676,7 +6677,7 @@ display_high_scores_81dc:
 820C: 21 74 28    ld   hl,$8256
 820F: DF          rst  $18                   ; call ADD_A_TO_HL
 8210: 4E          ld   c,(hl)
-8211: E1          pop  hl
+8211: E1          pop  hl			; restore hl
 8212: DD E5       push ix
 8214: D1          pop  de
 ; write score (all but last zero)
@@ -6908,7 +6909,7 @@ display_high_scores_81dc:
 862B: 2B          dec  hl
 862C: C6 10       add  a,$10
 862E: 10 5F       djnz $8625
-8630: E1          pop  hl
+8630: E1          pop  hl		; restore hl
 8631: 11 02 00    ld   de,$0020
 8634: 19          add  hl,de
 8635: D1          pop  de
@@ -7085,7 +7086,7 @@ process_sound_queue_8727:
 87A2: C9          ret
 87A3: DD 34 B0    inc  (ix+$1a)
 87A6: C9          ret
-87A7: E1          pop  hl
+87A7: E1          pop  hl		; [address_pop]
 87A8: 3E 0A       ld   a,$A0
 87AA: 32 0B 0E    ld   ($E0A1),a
 87AD: C9          ret
@@ -8377,11 +8378,11 @@ entry_9078:
 9456: 28 80       jr   z,$9460
 9458: DD 19       add  ix,de
 945A: 10 7E       djnz $9452
-945C: E1          pop  hl
+945C: E1          pop  hl	; restore hl
 945D: DD E1       pop  ix
 945F: C9          ret
 9460: DD 75 31    ld   (ix+$13),l
-9463: E1          pop  hl
+9463: E1          pop  hl	; restore hl
 9464: DD 35 00    dec  (ix+$00)
 9467: DD 74 21    ld   (ix+$03),h
 946A: DD 75 41    ld   (ix+$05),l
@@ -8652,6 +8653,7 @@ entry_9078:
 9703: 10 EE       djnz $96F3
 9705: DD 36 00 00 ld   (ix+$00),$00
 9709: C9          ret
+
 970A: CD 39 A9    call $8B93
 970D: A7          and  a
 970E: C2 A6 79    jp   nz,$976A
@@ -8824,7 +8826,7 @@ entry_97ea:
 9857: 32 8D EE    ld   ($EEC9),a
 985A: C1          pop  bc
 985B: D1          pop  de
-985C: E1          pop  hl
+985C: E1          pop  hl	; restore hl
 985D: C9          ret
 985E: C9          ret
 985F: 21 97 1D    ld   hl,$D179
@@ -8888,7 +8890,7 @@ entry_97ea:
 98FB: DF          rst  $18                   ; call ADD_A_TO_HL
 98FC: 13          inc  de
 98FD: 10 3E       djnz $98F1
-98FF: E1          pop  hl
+98FF: E1          pop  hl		; restore hl
 9900: 0D          dec  c
 9901: C8          ret  z
 9902: 2D          dec  l
@@ -10145,7 +10147,7 @@ A568: 0D          dec  c
 A569: CA E6 4B    jp   z,$A56E
 A56C: D9          exx
 A56D: C9          ret
-A56E: E1          pop  hl
+A56E: E1          pop  hl		; [address_pop]
 A56F: C9          ret
 A570: 21 00 04    ld   hl,$4000
 A573: 22 F4 0E    ld   ($E05E),hl
@@ -10529,7 +10531,7 @@ A975: C3 BB AA    jp   $AABB
 A978: C3 0D AA    jp   $AAC1
 A97B: C3 6D AA    jp   $AAC7
 A97E: C3 9D AA    jp   $AAD9
-A981: E1          pop  hl
+A981: E1          pop  hl			; [address_pop]
 A982: DD 36 00 00 ld   (ix+$00),$00
 A986: CD 2B 8B    call $A9A3
 A989: C9          ret
@@ -10739,7 +10741,7 @@ AC1A: DD 5E 00    ld   e,(ix+$00)
 AC1D: DD 56 01    ld   d,(ix+$01)
 AC20: DD 7E 20    ld   a,(ix+$02)
 AC23: 08          ex   af,af'
-AC24: E1          pop  hl
+AC24: E1          pop  hl		; restore hl
 AC25: DD 46 21    ld   b,(ix+$03)
 AC28: 7C          ld   a,h
 AC29: DD 86 40    add  a,(ix+$04)
@@ -10759,7 +10761,7 @@ AC3D: E6 01       and  $01
 AC3F: 4F          ld   c,a
 AC40: 7D          ld   a,l
 AC41: D1          pop  de
-AC42: E1          pop  hl
+AC42: E1          pop  hl	; restore hl
 AC43: 6F          ld   l,a
 AC44: CD 52 CB    call $AD34
 AC47: DD 23       inc  ix

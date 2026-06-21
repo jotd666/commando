@@ -133,8 +133,8 @@ TARGET_SPRITE_ATTRIBUTES = 1
 TARGET_SPRITE_CODE = 0
 TARGET_SPRITE_SIZEOF = 4
 
-MIRROR_BIT = 2
-FLIT_BIT = 3
+MIRROR_BIT = 3
+FLIT_BIT = 2
 
 
 MAP_CONTEXT = 7
@@ -1157,6 +1157,8 @@ level1_interrupt:
 	ror.w	#8,d0		| hardware is in little endian
 	add.w	#0x100,d0	| 0: bottom part
 	and.w	#0x1FF,d0
+	neg.w	d0
+	add.w	#0x1FF,d0
 	move.w	D0,game_scroll_y
 	
 	* ok now D5 can be used freely

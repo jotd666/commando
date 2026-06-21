@@ -318,7 +318,7 @@ with open(source_dir / "conv.s") as f:
         if address in line_to_pull_cc_protect:
             # protect the sub instructions
             line += "\tPOP_SR\n"
-        elif address in line_to_push_cc_protect:
+        if address in line_to_push_cc_protect:
             # protect the sub instructions
             line = "\tPUSH_SR\n"+line
         elif address in remove_error_in_next_line:

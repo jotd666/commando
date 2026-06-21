@@ -1,11 +1,8 @@
-- remove corkscrew scrolling, remove address conversion
-  treat as normal vertical scroller
-- at start scroll is down/left
 - converter: roxl/roxr after rol/ror: warn (check old z80 converter)
 - converter: data.inc is empty
 - rip sounds using service mode
-- AB16: check stack pop?
-- display bg tiles not correct
+- invincibility
+- helicopter sprite wraps when going up, should be clipped or whatever
 
 - a6d1: optimize hl *= 32
 - irq: optimize don't save regs
