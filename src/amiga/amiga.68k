@@ -82,7 +82,7 @@ FG_TILE_COUNT = 0x400
 BG_TILE_NB_CLUTS_POW = 4
 BG_TILE_NB_CLUTS = 1<<BG_TILE_NB_CLUTS_POW
 BG_TILE_COUNT = 0x400
-SPRITE_COUNT = 0x400
+SPRITE_COUNT = 0x300
 
 SPRITE_NB_CLUTS_POW = 2
 SPRITE_NB_CLUTS = 1<<SPRITE_NB_CLUTS_POW
@@ -118,8 +118,8 @@ FG_SCREEN_COLOR_ADDRESS = fg_tiles_color_address_d400
 BG_SCREEN_TILE_ADDRESS = bg_tiles_address_d800
 BG_SCREEN_COLOR_ADDRESS = bg_tiles_color_address_dc00
 
-SPRITE_ADDRESS = 0x1E00  | to 0x1FFF
-SPRITE_BUFFER_SIZE = 0x100
+SPRITE_ADDRESS = 0xFE00  | to 0xFF7F
+SPRITE_BUFFER_SIZE = 0x180
 
 * if the alloc_sprite & update_sprite routines
 * are reused, changing those offsets can make
@@ -1212,7 +1212,7 @@ level1_interrupt:
 	COMMIT_BLITLIST
 
 	.if		OPT_BLIT_CHAIN_MODE==0
-	*jbsr		really_update_sprites
+	jbsr		really_update_sprites
 
 	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
 	jbsr		switch_screen_buffers
@@ -1819,15 +1819,16 @@ copy_80:
 *	}
 
 really_update_sprites:
-
+	
 	***********************
 	* erase previous BOBs *
 	***********************
 	
-	move.l	bob_previous_drawed_sprites(pc),a4
+	move.l	bob_previous_drawn_sprites(pc),a4
 	move.l	(a4)+,d6		| value of scroll X/Y at the time of the draw
-	cmp.l	game_scroll_x,d6
-	seq		d6				| flag set: scrolling hasn't been updated since last draw
+	moveq	#0,d6		| ATM no erase optimization
+*	cmp.l	game_scroll_x,d6
+*	seq		d6				| flag set: scrolling hasn't been updated since last draw
 	lea		_custom,a5
 
 
@@ -1879,7 +1880,7 @@ really_update_sprites:
 
 
     lea _custom,A5
-	move.l	bob_previous_drawed_sprites(pc),a6
+	move.l	bob_previous_drawn_sprites(pc),a6
 	move.l	game_scroll_x,(a6)+	| note down scrolling values at the current time
 	
 	lea		shared_bob_table,a4
@@ -1941,7 +1942,6 @@ compute_sprite_xy_code:
 	rts
 	
 update_one_bob:
-
 	move.l	A0,-(a7)
 	* Y/X = 0xF8 (raw): nothing displayed
 	move.w	(a0),d3
@@ -2010,13 +2010,7 @@ update_one_bob:
 
 	move.l	(a4,d2.w),d4		| get pointer from shared bob table
 	jne		200f
-	* not in the shared bob table. Is it in the level specific bob table?
-	move.l	context_sprite_table_ptr,a3
-	move.l	(a3,d2.w),d4		| get pointer from specific bob table	
-	.ifdef	RELEASE
-	jeq		2f				| can theorically happen as sprite update is not atomic (it could be...)
-	.else
-	jne		100f
+
 	* in dev mode, break if we try to display a non-existing bob
 
 	moveq	#0,d2
@@ -2561,7 +2555,7 @@ start_process_1_plane:
 bob_previous_positions_1:
 	.fill NB_TARGET_SPRITES*PREVIOUS_SPRITE_SIZE+4 , 1 , -1
 	
-bob_previous_drawed_sprites:
+bob_previous_drawn_sprites:
 	.long	bob_previous_positions_1
 bob_previous_displayed_sprites:
 	.ifeq	OPT_ENABLE_DOUBLE_BUFFERING
@@ -2596,7 +2590,7 @@ switch_screen_buffers:
 	move.l	a1,(a0)
 	move.l	a5,playfield_displayed_screen_ptr
 	move.l	a3,bob_previous_displayed_sprites
-	move.l	a2,bob_previous_drawed_sprites
+	move.l	a2,bob_previous_drawn_sprites
 
 	jbra		set_bobs_bitplanes
 	.endif
@@ -2719,7 +2713,7 @@ platform_init:
 
 
  	*         VVHH
-    move.w #0x99+((Y_START+0x10)<<8)-EXTRA_WIDTH,d0  | let's show the valid pixels!
+    move.w #0x99+((Y_START+0x10)<<8)-4,d0  | let's show the valid pixels!
     move.w #0x79+((Y_START+0x10)<<8),d1  | on the right, they're not valid during play
 	cmp.l	#NTSC_MONITOR_ID,monitor
 	jne		0f
@@ -4021,6 +4015,30 @@ log_any_tiles:
 	dbf		d7,0b
 	rts
 	
+*	for (int offs = m_spriteram->bytes() - 4; offs >= 0; offs -= 4)
+*	{
+*		// bit 1 of attr is not used
+*		int const attr = buffered_spriteram[offs + 1];
+*		int const bank = (attr & 0xc0) >> 6;
+*		int const code = buffered_spriteram[offs] + 256 * bank;
+*		int const color = (attr & 0x30) >> 4;
+*		int flipx = attr & 0x04;
+*		int flipy = attr & 0x08;
+*		int sx = buffered_spriteram[offs + 3] - ((attr & 0x01) << 8);
+*		int sy = buffered_spriteram[offs + 2];
+*
+*		if (flip_screen())
+*		{
+*			sx = 240 - sx;
+*			sy = 240 - sy;
+*			flipx = !flipx;
+*			flipy = !flipy;
+*		}
+*
+*		if (bank < 3)
+*			m_gfxdecode->gfx(2)->transpen(bitmap, cliprect, code, color, flipx, flipy, sx + 128, sy + 6, 15);
+*	}
+
 * sprite_log, log_sprites
 log_used_sprites:
 

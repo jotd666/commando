@@ -15,7 +15,7 @@ def doit(binname):
 
 
     side = 16
-    transparent = (254,254,254)  # not possible to get it in the game
+    transparent = (0,0,0)  # not possible to get it in the game
 
     blank_image = Image.new("RGB",(side,side))
     for i in range(side):
@@ -51,10 +51,12 @@ def doit(binname):
 
     for offs in range(len(buffered_spriteram)-4,0,-4):
         attributes = buffered_spriteram[offs + 1]
-        sx = buffered_spriteram[offs + 3] - 0x100 * (attributes & 0x01)
-        sy = buffered_spriteram[offs + 2]
-        if sy==0xF8:
+        sy = buffered_spriteram[offs + 3] - 0x100 * (attributes & 0x01)
+        sx = buffered_spriteram[offs + 2]
+        if sy==0x0 and sx==0x0:
             continue
+
+        sy = 0x100-sy
         flipx = attributes & 0x04
         flipy = attributes & 0x08
 
@@ -64,8 +66,6 @@ def doit(binname):
         if name=="blank":
             continue
 
-        #sx += 128
-        sy += 6
 
         used_sprites.add(tile_code)
 

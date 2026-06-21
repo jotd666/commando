@@ -45,4 +45,4 @@ def merge(used_name,nb_items,nb_cluts,overwrite=False):
 
 merge("fg_used_tiles",FG_NB_TILES,FG_NB_CLUTS)
 merge("bg_used_tiles",BG_NB_TILES,BG_NB_CLUTS)
-#merge("used_sprites",SPRITE_NB_TILES,SPRITE_NB_CLUTS)
+merge("used_sprites",SPRITE_NB_TILES,SPRITE_NB_CLUTS)
