@@ -243,6 +243,8 @@ background_scroll_x_lsb_c80a = $c80a
 background_scroll_x_msb_c80b = $c80b
 global_y_msb_e05b = $e05b
 global_y_lsb_e05c = $e05c
+; 5: end of level
+game_state_e001 = $E001
 
 ; PORT_STATE_C001_IN1_e004 holds the state of IN1 after a bit flip (2's complement) - see $0328
 ; Bit 0: player moving RIGHT
@@ -279,6 +281,7 @@ bg_tiles_address_d800 = $d800
 bg_tiles_color_address_dc00 = $dc00
 sound_queue_pointer_ed88 = $ed88
 
+player_state_e100 = $e100
 
 ; set to 1 if dip switches report an upright cabinet 
 is_cabinet_upright_e025 = $e025
@@ -453,7 +456,7 @@ startup_004a:
 
 ; clear all RAM
 0060: 21 00 0E    ld   hl,$E000
-0063: 11 01 0E    ld   de,$E001
+0063: 11 01 0E    ld   de,game_state_e001
 0066: 36 00       ld   (hl),$00
 0068: 01 FF F1    ld   bc,$1FFF
 006B: ED B0       ldir
@@ -798,7 +801,7 @@ irq_02b7:    ; [global]
 03C8: C9          ret
 
 
-03C9: 3A 01 0E    ld   a,($E001)
+03C9: 3A 01 0E    ld   a,(game_state_e001)
 03CC: F7          rst  $30    ; [jump_to_jump_table] [nb_entries=2]
 ; jump_table_03cd:
 	dc.w	japan_import_warning_03d1	; $03cd
@@ -807,7 +810,7 @@ irq_02b7:    ; [global]
 japan_import_warning_03d1:
 03D1: 3A C0 0E    ld   a,(port_state_c001_bit4_bits_e00c)
 03D4: A7          and  a
-03D5: C2 DE 41    jp   nz,$05FC
+03D5: C2 DE 41    jp   nz,next_game_state_05fc		; trigger service mode
 03D8: CD 06 E0    call print_text_with_typing_effect_0e60
 03DB: 3A 20 0E    ld   a,(timing_variable_e002)
 03DE: E6 21       and  $03
@@ -833,7 +836,7 @@ service_mode_03fd:
 03FD: C3 BA B2    jp   $3ABA
 0400: 21 50 40    ld   hl,return_0414	; [push_function]
 0403: E5          push hl
-0404: 3A 01 0E    ld   a,($E001)
+0404: 3A 01 0E    ld   a,(game_state_e001)
 0407: F7          rst  $30    ; [jump_to_jump_table] [nb_entries=6]
 ; jump_table_0408:
 	dc.w	$0426	; $0408
@@ -874,7 +877,7 @@ return_0414:
 0452: 21 00 80    ld   hl,$0800
 0455: 22 2A CF    ld   ($EDA2),hl
 0458: CD E8 4B    call $A58E
-045B: C3 DE 41    jp   $05FC
+045B: C3 DE 41    jp   next_game_state_05fc
 045E: CD D1 41    call $051D
 0461: CD 9E 40    call $04F8
 0464: 21 65 0E    ld   hl,$E047
@@ -891,7 +894,7 @@ return_0414:
 0482: 21 00 90    ld   hl,$1800
 0485: 22 2A CF    ld   ($EDA2),hl
 0488: CD E8 4B    call $A58E
-048B: C3 DE 41    jp   $05FC
+048B: C3 DE 41    jp   next_game_state_05fc
 048E: 21 65 0E    ld   hl,$E047
 0491: 35          dec  (hl)
 0492: C0          ret  nz
@@ -910,18 +913,18 @@ return_0414:
 04AF: 21 00 F1    ld   hl,$1F00
 04B2: 22 2A CF    ld   ($EDA2),hl
 04B5: CD E8 4B    call $A58E
-04B8: C3 DE 41    jp   $05FC
+04B8: C3 DE 41    jp   next_game_state_05fc
 04BB: 21 65 0E    ld   hl,$E047
 04BE: 35          dec  (hl)
 04BF: C0          ret  nz
 04C0: CD 81 60    call $0609
 04C3: AF          xor  a
-04C4: 32 01 0E    ld   ($E001),a
+04C4: 32 01 0E    ld   (game_state_e001),a
 04C7: C9          ret
 04C8: 21 00 D0    ld   hl,$1C00
 04CB: 22 2A CF    ld   ($EDA2),hl
 04CE: CD E8 4B    call $A58E
-04D1: C3 DE 41    jp   $05FC
+04D1: C3 DE 41    jp   next_game_state_05fc
 04D4: CD 07 41    call $0561
 04D7: 11 42 00    ld   de,$0024
 04DA: FF          rst  $38   ; store_de_in_circular_buffer_0038
@@ -933,14 +936,14 @@ return_0414:
 04E2: FF          rst  $38   ; store_de_in_circular_buffer_0038
 04E3: 3E 00       ld   a,$00
 04E5: 32 65 0E    ld   ($E047),a
-04E8: C3 DE 41    jp   $05FC
+04E8: C3 DE 41    jp   next_game_state_05fc
 
 04EB: 21 65 0E    ld   hl,$E047
 04EE: 35          dec  (hl)
 04EF: C0          ret  nz
 04F0: CD 81 60    call $0609
 04F3: AF          xor  a
-04F4: 32 01 0E    ld   ($E001),a
+04F4: 32 01 0E    ld   (game_state_e001),a
 04F7: C9          ret
 04F8: FD 21 92 FF ld   iy,$FF38
 04FC: 21 91 41    ld   hl,$0519
@@ -994,7 +997,7 @@ return_0414:
 0561: C9          ret
 0562: 21 29 41    ld   hl,return_0583		; [push_function]
 0565: E5          push hl
-0566: 3A 01 0E    ld   a,($E001)
+0566: 3A 01 0E    ld   a,(game_state_e001)
 0569: F7          rst  $30    ; [jump_to_jump_table] [nb_entries=3]
 ; jump_table_056a:
 	dc.w	$05da	; $056a
@@ -1047,7 +1050,7 @@ return_0583:
 05C6: 32 B0 0E    ld   ($E01A),a
 05C9: AF          xor  a
 05CA: 32 91 0E    ld   ($E019),a
-05CD: 32 01 0E    ld   ($E001),a
+05CD: 32 01 0E    ld   (game_state_e001),a
 05D0: 3E 21       ld   a,$03
 05D2: 32 00 0E    ld   ($E000),a
 05D5: 16 81       ld   d,$09
@@ -1063,16 +1066,17 @@ return_0583:
 05E8: FF          rst  $38   ; store_de_in_circular_buffer_0038
 05E9: 11 A0 00    ld   de,$000A
 05EC: FF          rst  $38   ; store_de_in_circular_buffer_0038
-05ED: C3 DE 41    jp   $05FC
+05ED: C3 DE 41    jp   next_game_state_05fc
 
 05F0: 3A 12 0E    ld   a,(num_credits_e030)
 05F3: 3D          dec  a
 05F4: C8          ret  z
 05F5: 11 81 00    ld   de,$0009
 05F8: FF          rst  $38   ; store_de_in_circular_buffer_0038
-05F9: C3 DE 41    jp   $05FC
+05F9: C3 DE 41    jp   next_game_state_05fc
 
-05FC: 21 01 0E    ld   hl,$E001
+next_game_state_05fc:
+05FC: 21 01 0E    ld   hl,game_state_e001
 05FF: 34          inc  (hl)
 0600: C9          ret
 
@@ -1096,7 +1100,7 @@ return_0583:
 061D: 0D          dec  c
 061E: 20 EE       jr   nz,$060E
 0620: C9          ret
-0621: 3A 01 0E    ld   a,($E001)
+0621: 3A 01 0E    ld   a,(game_state_e001)
 0624: F7          rst  $30    ; [jump_to_jump_table] [nb_entries=11]
 ; jump_table_0625:
 	dc.w	$0646	; $0625
@@ -1177,7 +1181,7 @@ return_0583:
 06C3: CD 38 6B    call $A792
 06C6: CD 7B 21    call $03B7
 06C9: CD 0C 68    call $86C0
-06CC: C3 DE 41    jp   $05FC
+06CC: C3 DE 41    jp   next_game_state_05fc
 06CF: 21 18 99    ld   hl,$9990
 06D2: C3 28 60    jp   $0682
 
@@ -1210,10 +1214,10 @@ return_0583:
 0716: 3E 0C       ld   a,$C0
 0718: 32 65 0E    ld   ($E047),a
 071B: CD 63 61    call $0727
-071E: C3 DE 41    jp   $05FC
+071E: C3 DE 41    jp   next_game_state_05fc
 
 0721: CD 0C 68    call $86C0
-0724: C3 DE 41    jp   $05FC
+0724: C3 DE 41    jp   next_game_state_05fc
 0727: 3A 8B CF    ld   a,($EDA9)
 072A: E6 21       and  $03
 072C: FE 21       cp   $03
@@ -1258,7 +1262,7 @@ return_0583:
 0781: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0782: CD 60 89    call $8906
 0785: 3E 40       ld   a,$04
-0787: 32 01 0E    ld   ($E001),a
+0787: 32 01 0E    ld   (game_state_e001),a
 078A: C9          ret
 
 078B: 21 0B CF    ld   hl,$EDA1
@@ -1266,7 +1270,7 @@ return_0583:
 0790: 3E 06       ld   a,$60
 0792: 32 65 0E    ld   ($E047),a
 0795: CD DA 8B    call $A9BC
-0798: C3 DE 41    jp   $05FC
+0798: C3 DE 41    jp   next_game_state_05fc
 
 079B: 3A 43 0E    ld   a,(is_cabinet_upright_e025)
 079E: A7          and  a
@@ -1320,7 +1324,8 @@ return_0583:
 07F0: 32 02 4E    ld   ($E420),a
 07F3: 32 DA 0E    ld   ($E0BC),a
 07F6: CD 60 89    call $8906
-07F9: C3 DE 41    jp   $05FC
+07F9: C3 DE 41    jp   next_game_state_05fc
+
 07FC: CD 8B F9    call $9FA9
 07FF: CD 81 F9    call $9F09
 0802: CD 93 89    call $8939
@@ -1330,12 +1335,12 @@ return_0583:
 080E: CD D1 39    call $931D
 0811: CD 39 E8    call $8E93
 0814: CD 59 EA    call $AE95
-0817: 3A 00 0F    ld   a,($E100)
+0817: 3A 00 0F    ld   a,(player_state_e100)
 081A: A7          and  a
 081B: 28 E5       jr   z,$086C
 081D: 3A 0B 0E    ld   a,($E0A1)
 0820: A7          and  a
-0821: C2 DE 41    jp   nz,$05FC
+0821: C2 DE 41    jp   nz,next_game_state_05fc
 0824: 3A F9 0E    ld   a,($E09F)
 0827: A7          and  a
 0828: 20 42       jr   nz,$084E
@@ -1393,7 +1398,7 @@ return_0583:
 0892: 21 91 0E    ld   hl,$E019
 0895: 34          inc  (hl)
 0896: 3E 01       ld   a,$01
-0898: 32 01 0E    ld   ($E001),a
+0898: 32 01 0E    ld   (game_state_e001),a
 089B: C9          ret
 089C: 11 E0 00    ld   de,$000E
 089F: FF          rst  $38   ; store_de_in_circular_buffer_0038
@@ -1410,7 +1415,7 @@ return_0583:
 08B7: 3E 5A       ld   a,$B4
 08B9: 32 65 0E    ld   ($E047),a
 08BC: 3E 80       ld   a,$08
-08BE: 32 01 0E    ld   ($E001),a
+08BE: 32 01 0E    ld   (game_state_e001),a
 08C1: C9          ret
 08C2: 21 0C CF    ld   hl,$EDC0
 08C5: 3A 91 0E    ld   a,($E019)
@@ -1450,9 +1455,9 @@ return_0583:
 095B: 3A 8B CF    ld   a,($EDA9)
 095E: E6 21       and  $03
 0960: FE 21       cp   $03
-0962: C2 DE 41    jp   nz,$05FC
+0962: C2 DE 41    jp   nz,next_game_state_05fc
 0965: CD CF 68    call $86ED
-0968: C3 DE 41    jp   $05FC
+0968: C3 DE 41    jp   next_game_state_05fc
 096B: CD 7B 21    call $03B7
 096E: 3A 8B CF    ld   a,($EDA9)
 0971: E6 21       and  $03
@@ -1497,7 +1502,7 @@ return_0583:
 0A73: E6 21       and  $03
 0A75: FE 21       cp   $03
 0A77: C2 6E A0    jp   nz,$0AE6
-0A7A: 3A 00 0F    ld   a,($E100)
+0A7A: 3A 00 0F    ld   a,(player_state_e100)
 0A7D: A7          and  a
 0A7E: C4 6A 88    call nz,$88A6
 0A81: CD 8A 8A    call $A8A8
@@ -1577,7 +1582,7 @@ return_0583:
 0B21: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0B22: 16 A1       ld   d,$0B
 0B24: FF          rst  $38   ; store_de_in_circular_buffer_0038
-0B25: C3 DE 41    jp   $05FC
+0B25: C3 DE 41    jp   next_game_state_05fc
 0B28: CD 72 A1    call $0B36
 0B2B: 3A 20 0E    ld   a,(timing_variable_e002)
 0B2E: E6 21       and  $03
@@ -1656,7 +1661,7 @@ return_0583:
 0CF8: CD 81 C1    call $0D09
 0CFB: CD 60 89    call $8906
 0CFE: 3E 40       ld   a,$04
-0D00: 32 01 0E    ld   ($E001),a
+0D00: 32 01 0E    ld   (game_state_e001),a
 0D03: 3E 00       ld   a,$00		; higher part
 0D05: 32 A1 8C    ld   (background_scroll_x_msb_c80b),a
 0D08: C9          ret
@@ -1686,7 +1691,7 @@ return_0583:
 0D3F: CD F4 98    call $985E
 0D42: CD F5 98    call $985F
 0D45: CD 7F 68    call $86F7
-0D48: C3 DE 41    jp   $05FC
+0D48: C3 DE 41    jp   next_game_state_05fc
 0D4B: 3A B0 0E    ld   a,($E01A)
 0D4E: A7          and  a
 0D4F: 28 A1       jr   z,$0D5C
@@ -1701,11 +1706,11 @@ return_0583:
 0D5F: 3E 01       ld   a,$01
 0D61: 32 00 0E    ld   ($E000),a
 0D64: 3E 00       ld   a,$00
-0D66: 32 01 0E    ld   ($E001),a
+0D66: 32 01 0E    ld   (game_state_e001),a
 0D69: 32 93 0E    ld   (is_screen_yflipped_e039),a
 0D6C: C9          ret
 0D6D: 3E 01       ld   a,$01
-0D6F: 32 01 0E    ld   ($E001),a
+0D6F: 32 01 0E    ld   (game_state_e001),a
 0D72: C9          ret
 0D73: CD 43 99    call $9925
 0D76: 3A 71 0E    ld   a,($E017)
@@ -1716,7 +1721,7 @@ return_0583:
 0D81: 16 61       ld   d,$07
 0D83: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0D84: CD A8 C1    call $0D8A
-0D87: C3 DE 41    jp   $05FC
+0D87: C3 DE 41    jp   next_game_state_05fc
 0D8A: CD D3 68    call $863D
 0D8D: CD BB 68    call $86BB
 0D90: 3E 94       ld   a,$58
@@ -1883,6 +1888,7 @@ entry_0fc2:
 0FE9: CD 88 31    call $1388
 0FEC: CD 75 70    call $1657
 0FEF: C9          ret
+
 0FF0: DD 7E 11    ld   a,(ix+$11)
 0FF3: 3C          inc  a
 0FF4: 28 B1       jr   z,$1011
@@ -2701,7 +2707,7 @@ entry_14c0:
 1898: 21 55 0E    ld   hl,$E055
 189B: 34          inc  (hl)
 189C: CD F1 91    call $191F
-189F: 3A 00 0F    ld   a,($E100)
+189F: 3A 00 0F    ld   a,(player_state_e100)
 18A2: 3C          inc  a
 18A3: 20 43       jr   nz,$18CA
 18A5: 06 10       ld   b,$10
@@ -2718,7 +2724,7 @@ entry_14c0:
 18C1: FE 04       cp   $40
 18C3: 30 41       jr   nc,$18CA
 18C5: 3E F3       ld   a,$3F
-18C7: 32 00 0F    ld   ($E100),a
+18C7: 32 00 0F    ld   (player_state_e100),a
 18CA: 11 EF 90    ld   de,$18EF
 18CD: DD 7E 50    ld   a,(ix+$14)
 18D0: 21 6F 90    ld   hl,$18E7
@@ -2736,7 +2742,7 @@ entry_14c0:
 1932: DD 35 41    dec  (ix+$05)
 1935: 18 21       jr   $193A
 1937: DD 34 41    inc  (ix+$05)
-193A: 3A 00 0F    ld   a,($E100)
+193A: 3A 00 0F    ld   a,(player_state_e100)
 193D: DD 7E 41    ld   a,(ix+$05)
 1940: FE 20       cp   $02
 1942: 30 40       jr   nc,$1948
@@ -2785,7 +2791,7 @@ entry_14c0:
 199F: CD 8A 91    call $19A8
 19A2: 11 6D 91    ld   de,$19C7
 19A5: C3 88 A3    jp   $2B88
-19A8: 3A 00 0F    ld   a,($E100)
+19A8: 3A 00 0F    ld   a,(player_state_e100)
 19AB: 3C          inc  a
 19AC: C0          ret  nz
 19AD: 3A 41 0F    ld   a,($E105)
@@ -2798,7 +2804,7 @@ entry_14c0:
 19BE: FE 83       cp   $29
 19C0: D0          ret  nc
 19C1: 3E F3       ld   a,$3F
-19C3: 32 00 0F    ld   ($E100),a
+19C3: 32 00 0F    ld   (player_state_e100),a
 19C6: C9          ret
 
 19D1: CD F6 91    call $197E
@@ -3608,7 +3614,7 @@ entry_14c0:
 21F8: C3 43 22    jp   $2225
 
 2225: DD E5       push ix
-2227: 11 6A 22    ld   de,$22A6
+2227: 11 6A 22    ld   de,cont_22a6		; [push_function]
 222A: D5          push de
 222B: DD 7E 70    ld   a,(ix+$16)
 222E: 47          ld   b,a
@@ -3659,6 +3665,7 @@ entry_14c0:
 229D: DD 36 50 00 ld   (ix+$14),$00
 22A1: DD 36 51 40 ld   (ix+$15),$04
 22A5: C9          ret
+cont_22a6:
 22A6: DD E1       pop  ix
 22A8: C9          ret
 22A9: DD 35 51    dec  (ix+$15)
@@ -3667,7 +3674,7 @@ entry_14c0:
 22B1: A7          and  a
 22B2: 28 C3       jr   z,$22E1
 22B4: CD 5C E9    call $8FD4
-22B7: 3A 00 0F    ld   a,($E100)
+22B7: 3A 00 0F    ld   a,(player_state_e100)
 22BA: 3C          inc  a
 22BB: 20 D1       jr   nz,$22DA
 22BD: 3A 21 0F    ld   a,($E103)
@@ -3681,7 +3688,7 @@ entry_14c0:
 22D1: FE 91       cp   $19
 22D3: 30 41       jr   nc,$22DA
 22D5: 3E F3       ld   a,$3F
-22D7: 32 00 0F    ld   ($E100),a
+22D7: 32 00 0F    ld   (player_state_e100),a
 22DA: 1E 1B       ld   e,$B1
 22DC: 16 12       ld   d,$30
 22DE: C3 9C D0    jp   $1CD8
@@ -5071,7 +5078,7 @@ entry_14c0:
 30DD: DD 7E 41    ld   a,(ix+$05)
 30E0: A7          and  a
 30E1: 28 92       jr   z,$311B
-30E3: 3A 00 0F    ld   a,($E100)
+30E3: 3A 00 0F    ld   a,(player_state_e100)
 30E6: 3C          inc  a
 30E7: C0          ret  nz
 30E8: 3A 21 0F    ld   a,($E103)
@@ -5447,7 +5454,7 @@ entry_33f4:
 34CD: CD B0 53    call $351A
 34D0: CD 6B 53    call $35A7
 34D3: CD 5F 52    call $34F5
-34D6: 3A 00 0F    ld   a,($E100)
+34D6: 3A 00 0F    ld   a,(player_state_e100)
 34D9: 3C          inc  a
 34DA: C0          ret  nz
 34DB: 3A 21 0F    ld   a,($E103)
@@ -5460,7 +5467,7 @@ entry_33f4:
 34EC: FE 91       cp   $19
 34EE: D0          ret  nc
 34EF: 3E F3       ld   a,$3F
-34F1: 32 00 0F    ld   ($E100),a
+34F1: 32 00 0F    ld   (player_state_e100),a
 34F4: C9          ret
 34F5: DD 7E 70    ld   a,(ix+$16)
 34F8: 21 77 53    ld   hl,$3577
@@ -6541,13 +6548,14 @@ entry_33f4:
 80F5: 11 0F FF    ld   de,$FFE1
 80F8: 19          add  hl,de
 80F9: C9          ret
+
 80FA: 1A          ld   a,(de)
 80FB: 13          inc  de
 80FC: 77          ld   (hl),a     ; [unchecked_address]
 80FD: CB D4       set  2,h        
-80FF: 1A          ld   a,(de)     ; [video_address]
+80FF: 1A          ld   a,(de)
 8100: 13          inc  de
-8101: 77          ld   (hl),a
+8101: 77          ld   (hl),a     ; [video_address]
 8102: CB 94       res  2,h
 8104: C9          ret
 
@@ -7187,7 +7195,7 @@ process_sound_queue_8727:
 8895: C9          ret
 
 
-88A6: DD 21 00 0F ld   ix,$E100
+88A6: DD 21 00 0F ld   ix,player_state_e100
 88AA: FD 21 92 FF ld   iy,$FF38
 88AE: DD 7E 00    ld   a,(ix+$00)
 88B1: FE FE       cp   $FE
@@ -7232,17 +7240,17 @@ process_sound_queue_8727:
 8906: CD C0 89    call $890C
 8909: C3 F7 68    jp   $867F
 890C: 21 A3 89    ld   hl,$892B
-890F: 11 00 0F    ld   de,$E100
+890F: 11 00 0F    ld   de,player_state_e100
 8912: 01 E0 00    ld   bc,$000E
 8915: ED B0       ldir
-8917: DD 21 00 0F ld   ix,$E100
+8917: DD 21 00 0F ld   ix,player_state_e100
 891B: FD 21 92 FF ld   iy,$FF38
 891F: DD 36 B0 00 ld   (ix+$1a),$00
 8923: DD 36 31 00 ld   (ix+$13),$00
 8927: CD 1B C8    call $8CB1
 892A: C9          ret
 
-8939: DD 21 00 0F ld   ix,$E100
+8939: DD 21 00 0F ld   ix,player_state_e100
 893D: FD 21 92 FF ld   iy,$FF38
 8941: DD 7E 00    ld   a,(ix+$00)
 8944: A7          and  a
@@ -8132,7 +8140,7 @@ entry_9078:
 9234: FD 77 A1    ld   (iy+$0b),a
 9237: FD 77 E1    ld   (iy+$0f),a
 923A: FD E1       pop  iy
-923C: 3A 00 0F    ld   a,($E100)
+923C: 3A 00 0F    ld   a,(player_state_e100)
 923F: 3C          inc  a
 9240: C2 B5 68    jp   nz,$865B
 9243: 3A 21 0F    ld   a,($E103)
@@ -8146,7 +8154,7 @@ entry_9078:
 9254: FE 03       cp   $21
 9256: D2 B5 68    jp   nc,$865B
 9259: 3E F3       ld   a,$3F
-925B: 32 00 0F    ld   ($E100),a
+925B: 32 00 0F    ld   (player_state_e100),a		; hit by grenade
 925E: C3 B5 68    jp   $865B
 9261: C9          ret
 9262: 32 D8 0E    ld   ($E09C),a
@@ -8191,7 +8199,7 @@ entry_9078:
 92BA: C9          ret
 
 92C7: 32 D8 0E    ld   ($E09C),a
-92CA: 3A 00 0F    ld   a,($E100)
+92CA: 3A 00 0F    ld   a,(player_state_e100)
 92CD: 3C          inc  a
 92CE: C0          ret  nz
 92CF: 3A 91 0E    ld   a,($E019)
@@ -8231,7 +8239,7 @@ entry_9078:
 9316: DD 77 41    ld   (ix+$05),a
 9319: CD 74 68    call $8656
 931C: C9          ret
-931D: 3A 00 0F    ld   a,($E100)
+931D: 3A 00 0F    ld   a,(player_state_e100)
 9320: 3C          inc  a
 9321: C0          ret  nz
 9322: CD 83 39    call $9329
@@ -8328,7 +8336,7 @@ entry_9078:
 93DC: C9          ret
 
 
-93FD: 3A 00 0F    ld   a,($E100)
+93FD: 3A 00 0F    ld   a,(player_state_e100)
 9400: 3C          inc  a
 9401: C0          ret  nz
 9402: 3E 00       ld   a,$00
@@ -8340,7 +8348,7 @@ entry_9078:
 940D: 85          add  a,l
 940E: 6F          ld   l,a
 940F: 18 E0       jr   $941F
-9411: 3A 00 0F    ld   a,($E100)
+9411: 3A 00 0F    ld   a,(player_state_e100)
 9414: 3C          inc  a
 9415: C0          ret  nz
 9416: DD 66 21    ld   h,(ix+$03)
@@ -8862,7 +8870,7 @@ entry_97ea:
 98AA: C9          ret
 
 
-98AB: DD 21 00 0F ld   ix,$E100
+98AB: DD 21 00 0F ld   ix,player_state_e100
 98AF: FD 21 92 FF ld   iy,$FF38
 98B3: DD 36 00 00 ld   (ix+$00),$00
 98B7: DD 36 21 C2 ld   (ix+$03),$2C
@@ -8978,7 +8986,7 @@ entry_97ea:
 99BC: 10 9E       djnz $99B6
 99BE: C9          ret
 
-99BF: DD 21 00 0F ld   ix,$E100
+99BF: DD 21 00 0F ld   ix,player_state_e100
 99C3: FD 21 92 FF ld   iy,$FF38
 99C7: DD 7E 00    ld   a,(ix+$00)
 99CA: A7          and  a
@@ -9704,6 +9712,7 @@ check_credit_inserted_9e46:
 9F2A: 19          add  hl,de
 9F2B: DD 74 01    ld   (ix+$01),h
 9F2E: DD 75 20    ld   (ix+$02),l
+; update global Y
 9F31: 3A D4 0E    ld   a,(global_y_lsb_e05c)
 9F34: 57          ld   d,a
 9F35: 7C          ld   a,h
@@ -9953,7 +9962,7 @@ A396: C3 D4 2B    jp   $A35C
 entry_a399:
 A399: DD 21 00 8E ld   ix,$E800
 A39D: FD 21 12 FE ld   iy,$FE30
-A3A1: 3A 01 0E    ld   a,($E001)
+A3A1: 3A 01 0E    ld   a,(game_state_e001)
 A3A4: FE 41       cp   $05
 A3A6: 38 40       jr   c,$A3AC
 A3A8: FD 21 CA FE ld   iy,$FEAC
@@ -10505,11 +10514,11 @@ A923: CD 01 AB    call $AB01
 A926: 21 90 00    ld   hl,$0018
 A929: C3 E1 AB    jp   $AB0F
 A92C: C3 BB AA    jp   $AABB
-A92F: 3A 00 0F    ld   a,($E100)
+A92F: 3A 00 0F    ld   a,(player_state_e100)
 A932: FE FE       cp   $FE
 A934: C2 A5 8B    jp   nz,$A94B
 A937: AF          xor  a
-A938: 32 00 0F    ld   ($E100),a
+A938: 32 00 0F    ld   (player_state_e100),a
 A93B: 32 B2 FF    ld   ($FF3A),a
 A93E: 32 F2 FF    ld   ($FF3E),a
 A941: 32 24 FF    ld   ($FF42),a
@@ -10934,7 +10943,7 @@ AE9D: CD 4F EA    call $AEE5
 AEA0: C3 2B EA    jp   $AEA3
 
 
-AEA3: 3A 00 0F    ld   a,($E100)
+AEA3: 3A 00 0F    ld   a,(player_state_e100)
 AEA6: 3C          inc  a
 AEA7: C0          ret  nz
 AEA8: DD 21 0C 2E ld   ix,$E2C0
@@ -10961,7 +10970,7 @@ AED0: 82          add  a,d
 AED1: BB          cp   e
 AED2: 30 A0       jr   nc,$AEDE
 AED4: 3E F3       ld   a,$3F
-AED6: 32 00 0F    ld   ($E100),a		; hit by bullet
+AED6: 32 00 0F    ld   (player_state_e100),a		; hit by bullet
 AED9: DD 36 00 01 ld   (ix+$00),$01
 AEDD: C9          ret
 
@@ -10970,7 +10979,7 @@ AEDF: DD 19       add  ix,de
 AEE1: D9          exx
 AEE2: 10 BD       djnz $AEBF
 AEE4: C9          ret
-AEE5: 3A 00 0F    ld   a,($E100)
+AEE5: 3A 00 0F    ld   a,(player_state_e100)
 AEE8: 3C          inc  a
 AEE9: C0          ret  nz
 AEEA: DD 21 00 6E ld   ix,$E600
@@ -10997,7 +11006,7 @@ AF12: 82          add  a,d
 AF13: BB          cp   e
 AF14: 30 60       jr   nc,$AF1C
 AF16: 3E F3       ld   a,$3F
-AF18: 32 00 0F    ld   ($E100),a
+AF18: 32 00 0F    ld   (player_state_e100),a		; enemy contact
 AF1B: C9          ret
 AF1C: D9          exx
 AF1D: DD 19       add  ix,de

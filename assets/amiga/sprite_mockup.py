@@ -53,7 +53,7 @@ def doit(binname):
         attributes = buffered_spriteram[offs + 1]
         sy = buffered_spriteram[offs + 3] - 0x100 * (attributes & 0x01)
         sx = buffered_spriteram[offs + 2]
-        if sy==0x0 and sx==0x0:
+        if sx==0x0:
             continue
 
         sy = 0x100-sy

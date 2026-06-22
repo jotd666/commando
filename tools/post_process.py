@@ -8,11 +8,8 @@ input_dict = {
 
 "sound_c800":"sound_start",
 
-##"background_scroll_x_c808":"set_background_scroll_x_lsb",
-##"background_scroll_x_c809":"set_background_scroll_x_msb",
-##"background_scroll_y_c80a":"set_background_scroll_y_lsb",
-##"background_scroll_y_c80b":"set_background_scroll_y_msb",
 "sound_and_screen_orientation_c804":"",
+"background_scroll_x_msb_c80b":"",
 "dma_trigger_c806":"",
 }
 
@@ -288,11 +285,12 @@ with open(source_dir / "conv.s") as f:
             lines[i+1] = remove_instruction(lines,i+1)
         elif address == 0x0a99:
             lines[i+1] = remove_error(lines[i+1])  # flags are consistent
-        elif address in {0xaed6,0xaf18}:
-            # immune to bullets
+        elif address in {0xaed6,0xaf18,0x925B,0x18C7,0x19C3,0x22D7,0x34F1}:
+            # immune to bullets/enemy contact/grenades
             line = change_instruction(f"""tst.b\tinvincible_flag
 \tjne\t0f
-{line}0:
+{line}\tmove.b\td0,(a0)
+0:
 """,lines,i)
         elif address == 0xa770:
             # dirty if address matches

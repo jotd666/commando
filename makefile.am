@@ -35,7 +35,7 @@ OBJS = $(MAIN_OBJ) sounds.o $(PROGNAME)_000.o ram.o graphics.o rom.o vbr.o ReadJ
 all: $(MAIN) $(OBJS) $(WHDLOADER) $(WHDLOADER_CHIP) $(AMIGASRC)/graphics.68k $(AMIGASRC)/sounds.68k
  
 clean:
-	del $(OBJS) "$(MAIN_AGA)"
+	del $(OBJS) $(MAIN)
 	
 shell.o: $(AMIGASRC)/shell.68k
 	$(ASM_000) -I$(AMIGASRC) -I$(AMIGASRC)/mit_includes $(AMIGASRC)/shell.68k -o shell.o

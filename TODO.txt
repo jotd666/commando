@@ -1,16 +1,13 @@
 - converter: roxl/roxr after rol/ror: warn (check old z80 converter)
 - converter: data.inc is empty
-- rip sounds using service mode, send tunes to no9 (https://vgmrips.net/packs/pack/commando-arcade)
-- invincibility
+- helicopter blade remaining at start
+- sometimes crash when displaying sprites, maybe sprite table gets corrupted
+- level 2: enemies in trenches use "enemy in water" graphics
+- rip sounds using service mode (https://vgmrips.net/packs/pack/commando-arcade)
+- invincibility: still missing one case
 - helicopter sprite wraps when going up, should be clipped or whatever
-
-- here in amiga.68k
-	move.l	(a0)+,d1		| current plane data  => d1 is bogus
-	jeq		1f				| no data: skip
-	move.l	d1,a2
-	cmp.b	(-2,a2),d3		| 2 bytes before: mirror flag  => access fault
-	jeq		1f
-
+- find level complete flag, maybe with y global ?
+- 097A: game changes X scroll just to display end of level
 
 - a6d1: optimize hl *= 32
 - irq: optimize don't save regs
@@ -20,6 +17,7 @@
 - highscore load/save
 - detect not game in play for insert coin
 
+- when scrolling up, bridge sprites have some delay
 
 rip sounds:
 
