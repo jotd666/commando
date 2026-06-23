@@ -105,12 +105,6 @@ NTSC_Y_SHIFT = 12
 AGA_X_SHIFT = 0x37
 
 
-fg_tiles_address_d000 = 0xd000
-fg_tiles_color_address_d400 = 0xd400
-bg_tiles_address_d800 = 0xd800
-bg_tiles_color_address_dc00 = 0xdc00
-background_scroll_y_lsb_c808 = 0xc808
-background_scroll_x_lsb_c80a = 0xc80a
 
 
 FG_SCREEN_TILE_ADDRESS = fg_tiles_address_d000

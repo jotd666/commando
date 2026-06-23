@@ -138,7 +138,7 @@ def subt(m):
 
 equates = []
 global_symbols = []
-equates_re = re.compile("(\w+)\s*=(\$?\w+)")
+equates_re = re.compile("(\w+)\s*=\s*(\$?\w+)")
 this_dir = pathlib.Path(__file__).absolute().parent
 
 source_dir = this_dir / "../src"
