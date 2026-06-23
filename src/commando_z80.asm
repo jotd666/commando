@@ -2658,7 +2658,7 @@ entry_14c0:
 1805: FE A0       cp   $0A
 1807: C0          ret  nz
 1808: DD 36 40 00 ld   (ix+$04),$00
-180C: 11 71 90    ld   de,$1817
+180C: 11 71 90    ld   de,$1817		; data
 180F: FD E5       push iy
 1811: CD 88 A3    call $2B88
 1814: FD E1       pop  iy
@@ -3759,7 +3759,7 @@ cont_22a6:
 237D: DD 4E 70    ld   c,(ix+$16)
 2380: DD 34 70    inc  (ix+$16)
 2383: DD E5       push ix
-2385: 21 C1 42    ld   hl,$240D
+2385: 21 C1 42    ld   hl,continue_240d		; [push_function]
 2388: E5          push hl
 2389: DD 7E 21    ld   a,(ix+$03)
 238C: C6 12       add  a,$30
@@ -3833,6 +3833,7 @@ cont_22a6:
 2408: 0E 04       ld   c,$40
 240A: 1E 08       ld   e,$80
 240C: FF          rst  $38   ; store_de_in_circular_buffer_0038
+continue_240d:
 240D: DD E1       pop  ix
 240F: C9          ret
 2410: 11 70 42    ld   de,$2416
@@ -9797,7 +9798,7 @@ check_credit_inserted_9e46:
 9FDD: 11 A5 0A    ld   de,$A04B
 9FE0: CB 77       bit  6,a
 9FE2: 28 21       jr   z,$9FE7
-9FE4: 11 A9 0B    ld   de,$A18B
+9FE4: 11 A9 0B    ld   de,$A18B	; data, not an entrypoint
 9FE7: D5          push de
 9FE8: E6 F1       and  $1F
 9FEA: 6F          ld   l,a
