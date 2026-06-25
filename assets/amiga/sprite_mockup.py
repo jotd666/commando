@@ -57,8 +57,8 @@ def doit(binname):
             continue
 
         sy = 0x100-sy
-        flipx = attributes & 0x04
-        flipy = attributes & 0x08
+        flipy = attributes & 0x04
+        flipx = attributes & 0x08
 
         tile_code = buffered_spriteram[offs] + ((attributes << 2) & 0x300)
         tile_color = (attributes >> 4) & 3
@@ -76,7 +76,7 @@ def doit(binname):
         elif flipy:
             img = ImageOps.flip(img)
 
-        print(f"offset={offs:04x}, code={tile_code:02x}, clut={tile_color}: name={name}, x={sx}, y={sy}")
+        print(f"offset={offs:04x}, code={tile_code:02x}, clut={tile_color}: name={name}, x={sx}, y={sy} flipx={flipx} flipy={flipy}")
         layer.paste(img,box=(sx,sy))
 
 

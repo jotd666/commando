@@ -1910,6 +1910,10 @@ compute_sprite_xy_code:
 	* tile_code = buffered_spriteram[offs] + ((attributes << 2) & 0x300)
 	moveq	#0,d2
 	move.b	(TARGET_SPRITE_ATTRIBUTES,a0),d2
+	btst	#0,d2
+	jeq		0f
+	sub.w	#0x100,d1
+0:
 	and.b	#0xC0,d2
 	lsl.w	#2,d2
 	move.b	(TARGET_SPRITE_CODE,a0),d2
@@ -1928,7 +1932,7 @@ update_one_bob:
 	jcc		2f			| bank 3: illegal: skip
 	tst.w	d1
 	jmi		0f			| (slightly) negative: accept/clip it
-	cmp.w	#240,d1		| too low: scrap it: MAYBE NOT OKAY HERE!!
+	cmp.w	#256,d1		| too low: scrap it
 	jcc		2f
 	tst.w	d0
 	jeq		2f
@@ -2040,7 +2044,6 @@ update_one_bob:
 103:	
 	* BOBs must follow screen scroll
 	add.w	bobs_game_scroll_y,d1
-	add.w 	bobs_host_scroll_x,d0
 	
 	* D0 and D1 are already set
 	move.l	(NB_PLAYFIELD_PLANES*4,a0),d2
@@ -2694,8 +2697,8 @@ platform_init:
 
 
  	*         VVHH
-    move.w #0x99+((Y_START+0x10)<<8)-2,d0  | let's show a few more the valid pixels
-    move.w #0x79+((Y_START+0x10)<<8),d1  | on the right, they're not valid during play
+    move.w #0x99+((Y_START+0x10)<<8),d0
+    move.w #0x79+((Y_START+0x10)<<8),d1
 	cmp.l	#NTSC_MONITOR_ID,monitor
 	jne		0f
 	sub.w	#NTSC_Y_SHIFT<<8,d0

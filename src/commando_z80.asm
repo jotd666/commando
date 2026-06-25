@@ -8979,7 +8979,7 @@ entry_97ea:
 99AE: 11 B8 EE    ld   de,$EE9A
 99B1: 21 97 1D    ld   hl,$D179
 99B4: 06 A0       ld   b,$0A
-99B6: 7E          ld   a,(hl)
+99B6: 7E          ld   a,(hl)		; [video_address]
 99B7: 12          ld   (de),a
 99B8: 3E 02       ld   a,$20
 99BA: DF          rst  $18                   ; call ADD_A_TO_HL
@@ -9217,7 +9217,7 @@ entry_97ea:
 9BB7: DD E1       pop  ix
 9BB9: 7C          ld   a,h
 9BBA: 2A A7 0E    ld   hl,($E06B)
-9BBD: 77          ld   (hl),a
+9BBD: 77          ld   (hl),a		; [video_address]
 9BBE: 11 02 00    ld   de,$0020
 9BC1: 19          add  hl,de
 9BC2: 22 A7 0E    ld   ($E06B),hl
@@ -9244,10 +9244,10 @@ entry_97ea:
 9BE8: 11 0E FF    ld   de,$FFE0
 9BEB: 19          add  hl,de
 9BEC: 22 A7 0E    ld   ($E06B),hl
-9BEF: 36 E2       ld   (hl),$2E
+9BEF: 36 E2       ld   (hl),$2E		; [video_address]
 9BF1: C9          ret
 
-9BF2: 36 E2       ld   (hl),$2E
+9BF2: 36 E2       ld   (hl),$2E		; [video_address]
 9BF4: C9          ret
 
 9BF5: 3E 01       ld   a,$01
@@ -9290,12 +9290,12 @@ entry_97ea:
 
 
 9C57: CD 47 D8    call $9C65
-9C5A: 36 F7       ld   (hl),$7F
+9C5A: 36 F7       ld   (hl),$7F	 ; [video_address]
 9C5C: C9          ret
 
 9C5D: CD 47 D8    call $9C65
 9C60: DD 7E 01    ld   a,(ix+$01)
-9C63: 77          ld   (hl),a
+9C63: 77          ld   (hl),a	 ; [video_address]
 9C64: C9          ret
 
 9C65: DD 66 20    ld   h,(ix+$02)
