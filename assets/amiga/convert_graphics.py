@@ -34,7 +34,7 @@ for i,v in sprite_names.items():
     # bag of money seems to work as player has to pass on it + score afterwards
     # but that and skulls seem to cause issues. In the end, special case only for tombs
     # and extra armor
-    if "tombstone" in v  or i==0x13D:  #  or i==0xA7 (skull) or v=="bag_bonus"
+    if v == "palm_tree":
         object_type_table[i] = 1
 
 
@@ -331,6 +331,7 @@ all_tile_cluts = False
 sprite_cluts = {}
 fg_tile_cluts = {}
 
+total_nb_colors = 64
 
 read_used_tiles("fg_used_tiles",fg_tile_cluts,FG_NB_TILES,FG_NB_CLUTS)
 read_used_tiles("used_sprites",sprite_cluts,SPRITE_NB_TILES,SPRITE_NB_CLUTS)
@@ -617,9 +618,18 @@ for i,tsd in fg_tile_sheet_dict.items():
     fg_tile_upper_set_list.append(upper_tile_set)
 
 # pad
-if len(fg_tile_upper_palette)>16:
+fg_nb_colors = 16
+if len(fg_tile_upper_palette)>fg_nb_colors:
     print(f"Too many colors in fg upper tiles ({len(fg_tile_upper_palette)}), quantizing")
-    fg_replacement_dict = quantize_palette(fg_tile_upper_palette,"foreground_upper_tiles",16,transparent=magenta,dump_it=dump_it)
+    for attempt_nb_colors in [fg_nb_colors+3,fg_nb_colors+2,fg_nb_colors+1,fg_nb_colors]:
+        fg_replacement_dict = quantize_palette(fg_tile_upper_palette,"foreground_upper_tiles",attempt_nb_colors,transparent=magenta,dump_it=dump_it)
+        new_fg_tile_upper_palette = sorted(set(fg_replacement_dict.values()))
+        if len(new_fg_tile_upper_palette)<=fg_nb_colors:
+            print(f"Quantization achieved {len(new_fg_tile_upper_palette)} colors with start colors = {attempt_nb_colors}")
+            fg_tile_upper_palette = new_fg_tile_upper_palette
+            break
+    else:
+        raise Exception("quantize error")  # not really possible since we try 32 as last chance!
     apply_color_replacement(fg_tile_upper_set_list,fg_replacement_dict)
     fg_tile_upper_palette = sorted(set(fg_replacement_dict.values()))
 else:
@@ -634,7 +644,7 @@ fg_tile_upper_palette.insert(0,magenta)
 
 print(f"Used fg tile colors: {len(fg_tile_upper_palette)}")
 
-
+bitplanelib
 # pad to 16 colors
 for p in [fg_tile_upper_palette]:
     p += (16-len(p)) * [(0x10,0x20,0x30)]
@@ -658,16 +668,41 @@ for i,tsd in bg_tile_sheet_dict.items():
     bg_tile_set_list.append(tile_set)
     bg_tile_palette.update(tp)
 
+sprite_set_list = []
+print("Sprites:")
+for i,tsd in sprite_sheet_dict.items():
+    tp,tile_set = load_tileset(tsd,i,16,16,"sprites",dump_dir,dump=dump_it,
+    cluts=sprite_cluts,
+    name_dict=get_sprite_names(),
+    is_bob=True)
+    sprite_set_list.append(tile_set)
+    bg_tile_palette.update(tp)
 
-if len(bg_tile_palette)>32:
-    print(f"Too many colors in bg tiles ({len(bg_tile_palette)}), quantizing")
-    bg_replacement_dict = quantize_palette(bg_tile_palette,"background_tiles",32,transparent=None,dump_it=dump_it)
-    bg_tile_palette = sorted(set(bg_replacement_dict.values()))
-    apply_color_replacement(bg_tile_set_list,bg_replacement_dict)
+if bg_tile_palette:
+    # remove transparent color from palette
+    bg_tile_palette.remove(black)
+
+
+if len(bg_tile_palette)>total_nb_colors:
+    print(f"Too many colors in sprite tiles ({len(sprite_palette)}), quantizing")
+    # if we specify 32 right away, the algorithm can provide less colors than 32, wasting entries
+    # by attempting to quantize with higher values, we guarantee not to waste colors
+    for attempt_nb_colors in [total_nb_colors+3,total_nb_colors+2,total_nb_colors+1,total_nb_colors]:
+        sprite_replacement_dict = quantize_palette(bg_tile_palette,"sprite_tiles",attempt_nb_colors,dump_it=dump_it)
+        new_sprite_palette = sorted(set(sprite_replacement_dict.values()))
+        if len(new_sprite_palette)<=total_nb_colors:
+            print(f"Quantization achieved {len(new_sprite_palette)} colors with start colors = {attempt_nb_colors}")
+            bg_tile_palette = new_sprite_palette
+            break
+    else:
+        raise Exception("quantize error")  # not really possible since we try 32 as last chance!
+
+    apply_color_replacement(bg_tile_set_list,sprite_replacement_dict)
+    apply_color_replacement(sprite_set_list,sprite_replacement_dict)
 else:
     bg_tile_palette = sorted(bg_tile_palette)
+    bg_tile_palette += (total_nb_colors-len(bg_tile_palette)) * [(0x10,0x20,0x30)]
 
-bg_tile_palette += (32-len(bg_tile_palette)) * [(0x10,0x20,0x30)]
 
 print(f"Used bg tile colors: {len(bg_tile_palette)}")
 if dump_it:
@@ -684,6 +719,7 @@ if dump_it:
             json.dump(bg_tile_cluts_dict,f,indent=2)
 
 bg_tile_plane_cache = {}
+
 bg_tile_table,_ = read_tileset(bg_tile_set_list,bg_tile_palette,[True,False,False,False],cache=bg_tile_plane_cache,
 is_bob=False, nb_cluts=BG_NB_CLUTS, mask_color=(0,0,0))
 
@@ -693,58 +729,13 @@ is_bob=False, nb_cluts=BG_NB_CLUTS, mask_color=(0,0,0))
 # sprites
 ###############
 
-sprite_palette = set()
-sprite_set_list = []
-print("Sprites:")
-for i,tsd in sprite_sheet_dict.items():
-    tp,tile_set = load_tileset(tsd,i,16,16,"sprites",dump_dir,dump=dump_it,
-    cluts=sprite_cluts,
-    name_dict=get_sprite_names(),
-    is_bob=True)
-    sprite_set_list.append(tile_set)
-    sprite_palette.update(tp)
-
-if sprite_palette:
-    # remove transparent color from palette
-    sprite_palette.remove(black)
-
-if len(sprite_palette)>32:
-    print(f"Too many colors in sprite tiles ({len(sprite_palette)}), quantizing")
-    # if we specify 32 right away, the algorithm can provide less colors than 32, wasting entries
-    # by attempting to quantize with higher values, we guarantee not to waste colors
-    for attempt_nb_colors in [35,34,33,32]:
-        sprite_replacement_dict = quantize_palette(sprite_palette,"sprite_tiles",attempt_nb_colors,dump_it=dump_it)
-        new_sprite_palette = sorted(set(sprite_replacement_dict.values()))
-        if len(new_sprite_palette)<=32:
-            print(f"Quantization achieved {len(new_sprite_palette)} colors with start colors = {attempt_nb_colors}")
-            sprite_palette = new_sprite_palette
-            break
-    else:
-        raise Exception("quantize error")  # not really possible since we try 32 as last chance!
-
-    apply_color_replacement(sprite_set_list,sprite_replacement_dict)
-else:
-    sprite_palette = sorted(sprite_palette)
-
-sprite_palette += (32-len(sprite_palette)) * [(0x10,0x20,0x30)]
 
 
-
-print(f"Used sprite colors: {len(sprite_palette)}")
-sprite_palette += (16-len(sprite_palette)) * [(0x10,0x20,0x30)]
-
-
-# sprite_set_list is now a 16x512 matrix of sprite tiles
-
-
-
-
-empty_32_cols = [(1,1,1)]*len(bg_tile_palette)
 
 tile_plane_cache = {}
 bob_plane_cache = {}
 fg_tile_upper_table,_ = read_tileset(fg_tile_upper_set_list,fg_tile_upper_palette,[True,False,False,False],cache=tile_plane_cache, is_bob=False, nb_cluts=FG_NB_CLUTS, mask_color=magenta)
-sprite_table,_ = read_tileset(sprite_set_list,empty_32_cols+sprite_palette,[True,False,False,False],cache=bob_plane_cache, is_bob=True, mask_color=black, nb_cluts=SPRITE_NB_CLUTS)
+sprite_table,_ = read_tileset(sprite_set_list,bg_tile_palette,[True,False,False,False],cache=bob_plane_cache, is_bob=True, mask_color=black, nb_cluts=SPRITE_NB_CLUTS)
 
 # remove white amerrers, waste of memory for very small benefit
 ##for k,sprite in enumerate(sprite_table):
@@ -756,8 +747,6 @@ with open(src_dir / "palette.68k","w") as f:
     f.write(generated_message)
     f.write("fg_tile_palette:\n")
     bitplanelib.palette_dump(fg_tile_upper_palette,f,bitplanelib.PALETTE_FORMAT_ASMGNU)
-    f.write("sprite_palette:\n")
-    bitplanelib.palette_dump(sprite_palette,f,bitplanelib.PALETTE_FORMAT_ASMGNU)
     f.write("bg_tile_palette:\n")
     bitplanelib.palette_dump(bg_tile_palette,f,bitplanelib.PALETTE_FORMAT_ASMGNU)
 

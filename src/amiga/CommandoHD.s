@@ -41,10 +41,8 @@ _expmem
 _config
 	dc.b	"C1:X:invincible:0;"
 	dc.b	"C1:X:infinite lives:1;"
-	dc.b	"C1:X:infinite time:2;"
 	dc.b	"C1:X:cheat keys:4;"
 	dc.b	"C2:X:50 Hz update:0;"
-	dc.b	"C2:X:use up for jump:4;"
 	dc.b	"C2:X:startup menu:5;"
 
 	dc.b	"C3:L:difficulty level:easy,normal,difficult,very difficult;"
@@ -75,7 +73,7 @@ _name	dc.b	"Commando (arcade)"
 	dc.b	0
 _copy	dc.b	'2026 JOTD',0
 _info
-    dc.b    "Music by no9",10
+    dc.b    "Music by ??",10
     dc.b    "Original 1985 Capcom",0
 	dc.b	0
 _kickname   dc.b    0
