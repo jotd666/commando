@@ -4008,10 +4008,37 @@ log_used_sprites:
 	rts
 	.endif
 	
+	.macro	SATURATE_Y	val
+	cmp.w	#\val,d0
+	jcc		0f
+	move.w	#\val,d0
+	jra		1f
+0:
+	.endm
 	
 skip_level:
 	movem.l	d0-a6,-(a7)
 	GET_MEMORY_START_IN_A6
+	lea	(global_y_lsb_eda2,a6),a0
+	move.b	(1,a0),d0
+	lsl.w	#8,d0
+	move.b	(a0),d0
+	bclr	#14,d0
+	sne		d1		| second loop
+	
+	SATURATE_Y	0x700
+	SATURATE_Y	0xF00
+	SATURATE_Y	0x1700
+	SATURATE_Y	0x1F00
+1:
+	move.b	#5,(game_state_e001,a6)		| state: level completed
+	tst.b	d1
+	jeq		2f
+	bset	#14,d0	| restore second loop bit
+2:
+	move.b	d0,(a0)+
+	lsr.w	#8,d0
+	move.b	d0,(a0)
 	movem.l	(a7)+,d0-a6
 	rts
 	

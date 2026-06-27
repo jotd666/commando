@@ -525,9 +525,9 @@ def quantize_palette(rgb_tuples,img_type,nb_quantize,transparent=None,dump_it=Fa
     if transparent:
         rgb_configs.remove(transparent)
         # remove black, white, we don't want it quantized
-        immutable_colors = (transparent,(0,0,0))
+        immutable_colors = (transparent,black)
     else:
-        immutable_colors = ((0,0,0),)
+        immutable_colors = (black,)
 
     for c in immutable_colors:
         rgb_configs.discard(c)
@@ -678,9 +678,7 @@ for i,tsd in sprite_sheet_dict.items():
     sprite_set_list.append(tile_set)
     bg_tile_palette.update(tp)
 
-if bg_tile_palette:
-    # remove transparent color from palette
-    bg_tile_palette.remove(black)
+
 
 
 if len(bg_tile_palette)>total_nb_colors:
@@ -721,7 +719,7 @@ if dump_it:
 bg_tile_plane_cache = {}
 
 bg_tile_table,_ = read_tileset(bg_tile_set_list,bg_tile_palette,[True,False,False,False],cache=bg_tile_plane_cache,
-is_bob=False, nb_cluts=BG_NB_CLUTS, mask_color=(0,0,0))
+is_bob=False, nb_cluts=BG_NB_CLUTS, mask_color=black)
 
 
 

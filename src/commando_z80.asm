@@ -1550,7 +1550,7 @@ next_game_state_05fc:
 0AD3: 21 00 04    ld   hl,$4000
 0AD6: 3A B5 0E    ld   a,(global_y_msb_copy_e05b)
 0AD9: 84          add  a,h
-0ADA: E6 04       and  $40
+0ADA: E6 04       and  $40		; bit 6: second game loop with different levels
 0ADC: 67          ld   h,a
 0ADD: 22 2A CF    ld   (global_y_lsb_eda2),hl
 0AE0: CD 52 61    call $0734
@@ -9756,6 +9756,7 @@ check_credit_inserted_9e46:
 9F87: 16 60       ld   d,$06
 9F89: FF          rst  $38   ; store_de_in_circular_buffer_0038
 9F8A: C9          ret
+
 9F8B: CD 7D F9    call $9FD7
 9F8E: DD 21 00 EF ld   ix,$EF00
 9F92: CD DB 6A    call $A6BD
@@ -9797,8 +9798,9 @@ check_credit_inserted_9e46:
 9FD7: 3A B5 0E    ld   a,(global_y_msb_copy_e05b)
 9FDA: 32 BF 0E    ld   ($E0FB),a
 9FDD: 11 A5 0A    ld   de,$A04B
-9FE0: CB 77       bit  6,a
+9FE0: CB 77       bit  6,a		; bit 6: second loop
 9FE2: 28 21       jr   z,$9FE7
+; select second loop level data
 9FE4: 11 A9 0B    ld   de,$A18B	; data, not an entrypoint
 9FE7: D5          push de
 9FE8: E6 F1       and  $1F
@@ -10174,6 +10176,7 @@ A585: 22 2A CF    ld   (global_y_lsb_eda2),hl
 A588: AF          xor  a
 A589: 32 4A CF    ld   ($EDA4),a
 A58C: 18 A6       jr   $A5F8
+
 A58E: DD 21 EA 17 ld   ix,$71AE
 A592: 01 60 00    ld   bc,$0006
 A595: ED 5B 2A CF ld   de,(global_y_lsb_eda2)

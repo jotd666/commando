@@ -1,15 +1,13 @@
-- wrong color in tile: black has been removed!!!! don't !!!
-- fg sprites: quantizing introduced some maroon. At least on top 1UP/TOP SCORE it should
-  be back to red. seems that color quantizing has pretty much failed!
-- missing sound 9 (bombing bunker)
 - when 4 levels are complete, the heli flies and flies and never stops
   what is stop condition is that music end?
 - one bitplane, maybe mask is not flipped/mirrored (heli blades)
-- savestate to implement
+- fg sprites: quantizing introduced some maroon. At least on top 1UP/TOP SCORE it should
+  be back to red. seems that color quantizing has pretty much failed!
+- missing sound 9 (bombing bunker): force & test
 - sometimes crash when displaying sprites/tiles, maybe sprite table gets corrupted
+- 097A: game changes X scroll just to display end of level: clear screen instead
 - rip sounds using service mode (https://vgmrips.net/packs/pack/commando-arcade)
-- find level complete flag, maybe with y global ?
-- 097A: game changes X scroll just to display end of level
+
 
 - a6d1: optimize hl *= 32
 - irq: optimize don't save regs
@@ -19,7 +17,8 @@
 - highscore load/save
 - detect not game in play for insert coin
 
-- when scrolling up, bridge sprites have some delay
+- when scrolling up, bridge sprites have some delay. Also different colors
+  even if palette is now unified!
 
 rip sounds:
 
