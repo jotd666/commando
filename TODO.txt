@@ -1,12 +1,20 @@
 - odd aligned sound table!!! maybe above!
 - fix "every 500000 points" text
+- add "dead" jingle
+- add missing heli sound
+
+- bridge sprites/other immobile optim no erase!!
+- bullets are monochrome, let's align their color
+  on a single plane to optimize draw
+- same for heli blades
+- add looped sounds (siren, heli) find loop stop command
 - one bitplane, maybe mask is not flipped/mirrored (heli blades)
-- fg sprites: quantizing introduced some maroon. At least on top 1UP/TOP SCORE it should
-  be back to red. seems that color quantizing has pretty much failed!
 - 097A: game changes X scroll just to display end of level: clear screen instead
 - rip sounds using service mode (https://vgmrips.net/packs/pack/commando-arcade)
+- different colors bridge sprite vs bridge tiles even if palette is now unified!
 
 
+- manual optimization phase to remove PUSH/POP SR/MAKE_xx
 - a6d1: optimize hl *= 32
 - irq: optimize don't save regs
 - remove code at 870C
@@ -15,8 +23,7 @@
 - highscore load/save
 - detect not game in play for insert coin
 
-- when scrolling up, bridge sprites have some delay. Also different colors
-  even if palette is now unified!
+- when scrolling up, bridge sprites have some delay. 
 - start at level x/loop 1/2 trainer
 
 rip sounds:
