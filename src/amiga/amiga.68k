@@ -240,28 +240,14 @@ BIT_FIRE_2 = 5
 	.set	row,row+1
 	.endm
 	
-	* S aka D5 is used a lot in the code as virtual stack, not only
-	* using host 68k SP. So we need to be consistent with its value
-	* specially when the irq is called. Except that if the irq interrupts
-	* an osd call, we need to restore the value of D5 on osd enter, not
-	* the value within osd
-	* OSD routines possibly using D5 or calling whdload / external libs MUST wrap their calls
-	* with OSD_ENTER/OSD_EXIT.
+	* OSD ENTER/EXIT aren't useful for a Z80 game
+	* as the code rarely uses the native stack to quick-read memory
+	* (no multiple move like PULS/PSHS)
 	
 	.macro	OSD_ENTER
-	tst.b	osd_entry_count
-	jne		osd_enter_\@
-
-	* top entry: save game S register
-	move.w	d5,target_ssp_value
-
-osd_enter_\@:
-	addq.b	#1,osd_entry_count	| increase nesting
 	.endm
 	
 	.macro	OSD_EXIT
-	subq.b	#1,osd_entry_count	| decrease nesting
-
 	.endm
 	
 	
@@ -4378,10 +4364,9 @@ osd_sound_start:
 	lea		_custom,a6
 
 
-
 	and.w	#0xFF,d0
 	
-
+	
 	moveq	#0,d2
 	lsl.w	#3,d0
 	lea		sound_table,a0
@@ -4455,12 +4440,16 @@ osd_sound_start:
 
     movem.l d0-a6,-(a7)
     lea _custom,a6
+	jra		60f    | no music for now
+	
+	
  	movem.l	d0/a0,-(a7)
 	
 
 	
 	move.w	(2,a0,d0.w),d1	| pattern number in .mod file
 	*lea		module_buffer,a0
+	
 	moveq	#0,d0
 	move.w	d1,d0
     sub.l   a1,a1		| samples are in the module

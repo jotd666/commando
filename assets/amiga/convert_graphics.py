@@ -769,8 +769,8 @@ for i in group_sprite_quadruplets:
 
 used_sprite_codes = set(sprite_cluts) | {i for i,g in enumerate(gs_array) if g}
 unused_sprite_codes = set(range(0,0x300))-used_sprite_codes
-# it's normal that some sprite codes aren't used at all
-print("Unused sprite codes: {}".format(",".join(sorted(f"0x{x:03x}" for x in unused_sprite_codes))))
+# it's normal that some sprite codes aren't used at all, see https://tcrf.net/Commando_(Arcade,_Capcom)
+#print("Unused sprite codes: {}".format(",".join(sorted(f"0x{x:03x}" for x in unused_sprite_codes))))
 
 with open(src_dir / "sprite_groups.68k","w") as f:
     f.write(generated_message)

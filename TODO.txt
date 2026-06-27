@@ -1,13 +1,8 @@
-- complete level 4 y cursor not set properly?
-- start at level x/loop 1/2 trainer
+- odd aligned sound table!!! maybe above!
 - fix "every 500000 points" text
 - one bitplane, maybe mask is not flipped/mirrored (heli blades)
-- parasite / random fuzzing sound playing after the end of a level
 - fg sprites: quantizing introduced some maroon. At least on top 1UP/TOP SCORE it should
   be back to red. seems that color quantizing has pretty much failed!
-- missing sound 9 (bombing bunker): force & test
-- sometimes crash when displaying sprites/tiles, maybe sprite table gets corrupted
-- sometimes path is blocked for no reason, probably memory corruption
 - 097A: game changes X scroll just to display end of level: clear screen instead
 - rip sounds using service mode (https://vgmrips.net/packs/pack/commando-arcade)
 
@@ -16,12 +11,13 @@
 - irq: optimize don't save regs
 - remove code at 870C
 - set DSW difficulty lives, etc.
-- cheat add 10000 to score 
+- cheat add 10000 to score, also lose all lives
 - highscore load/save
 - detect not game in play for insert coin
 
 - when scrolling up, bridge sprites have some delay. Also different colors
   even if palette is now unified!
+- start at level x/loop 1/2 trainer
 
 rip sounds:
 
