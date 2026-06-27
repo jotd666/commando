@@ -278,13 +278,11 @@ with open(source_dir / "conv.s") as f:
         elif address == 0x3D1:
             # remove boring japan import message at boot
             line = change_instruction("jra\tend_message_03e6",lines,i)
-        elif address == 0x0a94:
-            # useless test, we test d6.w afterwards
-            lines[i-1] = ""  # no need for MAKE_H
-            line = remove_instruction(lines,i)
-            lines[i+1] = remove_instruction(lines,i+1)
         elif address == 0x0a99:
-            lines[i+1] = remove_error(lines[i+1])  # flags are consistent
+             # flags are consistent, move.w d6,memory sets Z like we need to
+             # this part could be more optimized but it's just the timer counter for heli ride
+             # at the end of a level loop
+            lines[i+1] = remove_error(lines[i+1])
         elif address in {0xaed6,0xaf18,0x925B,0x18C7,0x19C3,0x22D7,0x34F1}:
             # immune to bullets/enemy contact/grenades
             line = change_instruction(f"""tst.b\tinvincible_flag

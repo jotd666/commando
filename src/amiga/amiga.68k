@@ -1972,6 +1972,10 @@ update_one_bob:
 	* 
 	*
 	move.b	(TARGET_SPRITE_ATTRIBUTES,a0),d3
+	.ifndef	RELEASE
+	move.w	d2,0x130
+	move.w	d3,0x134
+	.endif
 	
 	.if		OPT_MIRROR_TEST==1
 	bset	#MIRROR_BIT,d3
@@ -2155,6 +2159,9 @@ mirror_sprite_planes:
 0:
 	move.l	(a0)+,d1		| current plane data
 	jeq		1f				| no data: skip
+	jpl		2f
+	BREAKPOINT	"negative plane data pointer, code in 0x130, clut in 0x134"
+2:
 	move.l	d1,a2
 	cmp.b	(-2,a2),d3		| 2 bytes before: mirror flag
 	jeq		1f

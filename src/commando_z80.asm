@@ -246,6 +246,7 @@ global_y_msb_copy_e05b = $e05b
 global_y_lsb_copy_e05c = $e05c
 ; 5: end of level
 game_state_e001 = $E001
+heli_ride_countdown_e0b5 = $e0b5
 
 ; PORT_STATE_C001_IN1_e004 holds the state of IN1 after a bit flip (2's complement) - see $0328
 ; Bit 0: player moving RIGHT
@@ -1101,6 +1102,7 @@ next_game_state_05fc:
 061D: 0D          dec  c
 061E: 20 EE       jr   nz,$060E
 0620: C9          ret
+
 0621: 3A 01 0E    ld   a,(game_state_e001)
 0624: F7          rst  $30    ; [jump_to_jump_table] [nb_entries=11]
 ; jump_table_0625:
@@ -1108,9 +1110,9 @@ next_game_state_05fc:
 	dc.w	$06dd	; $0627
 	dc.w	$0769	; $0629
 	dc.w	$07cd	; $062b
-	dc.w	$07fc	; $062d
-	dc.w	$094c	; $062f
-	dc.w	$0a6d	; $0631
+	dc.w	$07fc	; $062d  game running
+	dc.w	$094c	; $062f  level completed
+	dc.w	heli_ride_0a6d	; $0631  game completed, heli ride
 	dc.w	$0ceb	; $0633
 	dc.w	$0d1c	; $0635
 	dc.w	$0d73	; $0637
@@ -1471,7 +1473,7 @@ next_game_state_05fc:
 097F: C3 18 81    jp   $0990
 
 0982: 21 08 20    ld   hl,$0280
-0985: 22 5B 0E    ld   ($E0B5),hl
+0985: 22 5B 0E    ld   (heli_ride_countdown_e0b5),hl
 0988: 3E 00       ld   a,$00
 098A: 32 7B 0E    ld   ($E0B7),a
 098D: C3 67 8A    jp   $A867
@@ -1498,6 +1500,7 @@ next_game_state_05fc:
 09B1: DF          rst  $18                   ; call ADD_A_TO_HL
 09B2: C3 F8 81    jp   $099E
 
+heli_ride_0a6d:
 0A6D: CD 06 E0    call print_text_with_typing_effect_0e60
 0A70: 3A 8B CF    ld   a,($EDA9)
 0A73: E6 21       and  $03
@@ -1513,12 +1516,12 @@ next_game_state_05fc:
 0A8B: 3A 7B 0E    ld   a,($E0B7)
 0A8E: 3D          dec  a
 0A8F: C0          ret  nz
-0A90: 2A 5B 0E    ld   hl,($E0B5)
+0A90: 2A 5B 0E    ld   hl,(heli_ride_countdown_e0b5)
 0A93: 2B          dec  hl
 0A94: 7C          ld   a,h
 0A95: B5          or   l
-0A96: 22 5B 0E    ld   ($E0B5),hl
-0A99: 28 C2       jr   z,$0AC7
+0A96: 22 5B 0E    ld   (heli_ride_countdown_e0b5),hl
+0A99: 28 C2       jr   z,heli_ride_done_0ac7
 0A9B: CD AA A0    call $0AAA
 0A9E: 21 00 01    ld   hl,$0100
 0AA1: 22 75 0E    ld   ($E057),hl
@@ -1542,6 +1545,8 @@ next_game_state_05fc:
 0AC4: 1C          inc  e
 0AC5: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0AC6: C9          ret
+; helicopter ride is finished
+heli_ride_done_0ac7:
 0AC7: 3E 20       ld   a,$02
 0AC9: 32 7B 0E    ld   ($E0B7),a
 0ACC: AF          xor  a
