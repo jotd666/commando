@@ -11,7 +11,7 @@ sound_dir = this_dir / ".." / "sounds"
 # default channel = 3, default priority = 40
 # put below some exceptions
 sound_settings_dict = {
-#0x1 : {"channel":2,"priority":100},   # lose armour
+0x2B : {"channel":2,"priority":100},   # game over
 
 }
 
@@ -49,7 +49,7 @@ def convert():
     0x28,  # hihg?
     0x29,  # ???
     0x2A,
-    0x2B,  # jingle
+    0x2D,  # stop music?
     0x2C, # bgm2?
     0x14,  #???
     0x16,
@@ -85,25 +85,7 @@ def convert():
 
 
     music_dict = {
-    "LEVEL12_TUNE_SND"      :{"index":0x2B,"pattern":0,"volume":16},
-    "LEVEL34_TUNE_SND"      :{"index":0x33,"pattern":0,"volume":16},
-    "LEVEL56_TUNE_SND"      :{"index":0x29,"pattern":0,"volume":26},
-    "KILLED_TUNE_SND"      :{"index":0x31,"pattern":12,"volume":32},
-    "GAME_OVER_SND"      :{"index":0x2F,"pattern":14,"volume":32},
-    "BOSS12_TUNE_SND"      :{"index":0x2D,"pattern":7,"volume":30},
-    "BOSS34_TUNE_SND"      :{"index":0x34,"pattern":3,"volume":26},
-    "BOSS56_TUNE_SND"      :{"index":0x2E,"pattern":6,"volume":30},
-    "LEVEL7_END1_SND"      :{"index":0x1C,"pattern":0x10,"volume":32},
-    "LEVEL7_END2_SND"      :{"index":0x32,"pattern":0x11,"volume":32},
-    "BOSS7_TUNE_SND"      :{"index":0x2A,"pattern":0x2,"volume":28},
-    "BOSS7_RESOLVE_TUNE_SND"      :{"index":0x38,"pattern":0,"volume":32},
-    "HURRY_UP_SND"      :{"index":0x18,"pattern":11,"volume":20},
-    "FIRST_PLACE_TUNE_SND"      :{"index":0x26,"pattern":0,"volume":32},
-    "FIRST_PLACE_JINGLE_TUNE_SND"      :{"index":0x25,"pattern":0,"volume":32},
-    "SECOND_PLACE_TUNE_SND"      :{"index":0x2C,"pattern":0,"volume":32},
-    "SECOND_PLACE_JINGLE_TUNE_SND"      :{"index":0x27,"pattern":0,"volume":32},
-    "LEVEL_COMPLETE_TUNE_SND"      :{"index":0x3E,"pattern":16,"volume":32},
-    "LEVEL_START_TUNE_SND"      :{"index":0x30,"pattern":13,"volume":32},
+    #"LEVEL_START_TUNE_SND"      :{"index":0x30,"pattern":13,"volume":32},
     }
 
     sound_dict.update(music_dict)

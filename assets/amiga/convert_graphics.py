@@ -28,13 +28,9 @@ dump_it = True
 # issues, but in reality things wind up OK because of other objects around
 object_type_table = [0]*SPRITE_NB_TILES
 for i,v in sprite_names.items():
-    # tombstones, bag, extra armor, skull
-    # pickups cannot be part of the list because their color change
-    # scores almost can, but in some cases they're not erased
-    # bag of money seems to work as player has to pass on it + score afterwards
-    # but that and skulls seem to cause issues. In the end, special case only for tombs
-    # and extra armor
-    if v == "palm_tree":
+    # those are good candidates as they don't usually move
+    # an exception is hardcoded at start because trees move with heli
+    if v in ["palm_tree","masonry"] or i==0x140: # left part of turret
         object_type_table[i] = 1
 
 
@@ -720,8 +716,27 @@ for i,tsd in sprite_sheet_dict.items():
 ##else:
 
 # no need to quantize on that game, 64 colors does it perfectly yay
-bg_tile_palette = sorted(bg_tile_palette)
-bg_tile_palette += (total_nb_colors-len(bg_tile_palette)) * [(0x10,0x20,0x30)]
+# but to optimize bitplane copy, we can put some colors in strategic power of 2 locations
+# so 1-bitplane images are blitted faster
+new_bg_tile_palette = [None]*total_nb_colors
+
+one_plane_colors = [(210,210,255),(174,174,157),(98,98,81),(67,98,81)]
+for i,color in enumerate(one_plane_colors):
+    bg_tile_palette.remove(color)
+    new_bg_tile_palette[1<<i] = color
+
+new_bg_tile_palette[0] = black
+bg_tile_palette.remove(black)
+
+i=0
+for color in bg_tile_palette:
+    while new_bg_tile_palette[i]:
+        i+=1
+    new_bg_tile_palette[i] = color
+
+# pad if needed
+new_bg_tile_palette += (total_nb_colors-len(new_bg_tile_palette)) * [(0x10,0x20,0x30)]
+bg_tile_palette = new_bg_tile_palette
 
 
 print(f"Used bg tile colors: {len(bg_tile_palette)}")

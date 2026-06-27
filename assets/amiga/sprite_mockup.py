@@ -1,7 +1,7 @@
 from PIL import Image,ImageOps
 import os
 
-import shared
+import shared,bitplanelib
 
 sprite_names = shared.get_sprite_names()
 
@@ -49,6 +49,7 @@ def doit(binname):
 
     used_sprites = set()
 
+    filtered = []
     for offs in range(len(buffered_spriteram)-4,0,-4):
         attributes = buffered_spriteram[offs + 1]
         sy = buffered_spriteram[offs + 3] - 0x100 * (attributes & 0x01)
@@ -76,11 +77,19 @@ def doit(binname):
         elif flipy:
             img = ImageOps.flip(img)
 
-        print(f"offset={offs:04x}, code={tile_code:02x}, clut={tile_color}: name={name}, x={sx}, y={sy} flipx={flipx} flipy={flipy}")
-        layer.paste(img,box=(sx,sy))
-
+        if sy<300:
+            if sx==112 and name=="blade": #sx==80 and sy>=239:
+                filtered.append(buffered_spriteram[offs:offs+4])
+                print(f"offset={offs:04x}, code={tile_code:02x}, clut={tile_color}: name={name}, x={sx}, y={sy} flipx={flipx} flipy={flipy}")
+                layer.paste(img,box=(sx,sy))
 
     layer.save(f"{binname}.png")
+    if filtered:
+        # create a mockup
+        block = b"".join(filtered)
+        block += bytes(len(buffered_spriteram)-len(block))
+        with open(f"{binname}_mock.68k","w") as f:
+            bitplanelib.dump_asm_bytes(block,f,mit_format=True)
 
 doit("sprites")
 

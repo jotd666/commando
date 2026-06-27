@@ -1,8 +1,11 @@
-import subprocess,os,glob,shutil,pathlib
+import subprocess,os,glob,shutil,pathlib,zipfile
 
 progdir = pathlib.Path(__file__).parent.parent.absolute()
 
-gamename = "digdug2"
+# paraj lha from https://github.com/mras0/plha.git
+# gadf from https://github.com/sphair/gadf
+
+gamename = "commando"
 # JOTD path for cranker, adapt to whatever your path is :)
 os.environ["PATH"] += os.pathsep+r"K:\progs\cli"
 
@@ -13,25 +16,48 @@ subprocess.check_call(cmd_prefix+["clean"],cwd=progdir /"src")
 subprocess.check_call(cmd_prefix+["RELEASE_BUILD=1"],cwd=progdir /"src")
 # create archive
 
-outdir = progdir / f"{gamename}_HD"
+outdir = progdir / "dist" / f"{gamename}_HD"
 
-if os.path.exists(outdir):
-    for x in outdir.glob("*"):
-        x.unlink()
-else:
-    outdir.mkdir()
-for file in ["readme.md",f"{gamename}_ocs.slave",f"{gamename}_aga.slave"]:  #f"{gamename}.slave",
+if os.path.isdir(outdir):
+    shutil.rmtree(outdir)
+
+outdir.mkdir(exist_ok=True,parents=True)
+
+for file in ["readme.md",f"{gamename}.slave"]:
     shutil.copy(progdir / file,outdir)
 
 assets = progdir /"assets"/"amiga"
-shutil.copy(assets/"DigDug2-A.info",outdir)
-shutil.copy(assets/"DigDug2-B.info",outdir)
+shutil.copy(assets/"CommandoAGADual.info",outdir)
 
 
 
-for ext in ["aga","ocs"]:
-    exename = f"{gamename}_{ext}"
+
+
+for ext in [""]:
+    exename = f"{gamename}{ext}"
     shutil.copy(progdir/exename,outdir)
     subprocess.run(["cranker_windows.exe","-f",progdir/exename,"-o",progdir/f"{exename}.rnc"],check=True)
 
 subprocess.run(cmd_prefix+["clean"],cwd=progdir/"src",check=True)
+
+arcname = progdir / f"{gamename}_HD.lha"
+arcname.unlink(missing_ok=True)
+cmd = ["lha","-r","a",arcname,"*"]
+
+subprocess.run(cmd,cwd=outdir.parent,check=True)
+
+# create floppy
+for ext in [""]:
+    exename = f"{gamename}{ext}"
+    shutil.move(progdir/f"{exename}.rnc",progdir/exename)
+
+#shutil.copy(assets/"disk.info",progdir)
+adf_name = "Commando.adf"
+cmd = ["gadf","-i","commando","-a",adf_name,"-l","Commando","readme.md"]
+subprocess.run(cmd,cwd=progdir,check=True)
+
+# create a .zip for the floppy
+
+with zipfile.ZipFile(progdir / "Commando_adf.zip",mode="w",compression=zipfile.ZIP_DEFLATED) as zf:
+    zf.write(progdir/adf_name,arcname=adf_name)
+os.remove(progdir/adf_name)

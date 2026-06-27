@@ -758,12 +758,14 @@ demo_game:
 	dbf		d0,0b
 
 	
-	* install bank 4 in 0x4000, we may as well use that space
-	* plus it allows simpler code ex at 9088 where game accesses
-	* ROM or bank ROM in bank 4
-
 	GET_MEMORY_START_IN_A6
-	
+	* patch ROM, fix extra life score value
+	move.l	a6,a0
+	add.l	#0x83D5,a0
+	.rept	5
+	move.b 	(1,a0),(a0)+
+	.endr
+
 	
 	.ifndef	RELEASE
 	* install dump and quit handler
@@ -1888,7 +1890,8 @@ really_update_sprites:
 
 	rts
 	
-*mockup:
+mockup:
+
 
 compute_sprite_xy_code:
 	moveq	#0,d0
@@ -1921,22 +1924,21 @@ compute_sprite_xy_code:
 	
 update_one_bob:
 	move.l	A0,-(a7)
-	* Y/X = 0x0 (raw): nothing displayed
-	move.w	(a0),d3
+	* Y/X = 0x0 (raw): nothing displayed, X=0 is enough
+	tst.b	(TARGET_SPRITE_Y,a0)  | X follows Y
 	jeq		2f
 0:
 	move.l	a0,a2		| save for later
 	jbsr	compute_sprite_xy_code
+	
 	cmp.w	#0x300,d2
 	jcc		2f			| bank 3: illegal: skip
 	tst.w	d1
 	jmi		0f			| (slightly) negative: accept/clip it
-	cmp.w	#256,d1		| too low: scrap it
+	cmp.w	#320,d1		| too low: scrap it
 	jcc		2f
-	tst.w	d0
-	jeq		2f
-	jpl		0f
 0:
+	move.b	#0,0x110
 	* handle custom amiga horizontal grouping (saves a lot of blitter masking)
 	* the table holds several info bits
 	* - if 0, this is a normal sprite, no horizontal grouping
@@ -2142,6 +2144,9 @@ mirror_sprite_planes:
 	.else
 	move.l	(a3,d5.w*2),a3		| compute mirror function once and for all
 	.endif
+	* here a bitplane & its mirror can be blit just one after another
+	* adding a wait blit ensures that there's no gfx glitch
+	WAIT_BLIT
 0:
 	move.l	(a0)+,d1		| current plane data
 	jeq		1f				| no data: skip
@@ -5032,7 +5037,7 @@ pause_flag:
 frameskip:
 	.byte	0
 startup_menu_flag:
-	.byte
+	.byte	0
 no_main_tune:
 	.word	0
 	
@@ -5280,9 +5285,11 @@ pal_intreq_block_game:
 	.else
     .word  0xFFDF,0xFFFE       | PAL wait
 	.endif
-	* extra wait for PAL (NTSC can't afford this)
-	* here was fourth_rows (before I disabled it)
-
+	* we have to perform several small waits else it doesn't wait
+	* I don't want to know why, it works.
+	.word	0x01+(0x04<<8),0xFFFE
+	.word	0x01+(0x0C<<8),0xFFFE
+	.word	0x01+(0x30<<8),0xFFFE
 
 
 	

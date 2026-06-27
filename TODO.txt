@@ -1,16 +1,7 @@
-- odd aligned sound table!!! maybe above!
-- fix "every 500000 points" text
-- add "dead" jingle
 - add missing heli sound
-
-- bridge sprites/other immobile optim no erase!!
-- bullets are monochrome, let's align their color
-  on a single plane to optimize draw
-- same for heli blades
+- blits disappear too soon at the bottom of the screen
 - add looped sounds (siren, heli) find loop stop command
-- one bitplane, maybe mask is not flipped/mirrored (heli blades)
 - 097A: game changes X scroll just to display end of level: clear screen instead
-- rip sounds using service mode (https://vgmrips.net/packs/pack/commando-arcade)
 - different colors bridge sprite vs bridge tiles even if palette is now unified!
 
 
@@ -31,3 +22,5 @@ rip sounds:
 bpset 8717,,{A=5;g}
 
 service mode: put 1 in E001 during intro
+
+- rip sounds using service mode (https://vgmrips.net/packs/pack/commando-arcade)
