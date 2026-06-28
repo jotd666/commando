@@ -36,7 +36,8 @@ shutil.copy(assets/"CommandoAGADual.info",outdir)
 for ext in [""]:
     exename = f"{gamename}{ext}"
     shutil.copy(progdir/exename,outdir)
-    subprocess.run(["cranker_windows.exe","-f",progdir/exename,"-o",progdir/f"{exename}.rnc"],check=True)
+    # ATM both packers generate incorrect exe. propack seems to do better
+    #subprocess.run(["cranker_windows.exe","-f",progdir/exename,"-o",progdir/f"{exename}.rnc"],check=True)
     #subprocess.run(["shrinkler","-p","-c",progdir/exename,progdir/f"{exename}.rnc"],check=True)
 subprocess.run(cmd_prefix+["clean"],cwd=progdir/"src",check=True)
 

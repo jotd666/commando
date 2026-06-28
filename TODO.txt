@@ -1,6 +1,8 @@
-- strange crashes, memory corruption somewhere, confirmed on real HW
+- strange crashes, memory corruption somewhere, confirmed on real HW,
+  seen on HD (no whdload) mostly and floppy
   and on floppy on emulator: scrolling feed gets garbage and ends up locking the machine
- 
+  also path gets blocks for no reason
+  
 - add missing heli sound
 - blade issue on the left when lands
 - blits disappear too soon at the bottom of the screen

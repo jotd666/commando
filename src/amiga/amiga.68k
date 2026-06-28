@@ -5087,8 +5087,6 @@ mirror_y_tile_table:
 	.byte	0       | map
 	.align	2
 
-rows_table:
-	.skip	0x120*4
 
 keyboard_table:
 	.skip	0x100
