@@ -78,7 +78,6 @@ def doit(binname):
             img = ImageOps.flip(img)
 
         if sy<300:
-            if sx==112 and name=="blade": #sx==80 and sy>=239:
                 filtered.append(buffered_spriteram[offs:offs+4])
                 print(f"offset={offs:04x}, code={tile_code:02x}, clut={tile_color}: name={name}, x={sx}, y={sy} flipx={flipx} flipy={flipy}")
                 layer.paste(img,box=(sx,sy))

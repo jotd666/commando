@@ -9,7 +9,7 @@ input_dict = {
 "sound_c800":"sound_start",
 
 "sound_and_screen_orientation_c804":"",
-"background_scroll_x_msb_c80b":"",
+"background_scroll_x_msb_c80b":"set_x_page",
 "dma_trigger_c806":"",
 }
 

@@ -770,7 +770,15 @@ is_bob=False, nb_cluts=BG_NB_CLUTS, mask_color=black)
 tile_plane_cache = {}
 bob_plane_cache = {}
 fg_tile_upper_table,_ = read_tileset(fg_tile_upper_set_list,fg_tile_upper_palette,[True,False,False,False],cache=tile_plane_cache, is_bob=False, nb_cluts=FG_NB_CLUTS, mask_color=magenta)
+
+st3 = sprite_set_list[3]
+
+for i in [0x20F,0X217]:
+    bitplanelib.replace_color_from_dict(st3[i],{(210,174,143):(188,157,112)})
+
 sprite_table,_ = read_tileset(sprite_set_list,bg_tile_palette,[True,False,False,False],cache=bob_plane_cache, is_bob=True, mask_color=black, nb_cluts=SPRITE_NB_CLUTS)
+
+# change masonry sprite colors to match the background (original game issue on bridge)
 
 # remove white amerrers, waste of memory for very small benefit
 ##for k,sprite in enumerate(sprite_table):

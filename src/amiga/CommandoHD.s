@@ -43,6 +43,7 @@ _config
 	dc.b	"C1:X:infinite lives:1;"
 	dc.b	"C1:X:cheat keys:4;"
 	dc.b	"C2:X:50 Hz update:0;"
+	dc.b	"C2:X:disable long fire press for grenade:1;"
 	dc.b	"C2:X:startup menu:5;"
 
 	dc.b	"C3:L:difficulty level:easy,normal,difficult,very difficult;"

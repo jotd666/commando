@@ -1,18 +1,18 @@
+- detect not game in play for insert coin
+- strange crashes, memory corruption somewhere
 - add missing heli sound
+- blade issue on the left when lands
 - blits disappear too soon at the bottom of the screen
 - add looped sounds (siren, heli) find loop stop command
-- 097A: game changes X scroll just to display end of level: clear screen instead
-- different colors bridge sprite vs bridge tiles even if palette is now unified!
-
+- level skipping while at the boss shifts the levels
 
 - manual optimization phase to remove PUSH/POP SR/MAKE_xx
 - a6d1: optimize hl *= 32
 - irq: optimize don't save regs
 - remove code at 870C
-- set DSW difficulty lives, etc.
+- set DSW difficulty lives, start level!!
 - cheat add 10000 to score, also lose all lives
 - highscore load/save
-- detect not game in play for insert coin
 
 - when scrolling up, bridge sprites have some delay. 
 - start at level x/loop 1/2 trainer

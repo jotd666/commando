@@ -216,6 +216,7 @@ BIT_DOWN = 2
 BIT_FIRE_1 = 4
 BIT_FIRE_2 = 5
 
+LONG_FIRE_TIMER_VALUE = 30
 	
 	.macro	COLOR0_FLASH	v
 	.ifne	OPT_AGA_MODE
@@ -280,6 +281,7 @@ BIT_FIRE_2 = 5
 	.global music_tick
 	.global	music_track_start_number
 	
+	.global	osd_set_x_page
 	.global	osd_display_value
 	.global	osd_get_last_known_pc
 	.global	osd_dump_logs
@@ -453,6 +455,8 @@ apply_settings:
 	move.l	misc_options,d1
 	btst	#0,d1
 	seq		frameskip
+	btst	#1,d1
+	sne		disable_long_fire_press_flag
 	btst	#5,d1
 	sne		startup_menu_flag
 
@@ -773,6 +777,11 @@ demo_game:
 	lea		2.W,a0
 	move.l	#0x4AFC4EF9,(a0)+
 	move.l	(a7)+,(a0)+
+	* protect ROM from writing
+	move.l	#0xC000,d0
+	move.l	a6,a0
+	move.l  (_resload,pc),a2
+	jsr     (resload_ProtectWrite,a2)
 	.endif
 	
 
@@ -962,16 +971,40 @@ dump_and_quit:
 	illegal
 	.endif
 
+* hardware can scroll horizontally but game doesn't use it
+* well it uses it just for end level screen, not the fine adjust
+* but just MSB (page change)
+* in order to save memory and avoid handling horizontal scrolling,
+* I chose to just clear the screen when that happens
+* < D0: 0 or 1
+osd_set_x_page:
+	tst.b	D0 
+	jeq		1f
+	* page 1: we need to clear current tiles
+	movem.l	d0/a0/a1/a2/a5,-(a7)
 
 
 	
-set_initial_scroll_values:
-	move.w	game_scroll_x,d0
-	move.w	d0,previous_scroll_x
-	move.w	d0,d1
-	add.w	#VISIBLE_SCROLL_WIDTH+BG_TILE_WIDTH,d1		| after that it triggers tile refresh
-	move.w	d1,max_scroll_x
+	move.l	playfield_drawn_screen_ptr,a0
+	move.l	playfield_displayed_screen_ptr,a1
+	lea		background_restore_buffer,a2
+	move.w	#(BG_SCREEN_PLANE_SIZE*NB_PLAYFIELD_PLANES)/16-1,d0
+	* avoid conflict with sprite background restore that may be still running
+	
+	* make sure blitter has restored the backgrounds
+	lea	_custom,a5
+	WAIT_BLIT
+0:
+	.rept	4
+	clr.l	(a0)+
+	clr.l	(a1)+
+	clr.l	(a2)+
+	.endr
+	dbf		d0,0b
+	movem.l	(a7)+,d0/a0/a1/a2/a5
+1:
 	rts
+
 	
 force_fg_tiles_redraw:
 	lea		(fg_tiles_address_d000,a6),a0
@@ -1019,7 +1052,34 @@ call_nmi:
 	
 	jra	irq_02b7
 	
+* <D0,D1 current & prev joy states
 
+handle_long_fire_press:
+	btst 	#JPB_BTN_RED,d0
+	jeq		0f
+	btst	#JPB_BTN_RED,D1
+	jeq		0f
+	* increase timer only if
+	* - button is pressed
+	* - button was pressed
+	* - timer is not above a given value, which is the grenade
+	*   trigger value plus one (so it locks until fire is released)
+	move.b	long_fire_timer,d3
+	cmp.b	#LONG_FIRE_TIMER_VALUE+1,d3
+	jeq		1f		| maxxed out
+	addq.b	#1,d3
+	move.b	d3,long_fire_timer
+	cmp.b	#LONG_FIRE_TIMER_VALUE,d3
+	jne		1f
+	* exact value: trigger grenade
+	bset	#JPB_BTN_BLU,d0
+	move.l	d0,joypad_1_state
+	rts
+0:
+	clr.b	long_fire_timer
+1:
+	rts
+	
 * just in case some hardware calls nmi
 _nmi:
 	move.w	#0x7FFF,_custom+intreq
@@ -1042,14 +1102,15 @@ level3_interrupt:
 
 
 	move.l	joypad_1_state(pc),d1
-	move.l	d1,d2
-	moveq	#0,d0
-	move.b	p1_joystick_slot,d0
-	jmi		0f
+	moveq	#1,d0
 	jbsr	_read_joystick
 	move.l	d0,joypad_1_state
-0:
+	tst.b	disable_long_fire_press_flag
+	jne		0f
+	jbsr	handle_long_fire_press
+0:	
 	GET_MEMORY_START_IN_A6
+	move.l	d1,d2		| save prev state
 	jbsr	update_controls
 
 	jbsr	read_system
@@ -1939,7 +2000,6 @@ update_one_bob:
 	cmp.w	#320,d1		| too low: scrap it
 	jcc		2f
 0:
-	move.b	#0,0x110
 	* handle custom amiga horizontal grouping (saves a lot of blitter masking)
 	* the table holds several info bits
 	* - if 0, this is a normal sprite, no horizontal grouping
@@ -2131,6 +2191,10 @@ update_one_bob:
 
 mirror_sprite_planes:
 	movem.l	d0-d2/d6/a0/a2,-(a7)
+	.ifndef	RELEASE
+	move.l	a0,0x138
+	.endif
+	
 	* bitplanes aren't pre-computed: check bitplanes current orientation and swap
 	* if required. This is slow but saves memory
 	.if		OPT_BLIT_CHAIN_MODE==0
@@ -2151,9 +2215,12 @@ mirror_sprite_planes:
 0:
 	move.l	(a0)+,d1		| current plane data
 	jeq		1f				| no data: skip
+	.ifndef	RELEASE
 	jpl		2f
-	BREAKPOINT	"negative plane data pointer, code in 0x130, clut in 0x134"
+	BREAKPOINT	"negative plane data pointer, code in 0x130, clut in 0x134, entered list in 0x138"
+	jra		3f				| exit to be able to debug more
 2:
+	.endif
 	move.l	d1,a2
 	cmp.b	(-2,a2),d3		| 2 bytes before: mirror flag
 	jeq		1f
@@ -2165,6 +2232,7 @@ mirror_sprite_planes:
 	* next bitplane
 1:
 	dbf		d6,0b
+3:
 	movem.l	(a7)+,d0-d2/d6/a0/a2
 	rts
 	
@@ -4798,6 +4866,8 @@ difficulty_dsw:
 
 detect_controllers:
 	.byte	0
+long_fire_timer:
+	.byte	0
 coin1_requested:
 	.byte	0
 coin2_requested:
@@ -5035,12 +5105,6 @@ interrupt_mode:
 	
 pause_flag:
 	.word	0
-frameskip:
-	.byte	0
-startup_menu_flag:
-	.byte	0
-no_main_tune:
-	.word	0
 	
 vbl_counter:
 	.word	0
@@ -5098,6 +5162,12 @@ sprite_group_table:
 _keyexit:
 	.byte	0x45	| ESC by default unless whdload overwrites it
 
+frameskip:
+	.byte	0
+startup_menu_flag:
+	.byte	0
+disable_long_fire_press_flag:
+	.byte	0
 	
 cheat_used:
 	.byte	0
