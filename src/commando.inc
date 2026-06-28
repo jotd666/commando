@@ -490,12 +490,12 @@ get_address:
 
 	.ifne	OPT_ENABLE_LOGGING
 	.macro	LOG_REGS	z80pc
-	move.w	sr,-(a7)
+	PUSH_SR
 	move.w	#0x\z80pc,-(a7)
 	move.w	#0,-(a7)  | cpu 0
 	jbsr	osd_log_cpu
 	addq.w	#4,a7
-	move.w	(a7)+,sr
+	POP_SR
 	.endm
 	
 	.macro	ENABLE_LOG_REGS

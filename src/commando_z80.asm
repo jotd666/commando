@@ -800,7 +800,7 @@ irq_02b7:    ; [global]
 03BD: 11 40 00    ld   de,$0004
 03C0: AF          xor  a
 03C1: DD 77 20    ld   (ix+$02),a
-03C4: DD 19       add  ix,de
+03C4: DD 19       add  ix,de		; [de=$4]
 03C6: 10 9F       djnz $03C1
 03C8: C9          ret
 
@@ -1879,9 +1879,9 @@ print_text_with_typing_effect_0e60:
 entry_0fc2:
 0FC2: C1          pop  bc
 0FC3: 11 02 00    ld   de,$0020
-0FC6: DD 19       add  ix,de
+0FC6: DD 19       add  ix,de		; [de=$20]
 0FC8: 11 C0 00    ld   de,$000C
-0FCB: FD 19       add  iy,de
+0FCB: FD 19       add  iy,de		; [de=$c]
 0FCD: 10 DD       djnz $0FAC
 0FCF: C9          ret
 0FD0: DD 7E 21    ld   a,(ix+$03)
@@ -2390,12 +2390,12 @@ entry_0fc2:
 148C: 3E 41       ld   a,$05
 148E: 08          ex   af,af'
 148F: 01 40 00    ld   bc,$0004
-1492: 11 0E FF    ld   de,$FFE0
+1492: 11 0E FF    ld   de,$FFE0		; -0x20
 1495: DD 7E 00    ld   a,(ix+$00)
 1498: A7          and  a
 1499: 28 81       jr   z,$14A4
 149B: 09          add  hl,bc
-149C: DD 19       add  ix,de
+149C: DD 19       add  ix,de	; [de=-$20]
 149E: 08          ex   af,af'
 149F: 3D          dec  a
 14A0: C8          ret  z
@@ -5492,10 +5492,12 @@ entry_33f4:
 3512: FD 19       add  iy,de
 3514: 11 79 53    ld   de,$3597
 3517: C3 88 A3    jp   $2B88
+
+
 351A: 3A 20 0E    ld   a,(timing_variable_e002)
 351D: E6 01       and  $01
 351F: C8          ret  z
-3520: FD E5       push iy
+3520: FD E5       push iy		; save iy
 3522: FD 21 00 2E ld   iy,player_bullets_e200
 3526: 11 02 00    ld   de,$0020              ; sizeof (PLAYER_BULLET)
 3529: 06 60       ld   b,$06
@@ -5514,8 +5516,9 @@ entry_33f4:
 3545: C6 80       add  a,$08
 3547: FE 03       cp   $21
 3549: 30 43       jr   nc,$3570
+; we're going to exit the loop
 354B: FD 36 00 F3 ld   (iy+$00),$3F
-354F: FD E1       pop  iy
+354F: FD E1       pop  iy		; restore iy
 3551: CD 15 68    call $8651
 3554: 16 41       ld   d,$05
 3556: 1E 20       ld   e,$02
@@ -5532,7 +5535,7 @@ entry_33f4:
 
 3570: FD 19       add  iy,de
 3572: 10 DB       djnz $3531
-3574: FD E1       pop  iy
+3574: FD E1       pop  iy		; restore iy
 3576: C9          ret
 
 35A7: DD 7E 41    ld   a,(ix+$05)
@@ -8100,7 +8103,7 @@ entry_9078:
 91B9: 30 61       jr   nc,$91C2
 91BB: DD 36 00 F3 ld   (ix+$00),$3F
 91BF: FD 34 00    inc  (iy+$00)
-91C2: DD 19       add  ix,de
+91C2: DD 19       add  ix,de	; de=$20
 91C4: 10 BD       djnz $91A1
 91C6: DD 21 00 8E ld   ix,$E800
 91CA: 11 10 00    ld   de,$0010
@@ -8122,7 +8125,7 @@ entry_9078:
 91EB: 30 61       jr   nc,$91F4
 91ED: DD 36 00 F3 ld   (ix+$00),$3F
 91F1: FD 34 00    inc  (iy+$00)
-91F4: DD 19       add  ix,de
+91F4: DD 19       add  ix,de		; de=$10
 91F6: 10 7D       djnz $91CF
 91F8: FD 7E 00    ld   a,(iy+$00)
 91FB: A7          and  a
@@ -8306,7 +8309,7 @@ entry_9078:
 9378: DD 7E 00    ld   a,(ix+$00)
 937B: A7          and  a
 937C: 28 41       jr   z,$9383
-937E: DD 19       add  ix,de
+937E: DD 19       add  ix,de		; de=$20
 9380: 10 7E       djnz $9378
 9382: C9          ret
 9383: DD 70 F1    ld   (ix+$1f),b
@@ -8403,7 +8406,7 @@ entry_9078:
 9452: DD 7E 00    ld   a,(ix+$00)
 9455: A7          and  a
 9456: 28 80       jr   z,$9460
-9458: DD 19       add  ix,de
+9458: DD 19       add  ix,de		; de=$20
 945A: 10 7E       djnz $9452
 945C: E1          pop  hl	; restore hl
 945D: DD E1       pop  ix
@@ -8964,7 +8967,7 @@ entry_97ea:
 997A: DD 7E 00    ld   a,(ix+$00)
 997D: A7          and  a
 997E: C0          ret  nz
-997F: DD 19       add  ix,de
+997F: DD 19       add  ix,de		; [de=$4]
 9981: 10 7F       djnz $997A
 9983: AF          xor  a
 9984: C9          ret
@@ -9775,7 +9778,7 @@ check_credit_inserted_9e46:
 9F8E: DD 21 00 EF ld   ix,$EF00
 9F92: CD DB 6A    call $A6BD
 9F95: CD 70 6B    call $A716
-9F98: CD 95 6B    call $A759
+9F98: CD 95 6B    call feed_scrolling_tiles_a759
 9F9B: DD 35 31    dec  (ix+$13)
 9F9E: C0          ret  nz
 9F9F: CD B5 6A    call $A65B
@@ -10365,6 +10368,7 @@ A70D: E6 3F       and  $F3
 A70F: DD 77 60    ld   (ix+$06),a
 A712: DD 75 61    ld   (ix+$07),l
 A715: C9          ret
+
 A716: DD 56 80    ld   d,(ix+$08)
 A719: DD 5E 81    ld   e,(ix+$09)
 A71C: D9          exx
@@ -10409,12 +10413,13 @@ A752: DD 77 80    ld   (ix+$08),a
 A755: DD 73 81    ld   (ix+$09),e
 A758: C9          ret
 
+feed_scrolling_tiles_a759:
 A759: 0E 40       ld   c,$04
 A75B: DD 66 C0    ld   h,(ix+$0c)
 A75E: DD 6E C1    ld   l,(ix+$0d)
 A761: DD 56 E0    ld   d,(ix+$0e)
 A764: DD 5E E1    ld   e,(ix+$0f)
-A767: 06 10       ld   b,$10
+A767: 06 10       ld   b,$10	; do it 16 times
 A769: 7E          ld   a,(hl)   ; [unchecked_address]
 A76A: 12          ld   (de),a   ; [unchecked_address] background tiles!
 A76B: 23          inc  hl
@@ -10441,6 +10446,7 @@ A789: E6 BD       and  $DB
 A78B: DD 77 E0    ld   (ix+$0e),a
 A78E: DD 75 E1    ld   (ix+$0f),l
 A791: C9          ret
+
 A792: 21 00 9C    ld   hl,$D800
 A795: 11 01 9C    ld   de,$D801
 A798: 01 FF 21    ld   bc,$03FF
@@ -10932,14 +10938,7 @@ AE57: DD 75 40    ld   (ix+$04),l
 AE5A: DD 72 41    ld   (ix+$05),d
 AE5D: DD 73 60    ld   (ix+$06),e
 AE60: C3 1B C8    jp   $8CB1
-AE63: 0A          ld   a,(bc)
-AE64: 04          inc  b
-AE65: 1A          ld   a,(de)
-AE66: 04          inc  b
-AE67: 1A          ld   a,(de)
-AE68: 04          inc  b
-AE69: 0C          inc  c
-AE6A: 04          inc  b
+
 AE6B: DD 34 50    inc  (ix+$14)
 AE6E: DD 7E 50    ld   a,(ix+$14)
 AE71: FE 40       cp   $04
@@ -11074,6 +11073,7 @@ AF74: D9          exx
 AF75: 0D          dec  c
 AF76: C8          ret  z
 AF77: 18 FA       jr   $AF37
+; seems unreached
 AF79: 3A 04 0F    ld   a,($E140)
 AF7C: 3C          inc  a
 AF7D: C0          ret  nz

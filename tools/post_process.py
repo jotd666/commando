@@ -74,7 +74,7 @@ def remove_instruction(lines,i,continuing_lines=True):
     return change_instruction("",lines,i,continuing_lines=continuing_lines)
 
 def remove_continuing_lines(lines,i):
-    for j in range(i+1,i+4):
+    for j in range(i+1,i+6):
         if "[...]" in lines[j]:
             lines[j] = ""
         else:
@@ -293,6 +293,20 @@ with open(source_dir / "conv.s") as f:
              # this part could be more optimized but it's just the timer counter for heli ride
              # at the end of a level loop
             lines[i+1] = remove_error(lines[i+1])
+        # optimization, avoid the use of EXX
+        elif address in {0xAF2E,0xAF2F,0xAF32,0xaf6b,0xaf6e,0xaf71,
+                    0xaf74,0xaf1c,0xaf1f,0xaef8,0xaef9,0xaefc,0xaeb6,0xaeb7,0xaeba,0xaede,0xaee1}:
+            line = remove_instruction(lines,i)
+        elif address == 0xAF6C:
+            line = change_instruction("add.w\t#0x20,a3",lines,i)
+        elif address in {0xAF72,0xaf1d,0xaedf,0x91C2,0x8FC1,0x937E,0x9458}:
+            line = change_instruction("add.w\t#0x20,a2",lines,i)
+        elif address in [0x8bc6,0x9072,0x91F4]:
+            line = change_instruction("add.w\t#0x10,a2",lines,i)
+        elif address == 0x8FC3:
+            line = change_instruction("add.w\t#0x4,a3",lines,i)
+
+        # end optimization, avoid the use of EXX
         elif address in {0xaed6,0xaf18,0x925B,0x18C7,0x19C3,0x22D7,0x34F1}:
             # immune to bullets/enemy contact/grenades
             line = change_instruction(f"""tst.b\tinvincible_flag

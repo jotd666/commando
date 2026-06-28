@@ -180,7 +180,7 @@ def dump_bob_layer(sprite_table,f,relative_root=None,context=None):
                             f.write("\t.word\t-2    | bitplanes above will be mirrored in-place\n\n")
 
     if not relative_root:
-        f.write("\t.section\t.datachip\n")
+        f.write("end_tables:\n\t.section\t.datachip\n")
 
     for k,v in bob_plane_cache.items():
         if v in needed_bob_bitplanes:
@@ -837,7 +837,7 @@ with open(src_dir / "graphics.68k","w") as f:
     f.write("\t.global\tfg_character_table\n")
     f.write("\t.global\tbg_character_table\n")
     f.write("\t.global\tshared_bob_table\n")
-
+    f.write("\t.global\tend_tables\n")
     f.write("fg_character_table:\n")
 
     offset = dump_tile_layer(fg_tile_table,"fg_")

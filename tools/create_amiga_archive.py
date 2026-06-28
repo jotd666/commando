@@ -48,17 +48,18 @@ cmd = ["lha","-r","a",arcname,"*"]
 subprocess.run(cmd,cwd=outdir.parent,check=True)
 
 # create floppy
-for ext in [""]:
-    exename = f"{gamename}{ext}"
-    shutil.move(progdir/f"{exename}.rnc",progdir/exename)
+if False:
+    for ext in [""]:
+        exename = f"{gamename}{ext}"
+        shutil.move(progdir/f"{exename}.rnc",progdir/exename)
 
-#shutil.copy(assets/"disk.info",progdir)
-adf_name = "Commando.adf"
-cmd = ["gadf","-i","commando","-a",adf_name,"-l","Commando","readme.md"]
-subprocess.run(cmd,cwd=progdir,check=True)
+    #shutil.copy(assets/"disk.info",progdir)
+    adf_name = "Commando.adf"
+    cmd = ["gadf","-i","commando","-a",adf_name,"-l","Commando","readme.md"]
+    subprocess.run(cmd,cwd=progdir,check=True)
 
-# create a .zip for the floppy
+    # create a .zip for the floppy
 
-with zipfile.ZipFile(progdir / "Commando_adf.zip",mode="w",compression=zipfile.ZIP_DEFLATED) as zf:
-    zf.write(progdir/adf_name,arcname=adf_name)
-os.remove(progdir/adf_name)
+    with zipfile.ZipFile(progdir / "Commando_adf.zip",mode="w",compression=zipfile.ZIP_DEFLATED) as zf:
+        zf.write(progdir/adf_name,arcname=adf_name)
+    os.remove(progdir/adf_name)

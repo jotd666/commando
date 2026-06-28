@@ -1,13 +1,9 @@
-- strange crashes, memory corruption somewhere, confirmed on real HW,
-  seen on HD (no whdload) mostly and floppy
-  and on floppy on emulator: scrolling feed gets garbage and ends up locking the machine
-  also path gets blocks for no reason
-  
+- post processing add ix/iy,xx when xx is fixed add tag
 - add missing heli sound
+- find tile scroll feed: feed_scrolling_tiles_a759 tiles are fed 0/0 at times
 - blade issue on the left when lands
 - blits disappear too soon at the bottom of the screen
 - add looped sounds (siren, heli) find loop stop command
-- level skipping while at the boss shifts the levels: to test again
 
 - manual optimization phase to remove PUSH/POP SR/MAKE_xx
 - a6d1: optimize hl *= 32

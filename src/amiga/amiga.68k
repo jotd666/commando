@@ -180,7 +180,6 @@ BG_NB_LINES = 512+256
 Y_MAX = 512
 NB_PLAYFIELD_LINES = BG_NB_LINES
 
-VISIBLE_SCROLL_WIDTH = BG_NB_BYTES_PER_ROW*8-64
 
 BG_SCREEN_PLANE_SIZE = BG_NB_BYTES_PER_ROW*BG_NB_LINES
 
@@ -261,7 +260,6 @@ LONG_FIRE_TIMER_VALUE = 30
 	.global osd_blitz		| for debug
 	
 	.global	osd_video_byte_dirty
-	.global	osd_video_word_dirty
 	
 
 	.global osd_read_high_scores
@@ -423,6 +421,8 @@ _user:
 
 	jbsr	 _detect_controller_types
 
+
+	
 	jra		demo_game
 
 apply_settings:
@@ -765,18 +765,27 @@ demo_game:
 	
 	.ifndef	RELEASE
 	* install dump and quit handler
+	tst.l	_resload
+	jeq		0f
 	pea		dump_and_quit
 	lea		2.W,a0
 	move.l	#0x4AFC4EF9,(a0)+
 	move.l	(a7)+,(a0)+
-	* protect ROM from writing
+	* protect ROM from writing if whdload on
 	move.l	#0xC000,d0
 	move.l	a6,a0
 	move.l  (_resload,pc),a2
 	jsr     (resload_ProtectWrite,a2)
+	* protect graphics area: it doesn't work
+	move.l	#end_tables,d0
+	lea	fg_character_table,a0
+	sub.l	a0,d0
+	move.l  (_resload,pc),a2
+	BREAKPOINT	"FUCKKK"
+	*jsr     (resload_ProtectWrite,a2)
+0:
 	.endif
 	
-
 
 	* enable interrupts. Game doesn't use them
 	* but relies on vbl sync flags
@@ -1541,6 +1550,8 @@ osd_blitz:
 osd_break:
 	* sends a WinUAE command to enter WinUAE debugger
 	.ifndef	RELEASE
+	tst.l	_resload
+	jeq		1f
 * wait for VBL, so when breakpoint is hit, the DMA has displayed the current picture
 	move.l	D0,-(a7)
 	move.l	a0,-(a7)
@@ -1558,7 +1569,7 @@ osd_break:
 	.endr
 	move.w	(a7)+,sr
 	move.l	(a7)+,a0
-
+1:
 	pea     0.w
 	* Normally it would point to where the result of the command is written, but since the last parameter (first pushed)
 	* indicating the number of bytes to write is 0, nothing is written.
@@ -3015,13 +3026,6 @@ osd_disable_interrupts:
 	
 
 	
-osd_video_word_dirty:
-	jbsr	osd_video_byte_dirty
-	addq	#1,a0
-	jbsr	osd_video_byte_dirty
-	subq	#1,a0
-	rts
-	
 * a0=screen address (preserved)
 * a6=ram base
 * should preserve all registers
@@ -3030,7 +3034,7 @@ osd_video_word_dirty:
 * D800: background
 osd_video_byte_dirty:
 	OSD_ENTER
-	movem.l	d0-d7/a0-a2/a5,-(a7)
+	movem.l	d0-d7/a0-a3/a5,-(a7)
 	move.b	(a0),d0
 	move.l	a0,d7		| save address
 	sub.l	a6,d7
@@ -3069,7 +3073,7 @@ osd_video_byte_dirty:
 	jbsr	update_fg_tile
 
 osd_w_videoram_out:
-	movem.l	(a7)+,d0-d7/a0-a2/a5
+	movem.l	(a7)+,d0-d7/a0-a3/a5
 	OSD_EXIT
 	rts	
 	
@@ -4428,7 +4432,6 @@ force_sound_stop:
 osd_sound_start:
 	OSD_ENTER
 	movem.l	d0/d1/d2/a0/a1/a6,-(a7)
-	lea		_custom,a6
 
 
 	and.w	#0xFF,d0
@@ -4703,6 +4706,18 @@ osd_cpu_logging_control:
 2:
 	rts
 	
+	.macro	CHECK_ADDRESS_IN_RANGE	reg
+	move.l	a0,-(a7)
+	move.l	\reg,a0
+	sub.l	a6,a0
+	cmp.l	#0x10000,a0
+	jcs		0f
+	move.w	(10,a7),d7
+	BREAKPOINT	"\reg not in memory range check D7!"
+0:
+	move.l	(a7)+,a0
+	.endm
+	
 	.macro	CHECK_ZERO_MSW	reg
 	swap	\reg
 	tst		\reg
@@ -4728,6 +4743,9 @@ osd_log_cpu:
 	*CHECK_ZERO_MSW	d5
 	*CHECK_ZERO_MSW	d6
 
+	CHECK_ADDRESS_IN_RANGE	a2
+	CHECK_ADDRESS_IN_RANGE	a3
+	
 	movem.l	a2/a3/a5,-(a7)
 	tst.w	(16,a7)
 	jne		0f			| not cpu 0
