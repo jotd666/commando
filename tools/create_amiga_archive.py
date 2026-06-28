@@ -37,7 +37,7 @@ for ext in [""]:
     exename = f"{gamename}{ext}"
     shutil.copy(progdir/exename,outdir)
     subprocess.run(["cranker_windows.exe","-f",progdir/exename,"-o",progdir/f"{exename}.rnc"],check=True)
-
+    #subprocess.run(["shrinkler","-p","-c",progdir/exename,progdir/f"{exename}.rnc"],check=True)
 subprocess.run(cmd_prefix+["clean"],cwd=progdir/"src",check=True)
 
 arcname = progdir / f"{gamename}_HD.lha"

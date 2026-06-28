@@ -11,10 +11,11 @@ CHIP_BASE = $200
 
 	IFD	CD32_SLAVE
 EXPMEM = 0
+CHIPSIZE = $1E0000
 	ELSE
 EXPMEM = $1E0000
+CHIPSIZE = $180000
 	ENDC
-CHIPSIZE = $1E0000
 
 _base	SLAVE_HEADER					; ws_security + ws_id
 	dc.w	17					; ws_version (was 10)

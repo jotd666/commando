@@ -60,9 +60,6 @@ GAME_MAX_SCROLL_X = 0x200
 GAME_MAX_SCROLL_Y = 0x200
 BG_TILE_WIDTH = 16
 
-BG_TILE_FILE_MAX_SIZE = 0x14000
-SPRITE_FILE_MAX_SIZE = 0x1F000
-*SPRITE_FILE_MAX_SIZE = 0x1C800   | 8k smaller without the white arremers
 
 OPT_SPRITE_MIRRORING = 1
 
@@ -73,7 +70,7 @@ MIRROR_BUFFER_SIZE = 0x15000
 	
 SCORE_FILE_SIZE = 90
 
-LOG_BUFFER_SIZE = 0x100000
+LOG_BUFFER_SIZE = 0x1000
 
 FG_TILE_NB_CLUTS_POW = 4
 FG_TILE_NB_CLUTS = 1<<FG_TILE_NB_CLUTS_POW
@@ -166,7 +163,7 @@ NB_BG_PLANES = NB_PLAYFIELD_PLANES
 
 TOTAL_NB_COLORS = 1<<NB_PLAYFIELD_PLANES
 FG_NB_BYTES_PER_ROW = 0x20
-BG_NB_BYTES_PER_ROW = 0x28    | +64 pixels
+BG_NB_BYTES_PER_ROW = 0x20
 
 Y_START = 0x20
 
@@ -178,10 +175,6 @@ BASE_BPLCON2_VALUE = 0x0064
 
 BASE_BPLCON4_VALUE = 0x0044	  | sprites palette starts at color 64
 
-NB_FIRST_ROWS = 0x80-0x21
-NB_SECOND_ROWS = 0x80-NB_THIRD_ROWS
-NB_THIRD_ROWS = 0xE
-NB_FOURTH_ROWS = 0x20-NB_THIRD_ROWS
 FG_NB_LINES = 256
 BG_NB_LINES = 512+256
 Y_MAX = 512
@@ -428,8 +421,7 @@ _user:
 	
 	jbsr	apply_settings
 
-
-	jsr	 _detect_controller_types
+	jbsr	 _detect_controller_types
 
 	jra		demo_game
 
@@ -1096,7 +1088,7 @@ level3_interrupt:
 	tst.b	detect_controllers
 	jeq	0f
 	clr.b	detect_controllers
-	jsr	 _detect_controller_types_nowait
+	jbsr	 _detect_controller_types_nowait
 
 0:
 
@@ -5388,8 +5380,6 @@ mirror_buffer:
 mirror_buffer_end:
 	.endif
 	
-sprite_table_buffer:
-	.skip	SPRITE_FILE_MAX_SIZE    | biggest contextual sprite file
 	
 	
 hw_sprite_ram_buffer:

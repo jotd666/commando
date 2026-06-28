@@ -1,4 +1,6 @@
-- strange crashes, memory corruption somewhere
+- strange crashes, memory corruption somewhere, confirmed on real HW
+  and on floppy on emulator: scrolling feed gets garbage and ends up locking the machine
+ 
 - add missing heli sound
 - blade issue on the left when lands
 - blits disappear too soon at the bottom of the screen
