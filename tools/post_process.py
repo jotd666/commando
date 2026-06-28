@@ -268,6 +268,16 @@ with open(source_dir / "conv.s") as f:
 \tjmp\t(a0)
 """
             kill_code(lines,i+1,0x33)
+        elif address == 0x003b:
+            # safety prevents from queuing an out of range event
+            line = """
+\t.ifndef\tRELEASE
+\tcmp.b\t#15,d3
+\tjcs\t0f
+\tBREAKPOINT\t"event index out of range"
+0:
+\t.endif
+"""+line
         elif address == 0x004a:
             lines[i-1] = remove_error(lines[i-1])
             line = remove_instruction(lines,i)
