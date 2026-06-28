@@ -231,6 +231,7 @@ hi_score_6th_ee41    = $ee41
 hi_score_7th_ee4e    = $ee4e
 pointer_ed80 = $ed80
 global_y_lsb_eda2 = $eda2
+nb_lives_eda0 = $eda0
 
 timing_variable_e002 = $e002
 port_state_c000_in0_e003 = $e003
@@ -1193,7 +1194,7 @@ next_game_state_05fc:
 06E1: 32 F9 0E    ld   ($E09F),a
 06E4: CD 52 61    call $0734
 06E7: CD 2C 80    call $08C2
-06EA: 11 0A CF    ld   de,$EDA0
+06EA: 11 0A CF    ld   de,nb_lives_eda0
 06ED: 01 02 00    ld   bc,$0020
 06F0: ED B0       ldir
 06F2: CD B9 61    call $079B
@@ -1378,15 +1379,15 @@ next_game_state_05fc:
 085E: 32 B0 0F    ld   ($E11A),a
 0861: 3E 0C       ld   a,$C0
 0863: 32 D0 0F    ld   ($E11C),a
-0866: CD BB 68    call $86BB
+0866: CD BB 68    call play_level_completed_tune_86bb
 0869: C3 8E 68    jp   $86E8
-086C: 21 0A CF    ld   hl,$EDA0
+086C: 21 0A CF    ld   hl,nb_lives_eda0
 086F: 35          dec  (hl)
 0870: 28 A2       jr   z,$089C
 0872: CD ED 80    call $08CF
 0875: CD 2C 80    call $08C2
 0878: EB          ex   de,hl
-0879: 21 0A CF    ld   hl,$EDA0
+0879: 21 0A CF    ld   hl,nb_lives_eda0
 087C: 01 02 00    ld   bc,$0020
 087F: ED B0       ldir
 0881: 3A B0 0E    ld   a,($E01A)
@@ -1412,8 +1413,8 @@ next_game_state_05fc:
 08A8: FF          rst  $38   ; store_de_in_circular_buffer_0038
 08A9: CD 2C 80    call $08C2
 08AC: 36 00       ld   (hl),$00
-08AE: CD D3 68    call $863D
-08B1: CD BB 68    call $86BB
+08AE: CD D3 68    call play_null_sound_863d
+08B1: CD BB 68    call play_level_completed_tune_86bb
 08B4: CD 3E 68    call $86F2
 08B7: 3E 5A       ld   a,$B4
 08B9: 32 65 0E    ld   ($E047),a
@@ -1676,7 +1677,7 @@ heli_ride_done_0ac7:
 0D0E: FE 21       cp   $03
 0D10: C2 70 C1    jp   nz,$0D16
 0D13: C3 2F 68    jp   $86E3
-0D16: CD BB 68    call $86BB
+0D16: CD BB 68    call play_level_completed_tune_86bb
 0D19: C3 5C 68    jp   $86D4
 0D1C: 3A 20 0E    ld   a,(timing_variable_e002)
 0D1F: CB 47       bit  0,a
@@ -1728,8 +1729,8 @@ heli_ride_done_0ac7:
 0D83: FF          rst  $38   ; store_de_in_circular_buffer_0038
 0D84: CD A8 C1    call $0D8A
 0D87: C3 DE 41    jp   next_game_state_05fc
-0D8A: CD D3 68    call $863D
-0D8D: CD BB 68    call $86BB
+0D8A: CD D3 68    call play_null_sound_863d
+0D8D: CD BB 68    call play_level_completed_tune_86bb
 0D90: 3E 94       ld   a,$58
 0D92: 32 65 0E    ld   ($E047),a
 0D95: 3A 6A 0E    ld   a,($E0A6)
@@ -6616,7 +6617,7 @@ entry_33f4:
 817E: 3E 02       ld   a,$20
 8180: C3 90 00    jp   $0018
 
-8183: 3A 0A CF    ld   a,($EDA0)
+8183: 3A 0A CF    ld   a,(nb_lives_eda0)
 8186: 3D          dec  a
 8187: C8          ret  z
 8188: FE 41       cp   $05
@@ -6866,7 +6867,7 @@ display_high_scores_81dc:
 8597: BE          cp   (hl)
 8598: 38 01       jr   c,$859B
 859A: C0          ret  nz
-859B: 21 0A CF    ld   hl,$EDA0
+859B: 21 0A CF    ld   hl,nb_lives_eda0
 859E: 34          inc  (hl)
 859F: CD 29 09    call $8183
 85A2: CD 7A 68    call $86B6
@@ -6939,6 +6940,7 @@ display_high_scores_81dc:
 
 ; play sounds
 
+play_null_sound_863d:
 863D: 3E 00       ld   a,$00
 863F: C3 71 69    jp   queue_sound_8717
 8642: 3E 20       ld   a,$02
@@ -6992,6 +6994,9 @@ play_credit_sound_86b1:
 86B3: C3 71 69    jp   queue_sound_8717
 86B6: 3E B1       ld   a,$1B
 86B8: C3 71 69    jp   queue_sound_8717
+
+* music sound index values are >= $20
+play_level_completed_tune_86bb:
 86BB: 3E C3       ld   a,$2D
 86BD: C3 71 69    jp   queue_sound_8717
 86C0: 3E 02       ld   a,$20
@@ -7022,6 +7027,7 @@ play_credit_sound_86b1:
 86FE: C3 71 69    jp   queue_sound_8717
 8701: 3E A2       ld   a,$2A
 8703: C3 71 69    jp   queue_sound_8717
+play_killed_tune_8706:
 8706: 3E A3       ld   a,$2B
 8708: C3 71 69    jp   queue_sound_8717
 870B: C9          ret
@@ -7124,7 +7130,7 @@ process_sound_queue_8727:
 87CF: 3E 01       ld   a,$01
 87D1: 32 0B 0E    ld   ($E0A1),a
 87D4: C9          ret
-87D5: C3 BB 68    jp   $86BB
+87D5: C3 BB 68    jp   play_level_completed_tune_86bb
 87D8: CD 15 69    call $8751
 87DB: 3A 0B 0E    ld   a,($E0A1)
 87DE: A7          and  a
@@ -7352,10 +7358,10 @@ process_sound_queue_8727:
 8A04: EB          ex   de,hl
 8A05: C3 2C C9    jp   $8DC2
 
-8A42: CD BB 68    call $86BB
-8A45: CD D3 68    call $863D
+8A42: CD BB 68    call play_level_completed_tune_86bb
+8A45: CD D3 68    call play_null_sound_863d
 8A48: CD F7 68    call $867F
-8A4B: CD 60 69    call $8706
+8A4B: CD 60 69    call play_killed_tune_8706
 8A4E: DD 7E B1    ld   a,(ix+$1b)
 8A51: A7          and  a
 8A52: 20 81       jr   nz,$8A5D
@@ -8861,7 +8867,7 @@ entry_97ea:
 987E: CD C9 98    call $988D
 9881: 3E 06       ld   a,$60
 9883: 32 E7 0E    ld   ($E06F),a
-9886: CD BB 68    call $86BB
+9886: CD BB 68    call play_level_completed_tune_86bb
 9889: CD 7F 68    call $86F7
 988C: C9          ret
 988D: DD 21 00 2E ld   ix,player_bullets_e200

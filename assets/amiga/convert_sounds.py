@@ -49,7 +49,7 @@ def convert():
     0x28,  # hihg?
     0x29,  # ???
     0x2A,
-    0x2D,  # stop music?
+    0x2D,  # level complete
     0x2C, # bgm2?
     0x14,  #???
     0x16,

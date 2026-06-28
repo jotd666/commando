@@ -1645,8 +1645,9 @@ add_to_score:
 lose_all_lives:
 	movem.l	a6/d0-d3,-(a7)
 	GET_MEMORY_START_IN_A6
-	*move.b	#1,(nb_lives_0060,a6)
-	*move.w	#1,(time_00aa,a6)
+	add.l	#0xE000,a6
+	move.b	#1,(nb_lives_eda0-0xE000,a6)
+	move.b	#0x3F,(player_state_e100-0xE000,a6)
 	movem.l	(a7)+,a6/d0-d3
 	rts
 
@@ -1655,20 +1656,18 @@ lose_all_lives:
 is_game_playing:
 	movem.l	d0/a6,-(a7)
 	GET_MEMORY_START_IN_A6
-	* if game is in "continue play", consider that game is not playing
-	* check that first
-*	move.w	(0x216A,a6),d0
-*	cmp.w	#0x434F,d0		| "CO"
-*	jeq		0f
-	*move.b	(global_state_0002,a6),d0
-	cmp.b	#2,d0
-	moveq	#0,d0
+	add.l	#game_state_e001,a6
+	move.b	(a6),d0
+	cmp.b	#4,d0
+	jeq		1f
+	cmp.b	#5,d0
+	jeq		1f
+	cmp.b	#6,d0
+
 1:
 	movem.l	(a7)+,d0/a6
 	rts
-0:
-	moveq	#1,d0
-	jra		1b
+
 	
 * what: blits data on bg plane, no horizontal shifting (erase)
 * args:
@@ -4076,7 +4075,7 @@ log_used_sprites:
 	.endif
 	
 	.macro	SATURATE_Y	val
-	cmp.w	#\val,d0
+	cmp.w	#\val+1,d0
 	jcc		0f
 	move.w	#\val,d0
 	jra		1f
@@ -4152,7 +4151,7 @@ handle_keyboard:
 0:
 
 	* last life, time=0, direct game over
-	cmp.b	#69,d0	| F8 key: set time at 0
+	cmp.b	#69,d0	| ECS key: kill+1 life
 	bne.b	0f
 	jbsr	lose_all_lives
 0:
@@ -4241,9 +4240,11 @@ handle_keyboard:
 	rts
 	
 toggle_pause:
-	* pause only within game
+	* pause only within game (or in dev mode)
+	.ifdef	RELEASE
 	jbsr		is_game_playing
-	*beq.b	0f
+	jne	0f
+	.endif
 	eor.b   #1,pause_flag
 0:
 	rts
