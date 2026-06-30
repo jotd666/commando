@@ -3,7 +3,7 @@ import shutil
 
 from shared import *
 
-gamename = "ghosts_and_goblins"
+gamename = "commando"
 sox = "sox"
 
 sound_dir = this_dir / ".." / "sounds"
@@ -39,7 +39,6 @@ def convert():
 
     0x36,  # stop tune
     0,1,0xE,0x13,0x17,0x19,
-    0x20,  # intro
     0x21,  # BGM 1
     0x22,
     0x23,  # fortress / boss
@@ -85,7 +84,7 @@ def convert():
 
 
     music_dict = {
-    #"LEVEL_START_TUNE_SND"      :{"index":0x30,"pattern":13,"volume":32},
+    "LEVEL_START_TUNE_SND"      :{"index":0x20,"pattern":0,"volume":32},
     }
 
     sound_dict.update(music_dict)
@@ -140,6 +139,7 @@ def convert():
             n += 1
         fw.write("\n")
 
+    music_module_label = f"{gamename}_tunes"
 
     raw_file = os.path.join(tempfile.gettempdir(),"out.raw")
     with open(sndfile,"w") as fst,open(outfile,"w") as fw:
@@ -148,6 +148,7 @@ def convert():
         fw.write("\t.section\t.datachip\n")
 
         fw.write("\t.global\tmodule_table\n")
+        fw.write(f"\t.global\t{music_module_label}\n")
 
 
         for wav_file,details in sound_dict.items():
@@ -252,6 +253,14 @@ def convert():
                 write_asm(contents,fw)
 
 
+        # make sure next section will be aligned
+        with open(os.path.join(sound_dir,f"{gamename}.mod"),"rb") as f:
+            contents = f.read()
+
+        fw.write("{}:".format(music_module_label))
+        write_asm(contents,fw)
+
+
 
         fw.write("\t.align\t8\n")
 
@@ -264,8 +273,6 @@ def convert():
 
     music_list = {v["index"] for v in music_dict.values()}
 
-    for f in sound_dir.glob("*.mod"):
-        shutil.copy(f,data_dir)
 
     unused_indexes = set(range(0,0x3E))-sfx_list-dummy_sounds-music_list
     print("Unmapped sound indexes: ")

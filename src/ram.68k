@@ -58,8 +58,7 @@ regscopy:
 	.skip	56
 aprime:
 	.byte	0
-fprime:
-	.byte	0
+
 invincible_flag:
 	.byte	0
 infinite_lives_flag:

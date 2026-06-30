@@ -735,7 +735,7 @@ demo_game:
 	clr.w	d0
 	move.l	d0,d1
 	add.l	#0x10000,d1
-	move.l	d1,rom_start_0000		| memory (0x1000-0xFFFF)
+	move.l	d1,rom_start_0000		| memory (0x0000-0xFFFF)
 	
 	* copy the ROM data
 	move.l 	d1,a1
@@ -4435,7 +4435,10 @@ osd_sound_start:
 
 
 	and.w	#0xFF,d0
-	
+	cmp.b	#KILLED_2B_SND,d0
+	jne		0f
+	jbsr	osd_music_stop
+0:
 	
 	moveq	#0,d2
 	lsl.w	#3,d0
@@ -4510,7 +4513,6 @@ osd_sound_start:
 
     movem.l d0-a6,-(a7)
     lea _custom,a6
-	jra		60f    | no music for now
 	
 	
  	movem.l	d0/a0,-(a7)
@@ -4518,7 +4520,7 @@ osd_sound_start:
 
 	
 	move.w	(2,a0,d0.w),d1	| pattern number in .mod file
-	*lea		module_buffer,a0
+	lea		commando_tunes,a0
 	
 	moveq	#0,d0
 	move.w	d1,d0
@@ -4528,11 +4530,7 @@ osd_sound_start:
 
     * set master volume a little less loud if needed
 	move.b	(6,a0,d0.w),music_volume
-	*move.b	(7,a0,d0.w),music_loops
-	*move.w	(4,a0,d0.w),d2
 
-	*move.w	d2,music_duration
-	*move.w	d2,music_tick
 
 	* stop music (needed for CD tracks)
 	jbsr	osd_music_stop
