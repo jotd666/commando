@@ -1,3 +1,4 @@
+
 - post processing add ix/iy,xx when xx is fixed add tag
 - add missing heli sound
 - find tile scroll feed: feed_scrolling_tiles_a759 tiles are fed 0/0 at times
@@ -6,7 +7,6 @@
 - add looped sounds (siren, heli) find loop stop command
 
 - manual optimization phase to remove PUSH/POP SR/MAKE_xx
-- a6d1: optimize hl *= 32
 - irq: optimize don't save regs
 - remove code at 870C
 - set DSW difficulty lives, start level!!

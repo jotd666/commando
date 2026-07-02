@@ -9776,7 +9776,7 @@ check_credit_inserted_9e46:
 
 9F8B: CD 7D F9    call $9FD7
 9F8E: DD 21 00 EF ld   ix,$EF00
-9F92: CD DB 6A    call $A6BD
+9F92: CD DB 6A    call fill_scroll_buffer_a6bd
 9F95: CD 70 6B    call $A716
 9F98: CD 95 6B    call feed_scrolling_tiles_a759
 9F9B: DD 35 31    dec  (ix+$13)
@@ -10319,6 +10319,8 @@ A6B1: DD 75 C1    ld   (ix+$0d),l
 A6B4: DD 36 30 00 ld   (ix+$12),$00
 A6B8: DD 36 31 1A ld   (ix+$13),$B0
 A6BC: C9          ret
+
+fill_scroll_buffer_a6bd:
 A6BD: 06 40       ld   b,$04
 A6BF: D9          exx
 A6C0: DD 66 21    ld   h,(ix+$03)
@@ -10338,11 +10340,11 @@ A6D6: 11 4C 45    ld   de,$45C4
 A6D9: 19          add  hl,de
 A6DA: DD 56 60    ld   d,(ix+$06)
 A6DD: DD 5E 61    ld   e,(ix+$07)
-A6E0: 3E 40       ld   a,$04
+A6E0: 3E 40       ld   a,$04		; do it 4 times (4 rows)
 A6E2: 08          ex   af,af'
 A6E3: D5          push de
 A6E4: 01 80 00    ld   bc,$0008
-A6E7: ED B0       ldir
+A6E7: ED B0       ldir			; copy one row of data from ROM to RAM ($F000/80/100/180...380)
 A6E9: D1          pop  de
 A6EA: EB          ex   de,hl
 A6EB: 3E 0E       ld   a,$E0
@@ -10413,13 +10415,17 @@ A752: DD 77 80    ld   (ix+$08),a
 A755: DD 73 81    ld   (ix+$09),e
 A758: C9          ret
 
+; in 4 calls the screen is completely painted with 16x16 background tiles
+; when game is running, this is called with ix+$0d pointing on $F000-$F080
+; ... up to $F380 (input data)
+
 feed_scrolling_tiles_a759:
-A759: 0E 40       ld   c,$04
+A759: 0E 40       ld   c,$04		; do it 4 times
 A75B: DD 66 C0    ld   h,(ix+$0c)
-A75E: DD 6E C1    ld   l,(ix+$0d)
+A75E: DD 6E C1    ld   l,(ix+$0d)	; source in RAM
 A761: DD 56 E0    ld   d,(ix+$0e)
-A764: DD 5E E1    ld   e,(ix+$0f)
-A767: 06 10       ld   b,$10	; do it 16 times
+A764: DD 5E E1    ld   e,(ix+$0f)	; dest in screen RAM (D8xx)
+A767: 06 10       ld   b,$10	; do it 16 times, cover one whole row
 A769: 7E          ld   a,(hl)   ; [unchecked_address]
 A76A: 12          ld   (de),a   ; [unchecked_address] background tiles!
 A76B: 23          inc  hl
@@ -10428,13 +10434,13 @@ A76D: CB D2       set  2,d
 A76F: 12          ld   (de),a   ; [video_address]
 A770: CB 92       res  2,d
 A772: 23          inc  hl
-A773: 13          inc  de
+A773: 13          inc  de		; to the right
 A774: 10 3F       djnz $A769
 A776: EB          ex   de,hl
 A777: 3E 10       ld   a,$10
 A779: DF          rst  $18                   ; call ADD_A_TO_HL
 A77A: EB          ex   de,hl
-A77B: 0D          dec  c
+A77B: 0D          dec  c			; one less row to paint
 A77C: 20 8F       jr   nz,$A767
 A77E: 7C          ld   a,h
 A77F: E6 3F       and  $F3

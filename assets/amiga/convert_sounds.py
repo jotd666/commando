@@ -39,7 +39,7 @@ def convert():
 
     0x36,  # stop tune
     0,1,0xE,0x13,0x17,0x19,
-    0x21,  # BGM 1
+
     0x22,
     0x23,  # fortress / boss
     0x24,0x25,
@@ -85,6 +85,7 @@ def convert():
 
     music_dict = {
     "LEVEL_START_TUNE_SND"      :{"index":0x20,"pattern":0,"volume":32},
+    "LEVEL_TUNE_SND"      :{"index":0x21,"pattern":3,"volume":32},
     }
 
     sound_dict.update(music_dict)

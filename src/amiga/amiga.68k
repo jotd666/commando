@@ -781,7 +781,6 @@ demo_game:
 	lea	fg_character_table,a0
 	sub.l	a0,d0
 	move.l  (_resload,pc),a2
-	BREAKPOINT	"FUCKKK"
 	*jsr     (resload_ProtectWrite,a2)
 0:
 	.endif
@@ -1666,7 +1665,10 @@ is_game_playing:
 	cmp.b	#5,d0
 	jeq		1f
 	cmp.b	#6,d0
-
+	jeq		1f
+	* game not playing but is grenade displayed?
+	cmp.b	#0xB2,(0XD180-game_state_e001,a6)
+	
 1:
 	movem.l	(a7)+,d0/a6
 	rts
@@ -4422,6 +4424,7 @@ force_sound_stop:
 	clr.b	music_playing
 	clr.l	looped_sound_enabled
 
+	clr.w	tune_index_times_8
     jsr		_mt_end
 
 	movem.l	(a7)+,d0-d1/a0/a6
@@ -4439,7 +4442,14 @@ osd_sound_start:
 	jne		0f
 	jbsr	osd_music_stop
 0:
-	
+	cmp.b	#LEVEL_TUNE_SND,d0
+	jne		0f
+	move.w	tune_index_times_8,d1
+	cmp.w	#LEVEL_START_TUNE_SND*8,d1
+	jne		0f
+	* don't play
+	jra		10f
+0:	
 	moveq	#0,d2
 	lsl.w	#3,d0
 	lea		sound_table,a0
@@ -4517,7 +4527,7 @@ osd_sound_start:
 	
  	movem.l	d0/a0,-(a7)
 	
-
+	move.w	d0,tune_index_times_8		| note down current tune index
 	
 	move.w	(2,a0,d0.w),d1	| pattern number in .mod file
 	lea		commando_tunes,a0
@@ -4531,9 +4541,6 @@ osd_sound_start:
     * set master volume a little less loud if needed
 	move.b	(6,a0,d0.w),music_volume
 
-
-	* stop music (needed for CD tracks)
-	jbsr	osd_music_stop
 
 	st.b	music_playing
 
@@ -4892,7 +4899,8 @@ music_volume:
 	.align	2
 
 
-
+tune_index_times_8:
+	.word	0
 music_track_start_number:
 	.word	-1
 music_pattern:

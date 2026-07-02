@@ -307,6 +307,15 @@ with open(source_dir / "conv.s") as f:
             line = change_instruction("add.w\t#0x4,a3",lines,i)
 
         # end optimization, avoid the use of EXX
+        elif address == 0xa6cf:
+            lines[i] = change_instruction("moveq\t#0,d6",lines,i)
+            line = swap_lines(lines,i,i-1)
+        elif address == 0xa6d1:
+            line = change_instruction("lsl.w\t#5,d6",lines,i)
+        elif address and (0xa6D1 < address < 0xA6D6):
+            line = remove_instruction(lines,i)
+        elif address == 0xa6d9:
+            line = change_instruction("add.w\td4,d6",lines,i)+"\tMAKE_H\n"
         elif address in {0xaed6,0xaf18,0x925B,0x18C7,0x19C3,0x22D7,0x34F1}:
             # immune to bullets/enemy contact/grenades
             line = change_instruction(f"""tst.b\tinvincible_flag
