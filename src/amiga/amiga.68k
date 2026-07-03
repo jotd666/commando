@@ -4438,10 +4438,7 @@ osd_sound_start:
 
 
 	and.w	#0xFF,d0
-	cmp.b	#KILLED_2B_SND,d0
-	jne		0f
-	jbsr	osd_music_stop
-0:
+
 	cmp.b	#LEVEL_TUNE_SND,d0
 	jne		0f
 	move.w	tune_index_times_8,d1

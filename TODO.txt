@@ -1,4 +1,5 @@
-
+- try cycle exact see if rows of zeroes are appearing (like on real HW)
+- sometimes path is blocked
 - post processing add ix/iy,xx when xx is fixed add tag
 - add missing heli sound
 - find tile scroll feed: feed_scrolling_tiles_a759 tiles are fed 0/0 at times
