@@ -9085,11 +9085,11 @@ l_81a9:
 	rts                                    	| [...]
 0:
 	MAKE_HL_NO_AR                          	| [$81b6: inc  hl]
-	addq.w	#1,d6                           	| [...]
+	addq.w	#2,d6                           	| [...]
 	MAKE_H
-	MAKE_HL_NO_AR                          	| [$81b7: inc  hl]
-	addq.w	#1,d6                           	| [...]
-	MAKE_H
+	                      	| [$81b7: inc  hl]
+	                       	| [...]
+	
 	jra	l_81a7                             	| [$81b8: jp   $81a7]
 
 l_81bb:
@@ -9441,25 +9441,23 @@ l_859b:
 	move.b	d0,d6                           	| [$85af: ld   l,a]
 	move.b	#0x00,d5                        	| [$85b0: ld   h,$00]
 	MAKE_HL_NO_AR                          	| [$85b2: add  hl,hl]
-	add.w	d6,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
+	lsl.w	#4,d6                            	| [...]
+	                      	| [...] save CC
+	                      	| [...] update MSB reg
+	                      	| [...] restore CC
+	                                          	| [$85b3: add  hl,hl]
+	                                                 	| [...]
+	                      	| [...] save CC
+	                      	| [...] update MSB reg
+	                      	| [...] restore CC
+	                      	| [$85b4: add  hl,hl]
+	                                                 	| [...]
+	                      	| [...] save CC
+	                      	| [...] update MSB reg
+	                      	| [...] restore CC
+	                      	| [$85b5: add  hl,hl]
+	                                                 	| [...]
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
-	MAKE_HL_NO_AR                          	| [$85b3: add  hl,hl]
-	add.w	d6,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
-	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
-	MAKE_HL_NO_AR                          	| [$85b4: add  hl,hl]
-	add.w	d6,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
-	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
-	MAKE_HL_NO_AR                          	| [$85b5: add  hl,hl]
-	add.w	d6,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
-	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d4,d0                           	| [$85b6: ld   a,e]
 	CLR_XC_FLAGS| [$85b8: daa]
 	move.b	d6,d7	| [...]
@@ -9901,12 +9899,7 @@ l_8851:
 	jbsr	l_8874                            	| [...]
 0:
 l_886f:
-	MAKE_DE_NO_AR                          	| [$886f: add  iy,de]
-	move.l	a3,d7                           	| [...]  [inspect_for_manual_optimization]
-	sub.l	a6,d7                            	| [...]
-	add.w	d4,d7                            	| [...]
-	add.l	a6,d7                            	| [...]
-	move.l	d7,a3                           	| [...]
+	add.w	d4,a3                          	| [$886f: add  iy,de]
 	subq.b	#1,d1                           	| [$8871: djnz $8851]
 	jne	l_8851                             	| [...]
 	rts                                    	| [$8873: ret]
@@ -11675,12 +11668,7 @@ l_9542:
 	move.b	(0x00,a2),d0                    	| [$9542: ld   a,(ix+$00)]
                                          | [$9545: and  a]
 	jeq	l_954d                             	| [$9546: jr   z,$954d]
-	MAKE_DE_NO_AR                          	| [$9548: add  ix,de]
-	move.l	a2,d7                           	| [...]  [inspect_for_manual_optimization]
-	sub.l	a6,d7                            	| [...]
-	add.w	d4,d7                            	| [...]
-	add.l	a6,d7                            	| [...]
-	move.l	d7,a2                           	| [...]
+	add.w	d4,a2                          	| [$9548: add  ix,de]
 	subq.b	#1,d1                           	| [$954a: djnz $9542]
 	jne	l_9542                             	| [...]
 	rts                                    	| [$954c: ret]
@@ -11810,12 +11798,7 @@ l_9617:
 	move.b	(0x00,a2),d0                    	| [$9617: ld   a,(ix+$00)]
                                          | [$961a: and  a]
 	jeq	l_9622                             	| [$961b: jr   z,$9622]
-	MAKE_DE_NO_AR                          	| [$961d: add  ix,de]
-	move.l	a2,d7                           	| [...]  [inspect_for_manual_optimization]
-	sub.l	a6,d7                            	| [...]
-	add.w	d4,d7                            	| [...]
-	add.l	a6,d7                            	| [...]
-	move.l	d7,a2                           	| [...]
+	add.w	d4,a2                          	| [$961d: add  ix,de]
 	subq.b	#1,d1                           	| [$961f: djnz $9617]
 	jne	l_9617                             	| [...]
 	rts                                    	| [$9621: ret]
@@ -12243,12 +12226,7 @@ l_988d:
 	LOAD_DE	#0x0004                        	| [$989f: ld   de,$0004]
 l_98a2:
 	clr.b	(0x00,a2)                        	| [$98a2: ld   (ix+$00),$00]
-	MAKE_DE_NO_AR                          	| [$98a6: add  ix,de]
-	move.l	a2,d7                           	| [...]  [inspect_for_manual_optimization]
-	sub.l	a6,d7                            	| [...]
-	add.w	d4,d7                            	| [...]
-	add.l	a6,d7                            	| [...]
-	move.l	d7,a2                           	| [...]
+	add.w	d4,a2                          	| [$98a6: add  ix,de]
 	subq.b	#1,d1                           	| [$98a8: djnz $98a2]
 	jne	l_98a2                             	| [...]
 	rts                                    	| [$98aa: ret]
@@ -12658,18 +12636,8 @@ l_9afe:
 	move.b	(0x00,a2),d0                    	| [$9afe: ld   a,(ix+$00)]
                                          | [$9b01: and  a]
 	jeq	l_9b0d                             	| [$9b02: jr   z,$9b0d]
-	MAKE_BC_NO_AR                          	| [$9b04: add  ix,bc]
-	move.l	a2,d7                           	| [...]  [inspect_for_manual_optimization]
-	sub.l	a6,d7                            	| [...]
-	add.w	d2,d7                            	| [...]
-	add.l	a6,d7                            	| [...]
-	move.l	d7,a2                           	| [...]
-	MAKE_DE_NO_AR                          	| [$9b06: add  iy,de]
-	move.l	a3,d7                           	| [...]  [inspect_for_manual_optimization]
-	sub.l	a6,d7                            	| [...]
-	add.w	d4,d7                            	| [...]
-	add.l	a6,d7                            	| [...]
-	move.l	d7,a3                           	| [...]
+	add.w	d2,a2                          	| [$9b04: add  ix,bc]
+	add.w	d4,a3                          	| [$9b06: add  iy,de]
 	subq.b	#1,d5                           	| [$9b08: dec  h]
 	jne	0f                                 	| [$9b09: ret  z]
 	rts                                    	| [...]
