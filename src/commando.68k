@@ -8735,14 +8735,19 @@ l_6ddd:
 
 
 mainloop_8000:
-	CLR_I_FLAG                             	| [$8000: ei]
+	jbsr	osd_disable_interrupts
 	jbsr	handle_events_8007                	| [$8001: call handle_events_8007]
+	jbsr	osd_enable_interrupts
+	* interrupts are only enabled here. vblank will be pending so
+	* it will happen if needed, only here (else it causes race conditions
+	* like broken scrolling tiles, blocked paths)
 	jra	mainloop_8000                      	| [$8004: jp   mainloop_8000]
 
 handle_events_8007:
 	GET_ADDRESS	consumed_event_pointer_ed82,a0	| [$8007: ld   hl,(consumed_event_pointer_ed82)]
-	MOVE_W_TO_REG	a0,d6                         	| [...]
-	MAKE_H                                 	| [...]
+	move.w	(a0),d6		| even: can read word
+	rol.w	#8,d6		| little endian
+	MAKE_H
 	MAKE_HL	a0                             	| [$800a: ld   a,(hl)]
 	move.b	(a0),d0                         	| [...]
 	addq.b	#1,d0                           	| [$800b: inc  a]
@@ -8752,12 +8757,12 @@ handle_events_8007:
 	subq.b	#1,d0                           	| [$800d: dec  a]
 	move.b	d0,d3                           	| [$800e: ld   d,a] save event value for later
 	MAKE_HL	a0                             	| [$800f: ld   (hl),$ff] acknowledge event
-	move.b	#0xff,(a0)                      	| [...] acknowledge event
+	st.b	(a0)                      	| [...] acknowledge event
 	addq.b	#1,d6                           	| [$8011: inc  l]
 	MAKE_HL	a0                             	| [$8012: ld   e,(hl)] get event parameter
 	move.b	(a0),d4                         	| [...] get event parameter
 	MAKE_HL	a0                             	| [$8013: ld   (hl),$ff] acknowledge param
-	move.b	#0xff,(a0)                      	| [...] acknowledge param
+	st.b	(a0)                      	| [...] acknowledge param
 	addq.b	#1,d6                           	| [$8015: inc  l]
 	move.b	d6,d0                           	| [$8016: ld   a,l]
 	cmp.b	#0x40,d0                         	| [$8017: cp   $40]
@@ -8828,8 +8833,8 @@ l_8070:
 
 l_8076:
 	jbsr	l_811d                            	| [$8076: call $811d]
-	CLR_XC_FLAGS                           	| [$8079: xor  a]
-	clr.b	d0                               	| [...]
+	clr.b	d0                           	| [$8079: xor  a]
+	                               	| [...]
 	GET_ADDRESS	0xe0b0,a0                  	| [$807a: ld   ($e0b0),a]
 	move.b	d0,(a0)                         	| [...]
 	GET_ADDRESS	0xe0af,a0                  	| [$807d: ld   ($e0af),a]
@@ -8910,17 +8915,17 @@ l_80d8:
 	MAKE_DE_NO_AR                          	| [$80e2: push de]
 	move.w	d4,-(a7)                        	| [...]
 	MAKE_DE_NO_AR                          	| [$80e3: inc  de]
-	addq.w	#1,d4                           	| [...]
+	addq.w	#4,d4                           	| [...]
 	MAKE_D
-	MAKE_DE_NO_AR                          	| [$80e4: inc  de]
-	addq.w	#1,d4                           	| [...]
-	MAKE_D
-	MAKE_DE_NO_AR                          	| [$80e5: inc  de]
-	addq.w	#1,d4                           	| [...]
-	MAKE_D
-	MAKE_DE_NO_AR                          	| [$80e6: inc  de]
-	addq.w	#1,d4                           	| [...]
-	MAKE_D
+											| [$80e4: inc  de]
+												| [...]
+								
+											| [$80e5: inc  de]
+												| [...]
+								
+											| [$80e6: inc  de]
+												| [...]
+								
 	jbsr	l_80ee                            	| [$80e7: call $80ee]
 l_80ea:
 	move.w	(a7)+,d4                        	| [$80ea: pop  de]
@@ -8937,9 +8942,7 @@ l_80ee:
 	MAKE_DE_NO_AR                          	| [$80f8: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	rts                                    	| [$80f9: ret]
 
 l_80fa:
