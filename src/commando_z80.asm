@@ -592,7 +592,7 @@ startup_004a:
 015F: 32 65 0E    ld   ($E047),a
 0162: 00          nop
 0163: FB          ei
-0164: C3 00 08    jp   $8000
+0164: C3 00 08    jp   mainloop_8000
 
 
 
@@ -651,9 +651,9 @@ irq_02b7:    ; [global]
 02C0: E5          push hl
 02C1: DD E5       push ix
 02C3: FD E5       push iy
-02C5: CD 78 21    call $0396
+02C5: CD 78 21    call play_sound_and_update_scroll_0396
 02C8: CD 63 69    call process_sound_queue_8727
-02CB: CD BE 20    call $02FA
+02CB: CD BE 20    call update_controls_02fa
 02CE: FD E1       pop  iy
 02D0: DD E1       pop  ix
 02D2: E1          pop  hl		; restore hl
@@ -684,6 +684,7 @@ irq_02b7:    ; [global]
 02F8: C9          ret
 02F9: C9          ret
 
+update_controls_02fa:
 02FA: 21 20 0E    ld   hl,timing_variable_e002              ; load HL with address of TIMING_VARIABLE
 02FD: 34          inc  (hl)                  ; increment TIMING_VARIABLE
 02FE: 21 B3 0E    ld   hl,$E03B
@@ -780,6 +781,7 @@ irq_02b7:    ; [global]
 	dc.w	$0562	; $0392
 	dc.w	$0621	; $0394
 
+play_sound_and_update_scroll_0396:
 0396: 3A B2 0E    ld   a,(sound_command_e03a)
 0399: 32 00 8C    ld   (sound_c800),a
 039C: 3A B5 0E    ld   a,(global_y_msb_copy_e05b)
@@ -882,6 +884,7 @@ return_0414:
 0455: 22 2A CF    ld   (global_y_lsb_eda2),hl
 0458: CD E8 4B    call $A58E
 045B: C3 DE 41    jp   next_game_state_05fc
+
 045E: CD D1 41    call $051D
 0461: CD 9E 40    call $04F8
 0464: 21 65 0E    ld   hl,$E047
@@ -6428,10 +6431,10 @@ entry_33f4:
 6E11: C9          ret
 
 
-
+mainloop_8000:
 8000: FB          ei
 8001: CD 61 08    call handle_events_8007
-8004: C3 00 08    jp   $8000
+8004: C3 00 08    jp   mainloop_8000
 
 handle_events_8007:
 8007: 2A 28 CF    ld   hl,(consumed_event_pointer_ed82)

@@ -4442,10 +4442,11 @@ osd_sound_start:
 	cmp.b	#LEVEL_TUNE_SND,d0
 	jne		0f
 	move.w	tune_index_times_8,d1
+	cmp.w	#LEVEL_RESUME_TUNE_SND*8,d1
+	jeq		10f
 	cmp.w	#LEVEL_START_TUNE_SND*8,d1
-	jne		0f
-	* don't play
-	jra		10f
+	jeq		10f
+
 0:	
 	moveq	#0,d2
 	lsl.w	#3,d0

@@ -1,8 +1,8 @@
-- try cycle exact see if rows of zeroes are appearing (like on real HW)
-- sometimes path is blocked
+- cycle exact: rows of zeroes are appearing (like on real HW)
+- sometimes path is blocked (maybe same issue)
 - post processing add ix/iy,xx when xx is fixed add tag
 - add missing heli sound
-- find tile scroll feed: feed_scrolling_tiles_a759 tiles are fed 0/0 at times
+
 - blade issue on the left when lands
 - blits disappear too soon at the bottom of the screen
 - add looped sounds (siren, heli) find loop stop command

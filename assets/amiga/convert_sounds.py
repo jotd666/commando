@@ -88,7 +88,7 @@ def convert():
     "LEVEL_TUNE_SND"      :{"index":0x21,"pattern":3,"volume":32},
     "BOSS_TUNE_SND"      :{"index":0x23,"pattern":0xF,"volume":32},
     "KILLED_TUNE_SND"      :{"index":0x2B,"pattern":0xC,"volume":32},
-    #"LEVEL_RESUME_TUNE_SND"      :{"index":...,"pattern":0xD,"volume":32},
+    "LEVEL_RESUME_TUNE_SND"      :{"index":0x22,"pattern":0xD,"volume":32},
     }
 
     sound_dict.update(music_dict)
