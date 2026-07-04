@@ -1,3 +1,6 @@
+- crash on level 4 boss (push/pop couple problem?)
+- green flash when completing a level
+
 - blits disappear too soon at the bottom of the screen
 - add looped sounds (siren, heli) find loop stop command
 - add missing heli sound
