@@ -706,16 +706,8 @@ l_0276:
 	rts                                    	| [$02b6: ret]
 
 irq_02b7:                               	| [global]
-	PUSH_SR                                	| [$02b7: push af]
-	movem.w	d0,-(a7)                       	| [...]
-	MAKE_BC_NO_AR                          	| [$02b8: push bc]
-	move.w	d2,-(a7)                        	| [...]
-	MAKE_DE_NO_AR                          	| [$02b9: push de]
-	move.w	d4,-(a7)                        	| [...]
-	MAKE_HL_NO_AR                          	| [$02ba: push hl]
-	move.w	d6,-(a7)                        	| [...]
 	jbsr	exx                               	| [$02bb: exx]
-* just swap A/A'
+* just save ghost registers, host handles the registers
 	EXG_A_A_PRIME |  [$02bc: ex   af,af']
 	PUSH_SR                                	| [$02bd: push af]
 	movem.w	d0,-(a7)                       	| [...]
@@ -743,15 +735,6 @@ irq_02b7:                               	| [global]
 * just swap A/A'
 	EXG_A_A_PRIME |  [$02d6: ex   af,af']
 	jbsr	exx                               	| [$02d7: exx]
-	move.w	(a7)+,d6                        	| [$02d8: pop  hl] restore hl
-	MAKE_H                                 	| [...] restore hl
-	move.w	(a7)+,d4                        	| [$02d9: pop  de]
-	MAKE_D                                 	| [...]
-	move.w	(a7)+,d2                        	| [$02da: pop  bc]
-	MAKE_B                                 	| [...]
-	move.w	(a7)+,d0                        	| [$02db: pop  af]
-	POP_SR                                 	| [...]
-	CLR_I_FLAG                             	| [$02dc: ei]
 	rts                                    	| [$02dd: ret]
 
 	LOAD_HL	#0xd040                        	| [$02de: ld   hl,$d040]
@@ -823,54 +806,42 @@ l_0314:
 	MAKE_HL	a0                             	| [$033a: rl   (hl)] shift into PORT_STATE_C001_BIT0_BITS
 	move.b	(a0),d7	| [...] shift into PORT_STATE_C001_BIT0_BITS
 	roxl.b	#1,d7                         	| [...] shift into PORT_STATE_C001_BIT0_BITS
-	PUSH_SR
 	move.b	d7,(a0)	| [...] shift into PORT_STATE_C001_BIT0_BITS
-	POP_SR
 	addq.b	#1,d6                           	| [$033c: inc  l]
 	ror.b	#1,d0                            	| [$033d: rrca] move IPT_JOYSTICK_LEFT bit into carry
 	SET_X_FROM_C
 	MAKE_HL	a0                             	| [$033e: rl   (hl)] shift into PORT_STATE_C001_BIT1_BITS
 	move.b	(a0),d7	| [...] shift into PORT_STATE_C001_BIT1_BITS
 	roxl.b	#1,d7                         	| [...] shift into PORT_STATE_C001_BIT1_BITS
-	PUSH_SR
 	move.b	d7,(a0)	| [...] shift into PORT_STATE_C001_BIT1_BITS
-	POP_SR
 	addq.b	#1,d6                           	| [$0340: inc  l]
 	ror.b	#1,d0                            	| [$0341: rrca] move IPT_JOYSTICK_DOWN bit into carry
 	SET_X_FROM_C
 	MAKE_HL	a0                             	| [$0342: rl   (hl)] shift into PORT_STATE_C001_BIT2_BITS
 	move.b	(a0),d7	| [...] shift into PORT_STATE_C001_BIT2_BITS
 	roxl.b	#1,d7                         	| [...] shift into PORT_STATE_C001_BIT2_BITS
-	PUSH_SR
 	move.b	d7,(a0)	| [...] shift into PORT_STATE_C001_BIT2_BITS
-	POP_SR
 	addq.b	#1,d6                           	| [$0344: inc  l]
 	ror.b	#1,d0                            	| [$0345: rrca] move IPT_JOYSTICK_UP bit into carry
 	SET_X_FROM_C
 	MAKE_HL	a0                             	| [$0346: rl   (hl)] shift into PORT_STATE_C001_BIT3_BITS
 	move.b	(a0),d7	| [...] shift into PORT_STATE_C001_BIT3_BITS
 	roxl.b	#1,d7                         	| [...] shift into PORT_STATE_C001_BIT3_BITS
-	PUSH_SR
 	move.b	d7,(a0)	| [...] shift into PORT_STATE_C001_BIT3_BITS
-	POP_SR
 	addq.b	#1,d6                           	| [$0348: inc  l]
 	ror.b	#1,d0                            	| [$0349: rrca] move IPT_BUTTON1 (shoot) bit into carry
 	SET_X_FROM_C
 	MAKE_HL	a0                             	| [$034a: rl   (hl)] shift into PORT_STATE_C001_BIT4_BITS
 	move.b	(a0),d7	| [...] shift into PORT_STATE_C001_BIT4_BITS
 	roxl.b	#1,d7                         	| [...] shift into PORT_STATE_C001_BIT4_BITS
-	PUSH_SR
 	move.b	d7,(a0)	| [...] shift into PORT_STATE_C001_BIT4_BITS
-	POP_SR
 	addq.b	#1,d6                           	| [$034c: inc  l]
 	ror.b	#1,d0                            	| [$034d: rrca] move IPT_BUTTON2 (grenade) bit into carry
 	SET_X_FROM_C
 	MAKE_HL	a0                             	| [$034e: rl   (hl)] shift into PORT_STATE_C001_BIT5_BITS
 	move.b	(a0),d7	| [...] shift into PORT_STATE_C001_BIT5_BITS
 	roxl.b	#1,d7                         	| [...] shift into PORT_STATE_C001_BIT5_BITS
-	PUSH_SR
 	move.b	d7,(a0)	| [...] shift into PORT_STATE_C001_BIT5_BITS
-	POP_SR
 
 
 	LOAD_DE	#port_state_c001_in1_e004      	| [$0350: ld   de,port_state_c001_in1_e004] load DE with address of PORT_STATE_C001_IN1_e004
@@ -894,54 +865,42 @@ l_0361:
 	MAKE_HL	a0                             	| [$0366: rl   (hl)]
 	move.b	(a0),d7	| [...]
 	roxl.b	#1,d7                         	| [...]
-	PUSH_SR
 	move.b	d7,(a0)	| [...]
-	POP_SR
 	addq.b	#1,d6                           	| [$0368: inc  l]
 	ror.b	#1,d0                            	| [$0369: rrca]
 	SET_X_FROM_C
 	MAKE_HL	a0                             	| [$036a: rl   (hl)]
 	move.b	(a0),d7	| [...]
 	roxl.b	#1,d7                         	| [...]
-	PUSH_SR
 	move.b	d7,(a0)	| [...]
-	POP_SR
 	addq.b	#1,d6                           	| [$036c: inc  l]
 	ror.b	#1,d0                            	| [$036d: rrca]
 	SET_X_FROM_C
 	MAKE_HL	a0                             	| [$036e: rl   (hl)]
 	move.b	(a0),d7	| [...]
 	roxl.b	#1,d7                         	| [...]
-	PUSH_SR
 	move.b	d7,(a0)	| [...]
-	POP_SR
 	addq.b	#1,d6                           	| [$0370: inc  l]
 	ror.b	#1,d0                            	| [$0371: rrca]
 	SET_X_FROM_C
 	MAKE_HL	a0                             	| [$0372: rl   (hl)]
 	move.b	(a0),d7	| [...]
 	roxl.b	#1,d7                         	| [...]
-	PUSH_SR
 	move.b	d7,(a0)	| [...]
-	POP_SR
 	addq.b	#1,d6                           	| [$0374: inc  l]
 	ror.b	#1,d0                            	| [$0375: rrca]
 	SET_X_FROM_C
 	MAKE_HL	a0                             	| [$0376: rl   (hl)]
 	move.b	(a0),d7	| [...]
 	roxl.b	#1,d7                         	| [...]
-	PUSH_SR
 	move.b	d7,(a0)	| [...]
-	POP_SR
 	addq.b	#1,d6                           	| [$0378: inc  l]
 	ror.b	#1,d0                            	| [$0379: rrca]
 	SET_X_FROM_C
 	MAKE_HL	a0                             	| [$037a: rl   (hl)]
 	move.b	(a0),d7	| [...]
 	roxl.b	#1,d7                         	| [...]
-	PUSH_SR
 	move.b	d7,(a0)	| [...]
-	POP_SR
 
 
 	GET_ADDRESS	port_state_c000_in0_e003,a0	| [$037c: ld   a,(port_state_c000_in0_e003)] read PORT_STATE_C000_IN0 bits
@@ -952,9 +911,7 @@ l_0361:
 	MAKE_HL	a0                             	| [$0383: rl   (hl)]
 	move.b	(a0),d7	| [...]
 	roxl.b	#1,d7                         	| [...]
-	PUSH_SR
 	move.b	d7,(a0)	| [...]
-	POP_SR
 	jbsr	l_9e37                            	| [$0385: call $9e37]
 
 	GET_ADDRESS	0xe000,a0                  	| [$0388: ld   a,($e000)]
@@ -1256,27 +1213,6 @@ l_0539:
 	LOAD_DE	#0x0014                        	| [$0541: ld   de,$0014]
 	jbsr	l_0038                            	| [$0544: rst  $38] queue_event_0038
 	rts                                    	| [$0545: ret]
-	GET_ADDRESS	timing_variable_e002,a0    	| [$0546: ld   a,(timing_variable_e002)]
-	move.b	(a0),d0                         	| [...]
-	ror.b	#1,d0                            	| [$0549: rrca]
-	and.b	#0x03,d0                         	| [$054a: and  $03]
-	LOAD_HL	#0x055d                        	| [$054c: ld   hl,$055d]
-	jbsr	l_0020                            	| [$054f: rst  $20] call RETURN_BYTE_AT_HL_PLUS_A
-	move.b	#0x06,d1                        	| [$0550: ld   b,$06]
-	LOAD_DE	#0x0020                        	| [$0552: ld   de,$0020]
-	LOAD_HL	#0xd5a3                        	| [$0555: ld   hl,$d5a3]
-l_0558:
-	MAKE_HL	a0                             	| [$0558: ld   (hl),a]
-	move.b	d0,(a0)                         	| [...]
-	MAKE_DE_NO_AR                          	| [$0559: add  hl,de]
-	MAKE_HL_NO_AR                          	| [...]
-	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
-	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
-	subq.b	#1,d1                           	| [$055a: djnz $0558]
-	jne	l_0558                             	| [...]
-	rts                                    	| [$055c: ret]
 
 l_0561:
 	rts                                    	| [$0561: ret]
@@ -1465,16 +1401,11 @@ l_0621:
 l_063b:
 	move.b	#0x07,d1                        	| [$063b: ld   b,$07]
 	LOAD_DE	#0x0020                        	| [$063d: ld   de,$0020]
-l_0640:
 	MAKE_HL_UNCHECKED	a0                             	| [$0640: ld   (hl),$20] [video_address]
+l_0640:
 	move.b	#0x20,(a0)                      	| [...] [video_address]
 	VIDEO_BYTE_DIRTY | [...]
-	MAKE_DE_NO_AR                          	| [$0642: add  hl,de]
-	MAKE_HL_NO_AR                          	| [...]
-	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
-	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
+	add.w	d4,a0                            | [$0642: add  hl,de]
 	subq.b	#1,d1                           	| [$0643: djnz $0640]
 	jne	l_0640                             	| [...]
 	rts                                    	| [$0645: ret]
@@ -1482,7 +1413,7 @@ l_0640:
 l_0646:
 	LOAD_DE	#0x0102                        	| [$0646: ld   de,$0102]
 	jbsr	l_0038                            	| [$0649: rst  $38] queue_event_0038
-	LOAD_HL	#0xee91                        	| [$064a: ld   hl,$ee91]
+	LOAD_HL	#player_1_score_ee91                        	| [$064a: ld   hl,$ee91]
 	move.b	#0x06,d1                        	| [$064d: ld   b,$06]
 l_064f:
 	MAKE_HL	a0                             	| [$064f: ld   (hl),$00]
@@ -1513,25 +1444,14 @@ l_064f:
 	move.b	d0,d6                           	| [$067b: ld   l,a]
 	move.b	#0x00,d5                        	| [$067c: ld   h,$00]
 	MAKE_HL_NO_AR                          	| [$067e: add  hl,hl]
-	add.w	d6,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
+	lsl.w	#4,d6                            	| [...]
+	                          	| [$067f: add  hl,hl]
+	                            	| [...]
+	                          	| [$0680: add  hl,hl]
+	                            	| [...]
+	                          	| [$0681: add  hl,hl]
+	                            	| [...]
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
-	MAKE_HL_NO_AR                          	| [$067f: add  hl,hl]
-	add.w	d6,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
-	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
-	MAKE_HL_NO_AR                          	| [$0680: add  hl,hl]
-	add.w	d6,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
-	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
-	MAKE_HL_NO_AR                          	| [$0681: add  hl,hl]
-	add.w	d6,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
-	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 l_0682:
 	move.b	d5,d0                           	| [$0682: ld   a,h]
 	GET_ADDRESS	0xedc5,a0                  	| [$0683: ld   ($edc5),a]
@@ -1582,7 +1502,7 @@ l_06cf:
 
 l_06dd:
 	jbsr	l_03b7                            	| [$06dd: call $03b7]
-	CLR_XC_FLAGS                           	| [$06e0: xor  a]
+	                           	| [$06e0: xor  a]
 	clr.b	d0                               	| [...]
 	GET_ADDRESS	0xe09f,a0                  	| [$06e1: ld   ($e09f),a]
 	move.b	d0,(a0)                         	| [...]
@@ -1907,6 +1827,7 @@ l_08c2:
 	LOAD_HL	#0xede0                        	| [$08cb: ld   hl,$ede0]
 	rts                                    	| [$08ce: ret]
 
+* called when player dies
 l_08cf:
 	GET_ADDRESS	0x08fc,a2                  	| [$08cf: ld   ix,$08fc]
 	GET_ADDRESS	global_y_lsb_eda2,a0       	| [$08d3: ld   de,(global_y_lsb_eda2)]
@@ -2157,9 +2078,7 @@ l_0ae6:
 	MAKE_DE_NO_AR                          	| [$0b0b: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	GET_ADDRESS	global_y_lsb_eda2,a0       	| [$0b0c: ld   (global_y_lsb_eda2),hl]
 	MAKE_HL_NO_AR                          	| [...]
 	MOVE_W_FROM_REG	d6,a0                         	| [...]
@@ -2328,7 +2247,7 @@ l_0d1c:
 	jbsr	l_0609                            	| [$0d27: call $0609]
 	jbsr	l_03b7                            	| [$0d2a: call $03b7]
 	jbsr	l_0e05                            	| [$0d2d: call $0e05]
-	GET_ADDRESS	0xe0a6,a0                  	| [$0d30: ld   a,($e0a6)]
+	GET_ADDRESS	player_score_address_e0a6,a0                  	| [$0d30: ld   a,($e0a6)]
 	move.b	(a0),d0                         	| [...]
 	cmp.b	#0x08,d0                         	| [$0d33: cp   $08]
 	jeq	l_0d4b                             	| [$0d35: jr   z,$0d4b]
@@ -2390,7 +2309,7 @@ l_0d8a:
 	move.b	#0x58,d0                        	| [$0d90: ld   a,$58]
 	GET_ADDRESS	0xe047,a0                  	| [$0d92: ld   ($e047),a]
 	move.b	d0,(a0)                         	| [...]
-	GET_ADDRESS	0xe0a6,a0                  	| [$0d95: ld   a,($e0a6)]
+	GET_ADDRESS	player_score_address_e0a6,a0                  	| [$0d95: ld   a,($e0a6)]
 	move.b	(a0),d0                         	| [...]
 	cmp.b	#0x01,d0                         	| [$0d98: cp   $01]
 	jne	l_8701                             	| [$0d9a: jp   nz,$8701]
@@ -2401,7 +2320,7 @@ l_0d8a:
 l_0da5:
 	move.b	#0x09,d3                        	| [$0da5: ld   d,$09]
 	jbsr	l_0038                            	| [$0da7: rst  $38] queue_event_0038
-	GET_ADDRESS	0xe0a6,a0                  	| [$0da8: ld   a,($e0a6)]
+	GET_ADDRESS	player_score_address_e0a6,a0                  	| [$0da8: ld   a,($e0a6)]
 	move.b	(a0),d0                         	| [...]
 	cmp.b	#0x07,d0                         	| [$0dab: cp   $07]
 	jeq	l_0dbf                             	| [$0dad: jr   z,$0dbf]
@@ -2411,21 +2330,22 @@ l_0da5:
 	MAKE_HL	a0                             	| [$0db4: ld   c,(hl)]
 	move.b	(a0),d2                         	| [...]
 	move.b	#0x00,d1                        	| [$0db5: ld   b,$00]
+* copy name in highscore table
 	LOAD_DE	#0xee5a                        	| [$0db7: ld   de,$ee5a]
 	LOAD_HL	#0xee4d                        	| [$0dba: ld   hl,$ee4d]
 	jbsr	lddr                              	| [$0dbd: lddr]
 l_0dbf:
 	LOAD_HL	#0x0de3                        	| [$0dbf: ld   hl,$0de3]
-	GET_ADDRESS	0xe0a6,a0                  	| [$0dc2: ld   a,($e0a6)]
+	GET_ADDRESS	player_score_address_e0a6,a0                  	| [$0dc2: ld   a,($e0a6)]
 	move.b	(a0),d0                         	| [...]
 	subq.b	#1,d0                           	| [$0dc5: dec  a]
 	jbsr	l_0028                            	| [$0dc6: rst  $28] call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
-	LOAD_HL	#0xee91                        	| [$0dc7: ld   hl,$ee91]
+	LOAD_HL	#player_1_score_ee91                        	| [$0dc7: ld   hl,$ee91]
 	GET_ADDRESS	0xe019,a0                  	| [$0dca: ld   a,($e019)]
 	move.b	(a0),d0                         	| [...]
 	and.b	#0x01,d0                         	| [$0dcd: and  $01]
 	jeq	l_0dd4                             	| [$0dcf: jr   z,$0dd4]
-	LOAD_HL	#0xee94                        	| [$0dd1: ld   hl,$ee94]
+	LOAD_HL	#player_2_score_ee94                        	| [$0dd1: ld   hl,$ee94]
 l_0dd4:
 	jbsr	ldi                               	| [$0dd4: ldi]
 	jbsr	ldi                               	| [$0dd6: ldi]
@@ -2433,6 +2353,8 @@ l_0dd4:
 	LOAD_HL	#0xee9a                        	| [$0dda: ld   hl,$ee9a]
 	LOAD_BC	#0x000a                        	| [$0ddd: ld   bc,$000a]
 	jbsr	ldir                              	| [$0de0: ldir]
+	GET_ADDRESS		hi_score_1st_ee00,a0
+	jbsr		osd_write_high_scores
 	rts                                    	| [$0de2: ret]
 
 l_0df7:
@@ -2451,14 +2373,14 @@ l_0df7:
 	jra	l_0d4b                             	| [$0e02: jp   $0d4b]
 l_0e05:
 	move.b	#0x08,d0                        	| [$0e05: ld   a,$08]
-	GET_ADDRESS	0xe0a6,a0                  	| [$0e07: ld   ($e0a6),a]
+	GET_ADDRESS	player_score_address_e0a6,a0                  	| [$0e07: ld   ($e0a6),a]
 	move.b	d0,(a0)                         	| [...]
-	LOAD_DE	#0xee91                        	| [$0e0a: ld   de,$ee91]
+	LOAD_DE	#player_1_score_ee91                        	| [$0e0a: ld   de,$ee91]
 	GET_ADDRESS	0xe019,a0                  	| [$0e0d: ld   a,($e019)]
 	move.b	(a0),d0                         	| [...]
 	and.b	#0x01,d0                         	| [$0e10: and  $01]
 	jeq	l_0e17                             	| [$0e12: jr   z,$0e17]
-	LOAD_DE	#0xee94                        	| [$0e14: ld   de,$ee94]
+	LOAD_DE	#player_2_score_ee94                        	| [$0e14: ld   de,$ee94]
 l_0e17:
 	LOAD_HL	#hi_score_7th_ee4e             	| [$0e17: ld   hl,hi_score_7th_ee4e]
 	move.b	#0x07,d2                        	| [$0e1a: ld   c,$07]
@@ -2488,7 +2410,7 @@ l_0e2d:
 	subq.b	#1,d1                           	| [$0e2f: djnz $0e25]
 	jne	l_0e25                             	| [...]
 l_0e31:
-	GET_ADDRESS	0xe0a6,a0                  	| [$0e31: ld   a,($e0a6)]
+	GET_ADDRESS	player_score_address_e0a6,a0                  	| [$0e31: ld   a,($e0a6)]
 	move.b	(a0),d0                         	| [...]
 	subq.b	#1,d0                           	| [$0e34: dec  a]
                                          | [$0e35: ld   ($e0a6),a]
@@ -2573,9 +2495,7 @@ print_text_with_typing_effect_0e60:
 	MAKE_DE_NO_AR                          	| [$0e7d: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	GET_ADDRESS	0xe0b1,a0                  	| [$0e7e: ld   ($e0b1),hl]
 	MAKE_HL_NO_AR                          	| [...]
 	MOVE_W_FROM_REG	d6,a0                         	| [...]
@@ -3104,9 +3024,7 @@ l_1358:
 	MAKE_DE_NO_AR                          	| [$1364: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x07,a2)                    	| [$1365: ld   (ix+$07),h]
 	move.b	d6,(0x08,a2)                    	| [$1368: ld   (ix+$08),l]
 	GET_ADDRESS	0xe062,a0                  	| [$136b: ld   a,($e062)]
@@ -3122,9 +3040,7 @@ l_1374:
 	MAKE_DE_NO_AR                          	| [$1380: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x09,a2)                    	| [$1381: ld   (ix+$09),h]
 	move.b	d6,(0x0a,a2)                    	| [$1384: ld   (ix+$0a),l]
 	rts                                    	| [$1387: ret]
@@ -3167,15 +3083,11 @@ l_13a0:
 	move.b	#0x00,d5                        	| [$13c4: ld   h,$00]
 	MAKE_HL_NO_AR                          	| [$13c6: add  hl,hl]
 	add.w	d6,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	MAKE_DE_NO_AR                          	| [$13c7: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d2,d0                           	| [$13c8: ld   a,c]
 	lsr.b	#1,d0                            	| [$13c9: srl  a]
 	move.b	d0,d2                           	| [$13cb: ld   c,a]
@@ -3206,19 +3118,13 @@ l_13e4:
 	move.b	#0x00,d5                        	| [$13e5: ld   h,$00]
 	MAKE_HL_NO_AR                          	| [$13e7: add  hl,hl]
 	add.w	d6,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	MAKE_HL_NO_AR                          	| [$13e8: add  hl,hl]
 	add.w	d6,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	MAKE_HL_NO_AR                          	| [$13e9: add  hl,hl]
 	add.w	d6,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d1,d0                           	| [$13ea: ld   a,b]
 	ror.b	#1,d0                            	| [$13eb: rrca]
 	not.b	d0                               	| [$13ec: cpl]
@@ -3228,9 +3134,7 @@ l_13e4:
 	MAKE_DE_NO_AR                          	| [$13f3: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	MAKE_HL	a0                             	| [$13f4: ld   d,(hl)]
 	move.b	(a0),d3                         	| [...]
 	move.b	d2,d0                           	| [$13f5: ld   a,c]
@@ -3256,9 +3160,7 @@ l_141d:
 	SET_X_FROM_C
 	move.b	(0x11,a2),d7	| [$141d: rl   (ix+$11)]
 	roxl.b	#1,d7                    	| [...]
-	PUSH_SR
 	move.b	d7,(0x11,a2)	| [...]
-	POP_SR
 	bset.b	#0,(0x11,a2)                    	| [$1421: set  0,(ix+$11)]
 	rts                                    	| [$1425: ret]
 
@@ -3322,9 +3224,7 @@ l_1495:
 	MAKE_BC_NO_AR                          	| [$149b: add  hl,bc]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d2,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	MAKE_DE_NO_AR                          	| [$149c: add  ix,de] [de=-$20]
 	move.l	a2,d7                           	| [...] [de=-$20]  [inspect_for_manual_optimization]
 	sub.l	a6,d7                            	| [...] [de=-$20]
@@ -3368,9 +3268,7 @@ l_14c3:
 	MAKE_DE_NO_AR                          	| [$14de: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x07,a2)                    	| [$14df: ld   (ix+$07),h]
 	move.b	d6,(0x08,a2)                    	| [$14e2: ld   (ix+$08),l]
 	move.b	(0x13,a2),d0                    	| [$14e5: ld   a,(ix+$13)]
@@ -3385,9 +3283,7 @@ l_14f3:
 	MAKE_DE_NO_AR                          	| [$14f6: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x07,a2)                    	| [$14f7: ld   (ix+$07),h]
 	move.b	d6,(0x08,a2)                    	| [$14fa: ld   (ix+$08),l]
 	move.b	(0x13,a2),d0                    	| [$14fd: ld   a,(ix+$13)]
@@ -3438,9 +3334,7 @@ l_157a:
 	MAKE_DE_NO_AR                          	| [$1589: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x09,a2)                    	| [$158a: ld   (ix+$09),h]
 	move.b	d6,(0x0a,a2)                    	| [$158d: ld   (ix+$0a),l]
 	rts                                    	| [$1590: ret]
@@ -3847,9 +3741,7 @@ l_197e:
 	MAKE_DE_NO_AR                          	| [$198a: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x04,a2)                    	| [$198b: ld   (ix+$04),h]
 	move.b	d6,(0x05,a2)                    	| [$198e: ld   (ix+$05),l]
 	move.b	d5,d0                           	| [$1991: ld   a,h]
@@ -4071,7 +3963,7 @@ l_1af8:
 	jcs	0f                                 	| [$1b06: ret  nc]
 	rts                                    	| [...]
 0:
-	PUSH_SR                                	| [$1b07: push af]
+	                                	| [$1b07: push af]
 	movem.w	d0,-(a7)                       	| [...]
 	move.b	(0x15,a2),d1                    	| [$1b08: ld   b,(ix+$15)]
 	add.b	d1,d0                            	| [$1b0b: add  a,b]
@@ -4083,7 +3975,7 @@ l_1af8:
 	LOAD_DE	#0x1b2c                        	| [$1b16: ld   de,$1b2c]
 	jbsr	l_2b88                            	| [$1b19: call $2b88]
 	move.w	(a7)+,d0                        	| [$1b1c: pop  af]
-	POP_SR                                 	| [...]
+	                                 	| [...]
 	move.b	d0,(0x05,a2)                    	| [$1b1d: ld   (ix+$05),a]
 	rts                                    	| [$1b20: ret]
 l_1b21:
@@ -4338,9 +4230,7 @@ l_1d19:
 	MAKE_DE_NO_AR                          	| [$1d2c: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x03,a2)                    	| [$1d2d: ld   (ix+$03),h]
 	move.b	d6,(0x04,a2)                    	| [$1d30: ld   (ix+$04),l]
 	move.b	d5,d0                           	| [$1d33: ld   a,h]
@@ -4356,9 +4246,7 @@ l_1d3c:
 	MAKE_DE_NO_AR                          	| [$1d48: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x05,a2)                    	| [$1d49: ld   (ix+$05),h]
 	move.b	d6,(0x06,a2)                    	| [$1d4c: ld   (ix+$06),l]
 	move.b	(0x05,a2),d0                    	| [$1d4f: ld   a,(ix+$05)]
@@ -4706,9 +4594,7 @@ l_2001:
 	MAKE_BC_NO_AR                          	| [$2023: add  hl,bc]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d2,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x05,a2)                    	| [$2024: ld   (ix+$05),h]
 	move.b	d6,(0x06,a2)                    	| [$2027: ld   (ix+$06),l]
 	rts                                    	| [$202a: ret]
@@ -4920,10 +4806,10 @@ l_218a:
 	jra	l_2225                             	| [$21c2: jp   $2225]
 l_21c5:
 	move.b	(0x1f,a2),d0                    	| [$21c5: ld   a,(ix+$1f)]
-	add.b	d0,d0                            	| [$21c8: add  a,a]
-	add.b	d0,d0                            	| [$21c9: add  a,a]
-	add.b	d0,d0                            	| [$21ca: add  a,a]
-	add.b	d0,d0                            	| [$21cb: add  a,a]
+	lsl.b	#4,d0                            	| [$21c8: add  a,a]
+	                            	| [$21c9: add  a,a]
+	                            	| [$21ca: add  a,a]
+	                            	| [$21cb: add  a,a]
 	and.b	#0x3f,d0                         	| [$21cc: and  $3f]
 	move.b	d0,d1                           	| [$21ce: ld   b,a]
 	GET_ADDRESS	timing_variable_e002,a0    	| [$21cf: ld   a,(timing_variable_e002)]
@@ -5419,9 +5305,7 @@ l_255f:
 	MAKE_BC_NO_AR                          	| [$2573: add  hl,bc]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d2,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x05,a2)                    	| [$2574: ld   (ix+$05),h]
 	move.b	d6,(0x06,a2)                    	| [$2577: ld   (ix+$06),l]
 	move.b	d5,d0                           	| [$257a: ld   a,h]
@@ -5505,9 +5389,7 @@ l_2602:
 	MAKE_DE_NO_AR                          	| [$2617: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x05,a2)                    	| [$2618: ld   (ix+$05),h]
 	move.b	d6,(0x06,a2)                    	| [$261b: ld   (ix+$06),l]
 	move.b	#0x00,d7 | [$261e:
@@ -5706,9 +5588,7 @@ l_274b:
 	MAKE_DE_NO_AR                          	| [$275d: sbc  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	subx.w	d4,d6                           	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,d0                           	| [$275f: ld   a,h]
                                          | [$2760: and  a]
 	jeq	l_276d                             	| [$2761: jr   z,$276d]
@@ -6274,9 +6154,7 @@ l_2b9a:
 	MAKE_BC_NO_AR                          	| [$2bb0: add  hl,bc]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d2,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d6,(0x03,a3)                    	| [$2bb1: ld   (iy+$03),l]
 	move.b	d5,d0                           	| [$2bb4: ld   a,h]
 	and.b	#0x01,d0                         	| [$2bb5: and  $01]
@@ -6511,9 +6389,7 @@ l_2d8c:
 	MAKE_DE_NO_AR                          	| [$2d98: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x0b,a2)                    	| [$2d99: ld   (ix+$0b),h]
 	move.b	d6,(0x0c,a2)                    	| [$2d9c: ld   (ix+$0c),l]
 	move.b	(0x03,a2),d3                    	| [$2d9f: ld   d,(ix+$03)]
@@ -6521,9 +6397,7 @@ l_2d8c:
 	MAKE_DE_NO_AR                          	| [$2da5: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x03,a2)                    	| [$2da6: ld   (ix+$03),h]
 	move.b	d6,(0x04,a2)                    	| [$2da9: ld   (ix+$04),l]
 	rts                                    	| [$2dac: ret]
@@ -6922,9 +6796,7 @@ l_318f:
 	MAKE_BC_NO_AR                          	| [$3198: add  hl,bc]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d2,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x04,a2)                    	| [$3199: ld   (ix+$04),h]
 	move.b	d6,(0x05,a2)                    	| [$319c: ld   (ix+$05),l]
 	MAKE_BC_NO_AR                          	| [$319f: push bc]
@@ -6947,9 +6819,7 @@ l_318f:
 	MAKE_BC_NO_AR                          	| [$31bf: add  hl,bc]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d2,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	MAKE_BC_NO_AR                          	| [$31c0: push bc]
 	move.w	d2,-(a7)                        	| [...]
 	move.b	d5,(0x04,a2)                    	| [$31c1: ld   (ix+$04),h]
@@ -6961,9 +6831,7 @@ l_31cc:
 	MAKE_DE_NO_AR                          	| [$31cf: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	exg	d3,d5                              	| [$31d0: ex   de,hl]
 	exg	d4,d6                              	| [...]
 	move.b	d0,d6                           	| [$31d1: ld   l,a]
@@ -6971,9 +6839,7 @@ l_31cc:
 	MAKE_BC_NO_AR                          	| [$31d4: add  hl,bc]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d2,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	MAKE_BC_NO_AR                          	| [$31d5: push bc]
 	move.w	d2,-(a7)                        	| [...]
 	move.b	d5,(0x04,a2)                    	| [$31d6: ld   (ix+$04),h]
@@ -7516,9 +7382,7 @@ l_35d4:
 	MAKE_DE_NO_AR                          	| [$35e7: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x05,a2)                    	| [$35e8: ld   (ix+$05),h]
 	move.b	d6,(0x06,a2)                    	| [$35eb: ld   (ix+$06),l]
 	move.b	#0x00,d7 | [$35ee:
@@ -7624,13 +7488,11 @@ l_36c3:
 	LOAD_HL	#0x3788                        	| [$36cb: ld   hl,$3788]
 	jbsr	l_0028                            	| [$36ce: rst  $28] call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 l_36cf:
-	move.b	(0x04,a2),d0                    	| [$36cf: ld   a,(ix+$04)]
-	PUSH_SR                                	| [$36d2: push af]
-	movem.w	d0,-(a7)                       	| [...]
+	move.b	(0x04,a2),d0                    	| [$36cf: ld   a,(ix+$04)]         	
+	movem.w	d0,-(a7)                       | [$36d2: push af]
 	clr.b	(0x04,a2)                        	| [$36d3: ld   (ix+$04),$00]
 	jbsr	l_2b88                            	| [$36d7: call $2b88]
 	move.w	(a7)+,d0                        	| [$36da: pop  af]
-	POP_SR                                 	| [...]
 	move.b	d0,(0x04,a2)                    	| [$36db: ld   (ix+$04),a]
 	rts                                    	| [$36de: ret]
 l_36df:
@@ -7646,9 +7508,7 @@ l_36df:
 	MAKE_DE_NO_AR                          	| [$36f7: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x0b,a2)                    	| [$36f8: ld   (ix+$0b),h]
 	move.b	d6,(0x0c,a2)                    	| [$36fb: ld   (ix+$0c),l]
 	jra	l_8fd4                             	| [$36fe: jp   $8fd4]
@@ -7848,9 +7708,7 @@ l_38b9:
 	MAKE_DE_NO_AR                          	| [$38ba: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	subq.b	#1,d1                           	| [$38bb: djnz $38b9]
 	jne	l_38b9                             	| [...]
 	rts                                    	| [$38bd: ret]
@@ -8209,9 +8067,7 @@ l_3bd9:
 	MAKE_DE_NO_AR                          	| [$3bde: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	subq.b	#1,d1                           	| [$3bdf: djnz $3bd9]
 	jne	l_3bd9                             	| [...]
 	rts                                    	| [$3be1: ret]
@@ -8237,9 +8093,7 @@ l_3da0:
 	MAKE_DE_NO_AR                          	| [$3da3: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	ror.b	#1,d2                            	| [$3da4: rrc  c]
 	move.b	d2,d0                           	| [$3da6: ld   a,c]
 	subq.b	#1,d1                           	| [$3da7: djnz $3da0]
@@ -8256,9 +8110,7 @@ l_3db2:
 	MAKE_DE_NO_AR                          	| [$3db5: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	ror.b	#1,d2                            	| [$3db6: rrc  c]
 	move.b	d2,d0                           	| [$3db8: ld   a,c]
 	subq.b	#1,d1                           	| [$3db9: djnz $3db2]
@@ -8457,13 +8309,11 @@ l_6c88:
 	btst.b	#7,(0x01,a2)                    	| [$6c90: bit  7,(ix+$01)]
 	jeq	l_6c9e                             	| [$6c94: jr   z,$6c9e]
 	LOAD_HL	#0x0000                        	| [$6c96: ld   hl,$0000]
-	CLR_XC_FLAGS |  [$6c99: and  a]
+	 |  [$6c99: and  a]
 	MAKE_BC_NO_AR                          	| [$6c9a: sbc  hl,bc]
 	MAKE_HL_NO_AR                          	| [...]
-	subx.w	d2,d6                           	| [...]
-	PUSH_SR                                	| [...] save CC
+	sub.w	d2,d6                           	| [...]
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,d1                           	| [$6c9c: ld   b,h]
 	move.b	d6,d2                           	| [$6c9d: ld   c,l]
 l_6c9e:
@@ -8474,13 +8324,11 @@ l_6c9e:
 	rts                                    	| [...]
 0:
 	LOAD_HL	#0x0000                        	| [$6ca6: ld   hl,$0000]
-	CLR_XC_FLAGS |  [$6ca9: and  a]
+	 |  [$6ca9: and  a]
 	MAKE_DE_NO_AR                          	| [$6caa: sbc  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
-	subx.w	d4,d6                           	| [...]
-	PUSH_SR                                	| [...] save CC
+	sub.w	d4,d6                           	| [...]
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,d3                           	| [$6cac: ld   d,h]
 	move.b	d6,d4                           	| [$6cad: ld   e,l]
 	rts                                    	| [$6cae: ret]
@@ -8516,26 +8364,22 @@ l_6cc6:
 	rts                                    	| [$6cc9: ret]
 l_6cca:
 	LOAD_HL	#0x0000                        	| [$6cca: ld   hl,$0000]
-	CLR_XC_FLAGS |  [$6ccd: and  a]
+	 |  [$6ccd: and  a]
 	MAKE_BC_NO_AR                          	| [$6cce: sbc  hl,bc]
 	MAKE_HL_NO_AR                          	| [...]
-	subx.w	d2,d6                           	| [...]
-	PUSH_SR                                	| [...] save CC
+	sub.w	d2,d6                           	| [...]
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,d3                           	| [$6cd0: ld   d,h]
 	move.b	d6,d4                           	| [$6cd1: ld   e,l]
 	LOAD_BC	#0x0000                        	| [$6cd2: ld   bc,$0000]
 	rts                                    	| [$6cd5: ret]
 l_6cd6:
 	LOAD_HL	#0x0000                        	| [$6cd6: ld   hl,$0000]
-	CLR_XC_FLAGS |  [$6cd9: and  a]
+	 |  [$6cd9: and  a]
 	MAKE_BC_NO_AR                          	| [$6cda: sbc  hl,bc]
 	MAKE_HL_NO_AR                          	| [...]
-	subx.w	d2,d6                           	| [...]
-	PUSH_SR                                	| [...] save CC
+	sub.w	d2,d6                           	| [...]
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,d1                           	| [$6cdc: ld   b,h]
 	move.b	d6,d2                           	| [$6cdd: ld   c,l]
 	LOAD_DE	#0x0000                        	| [$6cde: ld   de,$0000]
@@ -8584,7 +8428,7 @@ l_6d17:
 	move.b	d3,d4                           	| [$6d18: ld   e,d]
 	move.b	#0x00,d6                        	| [$6d19: ld   l,$00]
 l_6d1b:
-	move.b	#0x08,d1                        	| [$6d1b: ld   b,$08]
+	move.w	#0x08-1,d1                        	| [$6d1b: ld   b,$08]
 	CLR_XC_FLAGS                           	| [$6d1d: xor  a]
 	clr.b	d0                               	| [...]
 l_6d1e:
@@ -8601,11 +8445,9 @@ l_6d26:
 	sub.b	d4,d0                            	| [$6d26: sub  e]
 	move.b	d0,d5                           	| [$6d27: ld   h,a]
 	CLR_XC_FLAGS                           	| [$6d28: xor  a]
-	clr.b	d0                               	| [...]
 l_6d29:
 	INVERT_XC_FLAGS                        	| [$6d29: ccf]
-	subq.b	#1,d1                           	| [$6d2a: djnz $6d1e]
-	jne	l_6d1e                             	| [...]
+	dbf		d1,l_6d1e                       | [$6d2a: djnz $6d1e] dbf required else X flag is broken
 	SET_X_FROM_C
 	roxl.b	#1,d6                           	| [$6d2c: rl   l]
 	move.b	d6,d0                           	| [$6d2e: ld   a,l]
@@ -9008,9 +8850,7 @@ l_8163:
 	MAKE_DE_NO_AR                          	| [$8165: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	subq.b	#1,d1                           	| [$8166: djnz $8163]
 	jne	l_8163                             	| [...]
 	rts                                    	| [$8168: ret]
@@ -9190,9 +9030,7 @@ l_823c:
 	MAKE_DE_NO_AR                          	| [$823f: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	addq.b	#1,(0x01,a3)                    	| [$8240: inc  (iy+$01)]
 	subq.b	#1,(0x00,a3)                    	| [$8243: dec  (iy+$00)]
 	jne	l_8208                             	| [$8246: jr   nz,$8208]
@@ -9274,18 +9112,18 @@ l_851c:
 	jne	0f                                 	| [$8520: ret  z]
 	rts                                    	| [...]
 0:
-	LOAD_HL	#0xee91                        	| [$8521: ld   hl,$ee91]
+	LOAD_HL	#player_1_score_ee91                        	| [$8521: ld   hl,$ee91]
 	GET_ADDRESS	0xe019,a0                  	| [$8524: ld   a,($e019)]
 	move.b	(a0),d0                         	| [...]
 	and.b	#0x01,d0                         	| [$8527: and  $01]
 	jeq	l_852e                             	| [$8529: jr   z,$852e]
-	LOAD_HL	#0xee94                        	| [$852b: ld   hl,$ee94]
+	LOAD_HL	#player_2_score_ee94                        	| [$852b: ld   hl,$ee94]
 l_852e:
-	GET_ADDRESS	0xe0a6,a0                  	| [$852e: ld   ($e0a6),hl]
+	GET_ADDRESS	player_score_address_e0a6,a0                  	| [$852e: ld   ($e0a6),hl]
 	MAKE_HL_NO_AR                          	| [...]
 	MOVE_W_FROM_REG	d6,a0                         	| [...]
 	jbsr	l_853e                            	| [$8531: call $853e]
-	jbsr	l_855b                            	| [$8534: call $855b]
+	jbsr	update_hiscore_if_lower_855b                            	| [$8534: call $855b]
 	jbsr	l_8582                            	| [$8537: call $8582]
 	jbsr	l_85d0                            	| [$853a: call $85d0]
 	rts                                    	| [$853d: ret]
@@ -9294,7 +9132,7 @@ l_853e:
 	GET_ADDRESS	0xed84,a0                  	| [$8541: ld   a,($ed84)]
 	move.b	(a0),d0                         	| [...]
 	jbsr	l_0028                            	| [$8544: rst  $28] call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
-	GET_ADDRESS	0xe0a6,a0                  	| [$8545: ld   hl,($e0a6)]
+	GET_ADDRESS	player_score_address_e0a6,a0                  	| [$8545: ld   hl,($e0a6)]
 	MOVE_W_TO_REG	a0,d6                         	| [...]
 	MAKE_H                                 	| [...]
                                          | [$8548: inc  l]
@@ -9334,8 +9172,8 @@ l_853e:
 	MAKE_HL	a0                             	| [$8559: ld   (hl),a]
 	move.b	d0,(a0)                         	| [...]
 	rts                                    	| [$855a: ret]
-l_855b:
-	GET_ADDRESS	0xe0a6,a0                  	| [$855b: ld   hl,($e0a6)]
+update_hiscore_if_lower_855b:
+	GET_ADDRESS	player_score_address_e0a6,a0                  	| [$855b: ld   hl,($e0a6)]
 	MOVE_W_TO_REG	a0,d6                         	| [...]
 	MAKE_H                                 	| [...]
 	LOAD_DE	#hi_score_ee97                 	| [$855e: ld   de,hi_score_ee97]
@@ -9377,14 +9215,14 @@ l_855b:
 0:
 l_8574:
 	LOAD_BC	#0x0003                        	| [$8574: ld   bc,$0003]
-	GET_ADDRESS	0xe0a6,a0                  	| [$8577: ld   hl,($e0a6)]
+	GET_ADDRESS	player_score_address_e0a6,a0                  	| [$8577: ld   hl,($e0a6)]
 	MOVE_W_TO_REG	a0,d6                         	| [...]
 	MAKE_H                                 	| [...]
 	LOAD_DE	#hi_score_ee97                 	| [$857a: ld   de,hi_score_ee97]
 	jbsr	ldir                              	| [$857d: ldir]
 	jra	l_9cdc                             	| [$857f: jp   $9cdc]
 l_8582:
-	GET_ADDRESS	0xe0a6,a0                  	| [$8582: ld   hl,($e0a6)]
+	GET_ADDRESS	player_score_address_e0a6,a0                  	| [$8582: ld   hl,($e0a6)]
 	MOVE_W_TO_REG	a0,d6                         	| [...]
 	MAKE_H                                 	| [...]
 	LOAD_DE	#0xeda5                        	| [$8585: ld   de,$eda5]
@@ -9530,9 +9368,7 @@ l_8625:
 	MAKE_DE_NO_AR                          	| [$8634: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.w	(a7)+,d4                        	| [$8635: pop  de]
 	MAKE_D                                 	| [...]
 	addq.b	#1,d3                           	| [$8636: inc  d]
@@ -9673,16 +9509,6 @@ play_killed_tune_8706:
 	jra	queue_sound_8717                   	| [$8708: jp   queue_sound_8717]
 	rts                                    	| [$870b: ret]
 
-* not reached??
-	LOAD_HL	#sound_and_screen_orientation_c804	| [$870c: ld   hl,sound_and_screen_orientation_c804]
-	MAKE_HL	a0                             	| [$870f: res  2,(hl)]
-	bclr.b	#2,(a0)                         	| [...]
-	MAKE_HL	a0                             	| [$8711: set  2,(hl)]
-	bset.b	#2,(a0)                         	| [...]
-                                         | [$8713: nop]
-	MAKE_HL	a0                             	| [$8714: res  2,(hl)]
-	bclr.b	#2,(a0)                         	| [...]
-	rts                                    	| [$8716: ret]
 
 queue_sound_8717:
 	GET_ADDRESS	0xed86,a0                  	| [$8717: ld   hl,($ed86)]
@@ -10082,9 +9908,7 @@ l_89af:
 	MAKE_DE_NO_AR                          	| [$89d4: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x03,a2)                    	| [$89d5: ld   (ix+$03),h]
 	move.b	d6,(0x04,a2)                    	| [$89d8: ld   (ix+$04),l]
 	move.b	(0x05,a2),d5                    	| [$89db: ld   h,(ix+$05)]
@@ -10092,9 +9916,7 @@ l_89af:
 	MAKE_BC_NO_AR                          	| [$89e1: add  hl,bc]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d2,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x05,a2)                    	| [$89e2: ld   (ix+$05),h]
 	move.b	d6,(0x06,a2)                    	| [$89e5: ld   (ix+$06),l]
 l_89e8:
@@ -10195,9 +10017,7 @@ l_8ae3:
 	MAKE_DE_NO_AR                          	| [$8af4: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
-	PUSH_SR                                	| [...] save CC
 	MAKE_H                                 	| [...] update MSB reg
-	POP_SR                                 	| [...] restore CC
 	move.b	d5,(0x02,a2)                    	| [$8af5: ld   (ix+$02),h]
 	move.b	d6,(0x19,a2)                    	| [$8af8: ld   (ix+$19),l]
 	move.b	d5,d0                           	| [$8afb: ld   a,h]
@@ -13002,7 +12822,7 @@ l_9cb3:
 	move.b	d2,(a0)                         	| [...] [video_address]
 	VIDEO_BYTE_DIRTY | [...]
 	LOAD_HL	#0xd05e                        	| [$9cbe: ld   hl,$d05e]
-	LOAD_DE	#0xee91                        	| [$9cc1: ld   de,$ee91]
+	LOAD_DE	#player_1_score_ee91                        	| [$9cc1: ld   de,$ee91]
 	jra	write_number_to_screen_9d1f        	| [$9cc4: jp   write_number_to_screen_9d1f]
 	rts                                    	| [$9cc7: ret]
 
@@ -13017,7 +12837,7 @@ l_9cc8:
 	move.b	d2,(a0)                         	| [...] [video_address]
 	VIDEO_BYTE_DIRTY | [...]
 	LOAD_HL	#0xd2fe                        	| [$9cd3: ld   hl,$d2fe]
-	LOAD_DE	#0xee94                        	| [$9cd6: ld   de,$ee94]
+	LOAD_DE	#player_2_score_ee94                        	| [$9cd6: ld   de,$ee94]
 	jra	write_number_to_screen_9d1f        	| [$9cd9: jp   write_number_to_screen_9d1f]
 l_9cdc:
 	move.b	#0x00,d0                        	| [$9cdc: ld   a,$00]
@@ -15514,47 +15334,8 @@ l_af71:
 	rts                                    	| [...]
 0:
 	jra	l_af37                             	| [$af77: jr   $af37]
-* seems unreached
-	GET_ADDRESS	0xe140,a0                  	| [$af79: ld   a,($e140)]
-	move.b	(a0),d0                         	| [...]
-	addq.b	#1,d0                           	| [$af7c: inc  a]
-	jeq	0f                                 	| [$af7d: ret  nz]
-	rts                                    	| [...]
-0:
-	GET_ADDRESS	0xe143,a0                  	| [$af7e: ld   a,($e143)]
-	move.b	(a0),d0                         	| [...]
-	move.b	d0,d5                           	| [$af81: ld   h,a]
-	GET_ADDRESS	0xe145,a0                  	| [$af82: ld   a,($e145)]
-	move.b	(a0),d0                         	| [...]
-	move.b	d0,d6                           	| [$af85: ld   l,a]
-	GET_ADDRESS	0xe600,a3                  	| [$af86: ld   iy,$e600]
-	move.b	#0x08,d1                        	| [$af8a: ld   b,$08]
-	LOAD_DE	#0x0020                        	| [$af8c: ld   de,$0020]
-l_af8f:
-	move.b	(0x00,a3),d0                    	| [$af8f: ld   a,(iy+$00)]
-	addq.b	#1,d0                           	| [$af92: inc  a]
-	jne	l_afac                             	| [$af93: jr   nz,$afac]
-	move.b	d6,d0                           	| [$af95: ld   a,l]
-	sub.b	(0x05,a3),d0                     	| [$af96: sub  (iy+$05)]
-	cmp.b	#0x0c,d0                         	| [$af99: cp   $0c]
-	jcc	l_afac                             	| [$af9b: jr   nc,$afac]
-	move.b	(0x03,a3),d0                    	| [$af9d: ld   a,(iy+$03)]
-	sub.b	d5,d0                            	| [$afa0: sub  h]
-	add.b	#0x05,d0                         	| [$afa1: add  a,$05]
-	cmp.b	#0x0b,d0                         	| [$afa3: cp   $0b]
-	jcc	l_afac                             	| [$afa5: jr   nc,$afac]
-	move.b	#0x3f,(0x00,a3)                 	| [$afa7: ld   (iy+$00),$3f]
-	rts                                    	| [$afab: ret]
-l_afac:
-	MAKE_DE_NO_AR                          	| [$afac: add  iy,de]
-	move.l	a3,d7                           	| [...]  [inspect_for_manual_optimization]
-	sub.l	a6,d7                            	| [...]
-	add.w	d4,d7                            	| [...]
-	add.l	a6,d7                            	| [...]
-	move.l	d7,a3                           	| [...]
-	subq.b	#1,d1                           	| [$afae: djnz $af8f]
-	jne	l_af8f                             	| [...]
-	rts                                    	| [$afb0: ret]
+
+                              	| [$afb0: ret]
 
 * < A0: source (HL)
 * < A1: destination (DE)

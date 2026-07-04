@@ -232,6 +232,9 @@ hi_score_7th_ee4e    = $ee4e
 produced_event_pointer_ed80 = $ed80
 global_y_lsb_eda2 = $eda2
 nb_lives_eda0 = $eda0
+player_score_address_e0a6 = $e0a6
+player_1_score_ee91 = $ee91
+player_2_score_ee94 = $ee94
 
 timing_variable_e002 = $e002
 port_state_c000_in0_e003 = $e003
@@ -1132,7 +1135,7 @@ next_game_state_05fc:
 
 0646: 11 20 01    ld   de,$0102
 0649: FF          rst  $38   ; queue_event_0038
-064A: 21 19 EE    ld   hl,$EE91
+064A: 21 19 EE    ld   hl,player_1_score_ee91
 064D: 06 60       ld   b,$06
 064F: 36 00       ld   (hl),$00
 0651: 2C          inc  l
@@ -1692,7 +1695,7 @@ heli_ride_done_0ac7:
 0D27: CD 81 60    call $0609
 0D2A: CD 7B 21    call $03B7
 0D2D: CD 41 E0    call $0E05
-0D30: 3A 6A 0E    ld   a,($E0A6)
+0D30: 3A 6A 0E    ld   a,(player_score_address_e0a6)
 0D33: FE 80       cp   $08
 0D35: 28 50       jr   z,$0D4B
 0D37: 11 03 00    ld   de,$0021
@@ -1737,7 +1740,7 @@ heli_ride_done_0ac7:
 0D8D: CD BB 68    call play_level_completed_tune_86bb
 0D90: 3E 94       ld   a,$58
 0D92: 32 65 0E    ld   ($E047),a
-0D95: 3A 6A 0E    ld   a,($E0A6)
+0D95: 3A 6A 0E    ld   a,(player_score_address_e0a6)
 0D98: FE 01       cp   $01
 0D9A: C2 01 69    jp   nz,$8701
 0D9D: 3E 98       ld   a,$98
@@ -1745,7 +1748,7 @@ heli_ride_done_0ac7:
 0DA2: C3 DE 68    jp   $86FC
 0DA5: 16 81       ld   d,$09
 0DA7: FF          rst  $38   ; queue_event_0038
-0DA8: 3A 6A 0E    ld   a,($E0A6)
+0DA8: 3A 6A 0E    ld   a,(player_score_address_e0a6)
 0DAB: FE 61       cp   $07
 0DAD: 28 10       jr   z,$0DBF
 0DAF: 21 1F C1    ld   hl,$0DF1
@@ -1753,18 +1756,19 @@ heli_ride_done_0ac7:
 0DB3: DF          rst  $18                   ; call ADD_A_TO_HL
 0DB4: 4E          ld   c,(hl)
 0DB5: 06 00       ld   b,$00
+; copy name in highscore table
 0DB7: 11 B4 EE    ld   de,$EE5A
 0DBA: 21 C5 EE    ld   hl,$EE4D
 0DBD: ED B8       lddr
 0DBF: 21 2F C1    ld   hl,$0DE3
-0DC2: 3A 6A 0E    ld   a,($E0A6)
+0DC2: 3A 6A 0E    ld   a,(player_score_address_e0a6)
 0DC5: 3D          dec  a
 0DC6: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
-0DC7: 21 19 EE    ld   hl,$EE91
+0DC7: 21 19 EE    ld   hl,player_1_score_ee91
 0DCA: 3A 91 0E    ld   a,($E019)
 0DCD: E6 01       and  $01
 0DCF: 28 21       jr   z,$0DD4
-0DD1: 21 58 EE    ld   hl,$EE94
+0DD1: 21 58 EE    ld   hl,player_2_score_ee94
 0DD4: ED A0       ldi
 0DD6: ED A0       ldi
 0DD8: ED A0       ldi
@@ -1781,12 +1785,12 @@ heli_ride_done_0ac7:
 0E01: C0          ret  nz
 0E02: C3 A5 C1    jp   $0D4B
 0E05: 3E 80       ld   a,$08
-0E07: 32 6A 0E    ld   ($E0A6),a
-0E0A: 11 19 EE    ld   de,$EE91
+0E07: 32 6A 0E    ld   (player_score_address_e0a6),a
+0E0A: 11 19 EE    ld   de,player_1_score_ee91
 0E0D: 3A 91 0E    ld   a,($E019)
 0E10: E6 01       and  $01
 0E12: 28 21       jr   z,$0E17
-0E14: 11 58 EE    ld   de,$EE94
+0E14: 11 58 EE    ld   de,player_2_score_ee94
 0E17: 21 E4 EE    ld   hl,hi_score_7th_ee4e
 0E1A: 0E 61       ld   c,$07
 0E1C: 22 CA 0E    ld   ($E0AC),hl
@@ -1800,9 +1804,9 @@ heli_ride_done_0ac7:
 0E2D: 13          inc  de
 0E2E: 23          inc  hl
 0E2F: 10 5E       djnz $0E25
-0E31: 3A 6A 0E    ld   a,($E0A6)
+0E31: 3A 6A 0E    ld   a,(player_score_address_e0a6)
 0E34: 3D          dec  a
-0E35: 32 6A 0E    ld   ($E0A6),a
+0E35: 32 6A 0E    ld   (player_score_address_e0a6),a
 0E38: 2A CA 0E    ld   hl,($E0AC)
 0E3B: ED 5B AA 0E ld   de,($E0AA)
 0E3F: 7D          ld   a,l
@@ -6801,21 +6805,21 @@ display_high_scores_81dc:
 851C: 3A 00 0E    ld   a,($E000)
 851F: 3D          dec  a
 8520: C8          ret  z
-8521: 21 19 EE    ld   hl,$EE91
+8521: 21 19 EE    ld   hl,player_1_score_ee91
 8524: 3A 91 0E    ld   a,($E019)
 8527: E6 01       and  $01
 8529: 28 21       jr   z,$852E
-852B: 21 58 EE    ld   hl,$EE94
-852E: 22 6A 0E    ld   ($E0A6),hl
+852B: 21 58 EE    ld   hl,player_2_score_ee94
+852E: 22 6A 0E    ld   (player_score_address_e0a6),hl
 8531: CD F2 49    call $853E
-8534: CD B5 49    call $855B
+8534: CD B5 49    call update_hiscore_if_lower_855b
 8537: CD 28 49    call $8582
 853A: CD 1C 49    call $85D0
 853D: C9          ret
 853E: 21 BD 49    ld   hl,$85DB
 8541: 3A 48 CF    ld   a,($ED84)
 8544: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
-8545: 2A 6A 0E    ld   hl,($E0A6)
+8545: 2A 6A 0E    ld   hl,(player_score_address_e0a6)
 8548: 2C          inc  l
 8549: 2C          inc  l
 854A: 7E          ld   a,(hl)
@@ -6835,7 +6839,9 @@ display_high_scores_81dc:
 8558: 27          daa
 8559: 77          ld   (hl),a
 855A: C9          ret
-855B: 2A 6A 0E    ld   hl,($E0A6)
+
+update_hiscore_if_lower_855b:
+855B: 2A 6A 0E    ld   hl,(player_score_address_e0a6)
 855E: 11 79 EE    ld   de,hi_score_ee97
 8561: 1A          ld   a,(de)
 8562: BE          cp   (hl)
@@ -6854,11 +6860,11 @@ display_high_scores_81dc:
 8571: 38 01       jr   c,$8574
 8573: C0          ret  nz
 8574: 01 21 00    ld   bc,$0003
-8577: 2A 6A 0E    ld   hl,($E0A6)
+8577: 2A 6A 0E    ld   hl,(player_score_address_e0a6)
 857A: 11 79 EE    ld   de,hi_score_ee97
 857D: ED B0       ldir
 857F: C3 DC D8    jp   $9CDC
-8582: 2A 6A 0E    ld   hl,($E0A6)
+8582: 2A 6A 0E    ld   hl,(player_score_address_e0a6)
 8585: 11 4B CF    ld   de,$EDA5
 8588: 1A          ld   a,(de)
 8589: BE          cp   (hl)
@@ -9391,7 +9397,7 @@ erase_text_9c84:
 9CBB: CB D4       set  2,h         
 9CBD: 71          ld   (hl),c      ; [video_address]
 9CBE: 21 F4 1C    ld   hl,$D05E
-9CC1: 11 19 EE    ld   de,$EE91
+9CC1: 11 19 EE    ld   de,player_1_score_ee91
 9CC4: C3 F1 D9    jp   write_number_to_screen_9d1f
 9CC7: C9          ret
 
@@ -9402,7 +9408,7 @@ erase_text_9c84:
 9CD0: CB D4       set  2,h        
 9CD2: 71          ld   (hl),c     ; [video_address]
 9CD3: 21 FE 3C    ld   hl,$D2FE
-9CD6: 11 58 EE    ld   de,$EE94
+9CD6: 11 58 EE    ld   de,player_2_score_ee94
 9CD9: C3 F1 D9    jp   write_number_to_screen_9d1f
 9CDC: 3E 00       ld   a,$00
 9CDE: 4F          ld   c,a

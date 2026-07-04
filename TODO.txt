@@ -1,17 +1,19 @@
-- post processing add ix/iy,xx when xx is fixed add tag
-- add missing heli sound
-
-- blade issue on the left when lands
 - blits disappear too soon at the bottom of the screen
 - add looped sounds (siren, heli) find loop stop command
-
-- manual optimization phase to remove PUSH/POP SR/MAKE_xx
-- irq: optimize don't save regs
-- remove code at 870C
+- add missing heli sound
+- detect highscore screen, don't add credits there either
 - set DSW difficulty lives, start level!!
-- cheat add 10000 to score
-- highscore load/save
-
+- missing tunes:
+  - last level
+  - game over
+  - level complete
+  - game complete
+  - highscore entry
+  - highscore entry end 1st place, other places
+  
+- post processing add ix/iy,xx when xx is fixed add tag
+- blade issue on the left when lands
+- manual optimization phase to remove PUSH/POP SR/MAKE_xx
 - when scrolling up, bridge sprites have some delay. 
 
 rip sounds:

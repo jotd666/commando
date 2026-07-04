@@ -42,7 +42,7 @@ def convert():
 
     0x22,
     0x23,  # fortress / boss
-    0x24,0x25,
+    0x25,
     0x26,  # all clear
     0x27,  # game over
     0x28,  # hihg?
@@ -86,6 +86,7 @@ def convert():
     music_dict = {
     "LEVEL_START_TUNE_SND"      :{"index":0x20,"pattern":0,"volume":32},
     "LEVEL_TUNE_SND"      :{"index":0x21,"pattern":3,"volume":32},
+    "LAST_LEVEL_TUNE_SND"      :{"index":0x24,"pattern":3,"volume":32},  # ATM same tune as other levels
     "BOSS_TUNE_SND"      :{"index":0x23,"pattern":0xF,"volume":32},
     "KILLED_TUNE_SND"      :{"index":0x2B,"pattern":0xC,"volume":32},
     "LEVEL_RESUME_TUNE_SND"      :{"index":0x22,"pattern":0xD,"volume":32},
