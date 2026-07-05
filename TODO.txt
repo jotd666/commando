@@ -1,8 +1,7 @@
-- crash on level 4 boss (push/pop couple problem?)
 - green flash when completing a level
 
 - blits disappear too soon at the bottom of the screen
-- add looped sounds (siren, heli) find loop stop command
+- add looped sounds (siren, heli) not as loops (repeat siren a few times)
 - add missing heli sound
 - detect highscore screen, don't add credits there either
 - set DSW difficulty lives, start level!!
