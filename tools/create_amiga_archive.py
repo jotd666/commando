@@ -9,6 +9,9 @@ gamename = "commando"
 # JOTD path for cranker, adapt to whatever your path is :)
 os.environ["PATH"] += os.pathsep+r"K:\progs\cli"
 
+for s in ["convert_sounds.py","convert_graphics.py"]:
+    subprocess.check_call(["cmd","/c",s],cwd=os.path.join(progdir,"assets","amiga"))
+
 cmd_prefix = ["make","-f",os.path.join(progdir,"makefile.am")]
 
 subprocess.check_call(cmd_prefix+["clean"],cwd=progdir /"src")
