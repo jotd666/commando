@@ -359,7 +359,6 @@ l_0020:
 	MAKE_HL_NO_AR
 	and.w #0xFF,d0
 	add.w	d0,d6
-	move.b	d6,d0   | so routine is equivalent to original
 	MAKE_H
 	 |  [$0021: ld   l,a]
 	 |  [$0022: jr   nc,$0025]
@@ -375,14 +374,14 @@ l_0028:
 	add.b	d0,d0                            	| [$0028: add  a,a] multiply a by 2 [freq=medium, count=58%]
 	jbsr	l_0018                            	| [$0029: rst  $18] call ADD_A_TO_HL [freq=medium, count=58%]
 	MAKE_HL	a0                             	| [$002a: ld   e,(hl)] [freq=medium, count=58%]
-	move.b	(a0),d4                         	| [...]
-	MAKE_HL_NO_AR                          	| [$002b: inc  hl] [freq=medium, count=58%]
-	addq.w	#1,d6                           	| [...]
-	MAKE_H
-	MAKE_HL	a0                             	| [$002c: ld   d,(hl)] [freq=medium, count=58%]
+	move.b	(a0)+,d4                         	| [...]
+	                          	| [$002b: inc  hl] [freq=medium, count=58%]
+	addq.w	#2,d6                           	| [...]
+	
+	                             	| [$002c: ld   d,(hl)] [freq=medium, count=58%]
 	move.b	(a0),d3                         	| [...]
-	MAKE_HL_NO_AR                          	| [$002d: inc  hl] [freq=medium, count=58%]
-	addq.w	#1,d6                           	| [...]
+	                          	| [$002d: inc  hl] [freq=medium, count=58%]
+	                           	| [...]
 	MAKE_H
 	rts                                    	| [$002e: ret] [freq=medium, count=58%]
 
