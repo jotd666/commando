@@ -177,7 +177,7 @@ BASE_BPLCON4_VALUE = 0x0044	  | sprites palette starts at color 64
 
 FG_NB_LINES = 256
 BG_NB_LINES = 512+256
-Y_MAX = 512
+Y_MAX = 512+256
 NB_PLAYFIELD_LINES = BG_NB_LINES
 
 
@@ -1457,7 +1457,9 @@ is_game_playing:
 	jeq		1f
 	* game not playing but is grenade displayed?
 	cmp.b	#0xB2,(0XD180-game_state_e001,a6)
-	
+	jeq		1f
+	* grenade not displayed, check if we're in highscore entry (TIMER)
+	cmp.b	#0x54,(0xD07C-game_state_e001,a6)
 1:
 	movem.l	(a7)+,d0/a6
 	rts
@@ -1754,15 +1756,7 @@ compute_sprite_xy_code:
 
 	move.b	(TARGET_SPRITE_X,a0),d1	| aka Y
 	move.b	(TARGET_SPRITE_Y,a0),d0	| aka X
-	neg.w	d1
-	add.w	#0x100,d1
 
-	.ifne	SPRITE_Y_CORRECTION
-	add.w	#SPRITE_Y_CORRECTION,d1
-	.endif
-	.ifne	SPRITE_X_CORRECTION
-	add.w	#SPRITE_X_CORRECTION,d0
-	.endif
 	
 	* tile_code = buffered_spriteram[offs] + ((attributes << 2) & 0x300)
 	moveq	#0,d2
@@ -1775,6 +1769,9 @@ compute_sprite_xy_code:
 	lsl.w	#2,d2
 	move.b	(TARGET_SPRITE_CODE,a0),d2
 	
+	neg.w	d1
+	add.w	#0x100,d1
+
 	rts
 	
 update_one_bob:
@@ -1788,11 +1785,10 @@ update_one_bob:
 	
 	cmp.w	#0x300,d2
 	jcc		2f			| bank 3: illegal: skip
-	tst.w	d1
-	jmi		0f			| (slightly) negative: accept/clip it
-	cmp.w	#320,d1		| too low: scrap it
-	jcc		2f
-0:
+	cmp.w	#256+16,d1
+	jcc		2f			| too low: skip
+	
+
 	* handle custom amiga horizontal grouping (saves a lot of blitter masking)
 	* the table holds several info bits
 	* - if 0, this is a normal sprite, no horizontal grouping
@@ -1942,8 +1938,15 @@ update_one_bob:
 	jra		9f
 
 8:
-	cmp.w	#BG_NB_LINES,d1
-	jcc		2f		| avoid out of screen
+	.ifne	SPRITE_Y_CORRECTION
+	add.w	#SPRITE_Y_CORRECTION,d1
+	.endif
+	.ifne	SPRITE_X_CORRECTION
+	add.w	#SPRITE_X_CORRECTION,d0
+	.endif
+
+	*cmp.w	#BG_NB_LINES,d1
+	*jcc		2f		| avoid out of screen
 
 	* note down that this bob will have to be erased
 	* store attributes for non-clipped sprite erase
@@ -3451,11 +3454,6 @@ standard_tile8:
 11:
 	rts
 
-flipped_tile8:
-mirror_tile8:
-mirror_flipped_tile8:
-	BREAKPOINT	"flflfl"
-	rts
 empty_row:
 	.skip	8
 		
@@ -3466,7 +3464,7 @@ empty_row:
 store_sprite_pos:
 	tst.w	d1
 	jmi	0f
-	cmp.w	#Y_MAX,d1
+	cmp.w	#256,d1
 	jcc	0f
 
     move.l  a0,-(a7)

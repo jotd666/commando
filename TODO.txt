@@ -1,9 +1,9 @@
 - green flash when completing a level
+- profile WHILE PLAYING, then identify max occs and create 3 profile classes
+  low freq medium freq high freq, then dispatch those freqs in commented source
 
-- blits disappear too soon at the bottom of the screen
 - add looped sounds (siren, heli) not as loops (repeat siren a few times)
 - add missing heli sound
-- detect highscore screen, don't add credits there either
 - set DSW difficulty lives, start level!!
 - missing tunes:
   - last level

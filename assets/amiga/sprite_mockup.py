@@ -43,7 +43,7 @@ def doit(binname):
         return tileset_1
 
     ts_title_list = [load_tileset(f"pal_{p:02x}.png",16) for p in range(4)]
-    layer = Image.new("RGB",(256,256))
+    layer = Image.new("RGB",(224,288))
 
     buffered_spriteram = contents[0:0x180]
 
@@ -74,10 +74,10 @@ def doit(binname):
         img = sheet[tile_code]
         if flipx:
             img = ImageOps.mirror(img)
-        elif flipy:
+        if flipy:
             img = ImageOps.flip(img)
 
-        if sy<300:
+        if sy<288:
                 filtered.append(buffered_spriteram[offs:offs+4])
                 print(f"offset={offs:04x}, code={tile_code:02x}, clut={tile_color}: name={name}, x={sx}, y={sy} flipx={flipx} flipy={flipy}")
                 layer.paste(img,box=(sx,sy))
