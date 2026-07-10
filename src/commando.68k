@@ -1177,7 +1177,7 @@ l_04f8:
 	ror.b	#3,d0                            	| [$0504: rrca]
 	and.b	#0x03,d0                         	| [$0505: and  $03]
 	jbsr	l_0020                            	| [$0507: rst  $20] call RETURN_BYTE_AT_HL_PLUS_A
-	move.b	d0,(0x00,a3)                    	| [$0508: ld   (iy+$00),a]
+	move.b	d0,(a3)                    	| [$0508: ld   (iy+$00),a]
 	add.b	#0x08,d0                         	| [$050b: add  a,$08]
 	move.b	d0,(0x04,a3)                    	| [$050d: ld   (iy+$04),a]
 	clr.b	(0x01,a3)                        	| [$0510: ld   (iy+$01),$00]
@@ -1839,7 +1839,7 @@ l_08cf:
 	MOVE_W_FROM_REG	d6,a0                         	| [...]
 l_08e0:
 	move.b	(0x01,a2),d5                    	| [$08e0: ld   h,(ix+$01)]
-	move.b	(0x00,a2),d6                    	| [$08e3: ld   l,(ix+$00)]
+	move.b	(a2),d6                    	| [$08e3: ld   l,(ix+$00)]
 	 |  [$08e6: and  a] clear carry before SBC
 	MAKE_DE_NO_AR                          	| [$08e7: sbc  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
@@ -2524,7 +2524,7 @@ l_0f9e:
 l_0fac:
 	MAKE_BC_NO_AR                          	| [$0fac: push bc] [freq=low, count=24%]
 	move.w	d2,-(a7)                        	| [...]
-	move.b	(0x00,a2),d0                    	| [$0fad: ld   a,(ix+$00)] [freq=low, count=24%]
+	move.b	(a2),d0                    	| [$0fad: ld   a,(ix+$00)] [freq=low, count=24%]
                                          | [$0fb0: and  a]
 	jeq	l_0fc2                             	| [$0fb1: jr   z,$0fc2] [freq=low, count=24%]
 	LOAD_HL	#0xe055                        	| [$0fb3: ld   hl,$e055] [freq=low, count=14%]
@@ -2824,7 +2824,7 @@ l_11e4:
 	GET_ADDRESS	0xe2c0,a2                  	| [$11f1: ld   ix,$e2c0]
 	LOAD_DE	#0x0020                        	| [$11f5: ld   de,$0020]
 l_11f8:
-	move.b	(0x00,a2),d0                    	| [$11f8: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$11f8: ld   a,(ix+$00)]
                                          | [$11fb: and  a]
 	jeq	l_120e                             	| [$11fc: jr   z,$120e]
 	MAKE_DE_NO_AR                          	| [$11fe: add  ix,de]
@@ -2843,7 +2843,7 @@ l_1205:
 	clr.b	(0x14,a2)                        	| [$1209: ld   (ix+$14),$00]
 	rts                                    	| [$120d: ret]
 l_120e:
-	subq.b	#1,(0x00,a2)                    	| [$120e: dec  (ix+$00)]
+	subq.b	#1,(a2)                    	| [$120e: dec  (ix+$00)]
 	move.b	d2,(0x01,a2)                    	| [$1211: ld   (ix+$01),c]
 	move.b	#0x01,(0x13,a2)                 	| [$1214: ld   (ix+$13),$01]
 	move.b	d6,(0x19,a2)                    	| [$1218: ld   (ix+$19),l]
@@ -3054,7 +3054,7 @@ l_13a0:
 	add.b	d1,d0                            	| [$13b0: add  a,b] [freq=low, count=11%]
 	move.b	d0,d1                           	| [$13b1: ld   b,a] [freq=low, count=11%]
 	move.b	(0x07,a2),d0                    	| [$13b2: ld   a,(ix+$07)] [freq=low, count=11%]
-	add.b	#0x07,d0                         	| [$13b5: add  a,$07] [freq=low, count=11%]
+	addq	#0x07,d0                         	| [$13b5: add  a,$07] [freq=low, count=11%]
 	move.b	d0,d2                           	| [$13b7: ld   c,a] [freq=low, count=11%]
 	GET_ADDRESS	0xef10,a0                  	| [$13b8: ld   a,($ef10)] [freq=low, count=11%]
 	move.b	(a0),d0                         	| [...]
@@ -3203,7 +3203,7 @@ l_1478:
 	LOAD_BC	#0x0004                        	| [$148f: ld   bc,$0004] [freq=low, count=0%]
 	LOAD_DE	#0xffe0                        	| [$1492: ld   de,$ffe0] -0x20 [freq=low, count=0%]
 l_1495:
-	move.b	(0x00,a2),d0                    	| [$1495: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$1495: ld   a,(ix+$00)] [freq=low, count=0%]
                                          | [$1498: and  a]
 	jeq	l_14a4                             	| [$1499: jr   z,$14a4] [freq=low, count=0%]
 	MAKE_BC_NO_AR                          	| [$149b: add  hl,bc] [freq=low, count=0%]
@@ -3231,7 +3231,7 @@ l_14a4:
 	jbsr	exx                               	| [$14aa: exx] [freq=low, count=0%]
 	move.b	d5,(0x03,a2)                    	| [$14ab: ld   (ix+$03),h] [freq=low, count=0%]
 	move.b	d6,(0x05,a2)                    	| [$14ae: ld   (ix+$05),l] [freq=low, count=0%]
-	move.b	#0xff,(0x00,a2)                 	| [$14b1: ld   (ix+$00),$ff] [freq=low, count=0%]
+	move.b	#0xff,(a2)                 	| [$14b1: ld   (ix+$00),$ff] [freq=low, count=0%]
 	move.b	#0x0d,(0x13,a2)                 	| [$14b5: ld   (ix+$13),$0d] [freq=low, count=0%]
 	move.b	#0x01,(0x1a,a2)                 	| [$14b9: ld   (ix+$1a),$01] [freq=low, count=0%]
 	jra	l_2060                             	| [$14bd: jp   $2060] [freq=low, count=0%]
@@ -3473,8 +3473,8 @@ l_1671:
 	move.b	(a0),d2                         	| [...]
 * just swap A/A'
 	EXG_A_A_PRIME |  [$168a: ex   af,af'] [freq=low, count=11%]
-	add.b	d2,d0                            	| [$168b: add  a,c] [freq=low, count=11%]
-	move.b	d0,d2                           	| [$168c: ld   c,a] [freq=low, count=11%]
+	add.b	d0,d2                            	| [$168b: add  a,c] [freq=low, count=11%]
+	                           	| [$168c: ld   c,a] [freq=low, count=11%]
 	move.b	d1,d0                           	| [$168d: ld   a,b] [freq=low, count=11%]
 	add.b	d0,d0                            	| [$168e: add  a,a] [freq=low, count=11%]
 	add.b	d0,d0                            	| [$168f: add  a,a] [freq=low, count=11%]
@@ -3501,11 +3501,11 @@ l_169f:
 
 l_1786:
 	jbsr	l_1591                            	| [$1786: call $1591] [freq=low, count=2%]
-	move.b	(0x00,a2),d0                    	| [$1789: ld   a,(ix+$00)] [freq=low, count=2%]
+	move.b	(a2),d0                    	| [$1789: ld   a,(ix+$00)] [freq=low, count=2%]
 	cmp.b	#0x3f,d0                         	| [$178c: cp   $3f] [freq=low, count=2%]
 	jcc	l_17ee                             	| [$178e: jp   nc,$17ee] [freq=low, count=2%]
 	move.b	d0,d1                           	| [$1791: ld   b,a] [freq=low, count=1%]
-	subq.b	#1,(0x00,a2)                    	| [$1792: dec  (ix+$00)] [freq=low, count=1%]
+	subq.b	#1,(a2)                    	| [$1792: dec  (ix+$00)] [freq=low, count=1%]
 	jeq	l_17dd                             	| [$1795: jp   z,$17dd] [freq=low, count=1%]
 	move.b	(0x13,a2),d0                    	| [$1798: ld   a,(ix+$13)] [freq=low, count=1%]
 	cmp.b	#0x0a,d0                         	| [$179b: cp   $0a] [freq=low, count=1%]
@@ -3534,7 +3534,7 @@ l_17be:
 	move.b	(0x05,a2),d0                    	| [$17c4: ld   a,(ix+$05)] [freq=low, count=0%]
 	add.b	#0x08,d0                         	| [$17c7: add  a,$08] [freq=low, count=0%]
 	move.b	d0,(0x03,a3)                    	| [$17c9: ld   (iy+$03),a] [freq=low, count=0%]
-	move.b	#0x79,(0x00,a3)                 	| [$17cc: ld   (iy+$00),$79] [freq=low, count=0%]
+	move.b	#0x79,(a3)                 	| [$17cc: ld   (iy+$00),$79] [freq=low, count=0%]
 	clr.b	(0x01,a3)                        	| [$17d0: ld   (iy+$01),$00] [freq=low, count=0%]
 	clr.b	(0x06,a3)                        	| [$17d4: ld   (iy+$06),$00] [freq=low, count=0%]
 	clr.b	(0x0a,a3)                        	| [$17d8: ld   (iy+$0a),$00] [freq=low, count=0%]
@@ -3542,14 +3542,14 @@ l_17be:
 l_17dd:
 	CLR_XC_FLAGS                           	| [$17dd: xor  a] [freq=low, count=0%]
 	clr.b	d0                               	| [...]
-	move.b	d0,(0x00,a2)                    	| [$17de: ld   (ix+$00),a] [freq=low, count=0%]
+	move.b	d0,(a2)                    	| [$17de: ld   (ix+$00),a] [freq=low, count=0%]
 	move.b	d0,(0x03,a2)                    	| [$17e1: ld   (ix+$03),a] [freq=low, count=0%]
 	move.b	d0,(0x02,a3)                    	| [$17e4: ld   (iy+$02),a] [freq=low, count=0%]
 	move.b	d0,(0x06,a3)                    	| [$17e7: ld   (iy+$06),a] [freq=low, count=0%]
 	move.b	d0,(0x0a,a3)                    	| [$17ea: ld   (iy+$0a),a] [freq=low, count=0%]
 	rts                                    	| [$17ed: ret] [freq=low, count=0%]
 l_17ee:
-	move.b	#0x20,(0x00,a2)                 	| [$17ee: ld   (ix+$00),$20] [freq=low, count=0%]
+	move.b	#0x20,(a2)                 	| [$17ee: ld   (ix+$00),$20] [freq=low, count=0%]
 	jbsr	l_8698                            	| [$17f2: call $8698] [freq=low, count=0%]
 	move.b	(0x13,a2),d0                    	| [$17f5: ld   a,(ix+$13)] [freq=low, count=0%]
 	and.b	#0x0f,d0                         	| [$17f8: and  $0f] [freq=low, count=0%]
@@ -3586,9 +3586,9 @@ l_1840:
 	move.b	d4,(0x0a,a2)                    	| [$1855: ld   (ix+$0a),e]
 	rts                                    	| [$1858: ret]
 l_1859:
-	move.b	(0x1f,a2),d0                    	| [$1859: ld   a,(ix+$1f)] [freq=low, count=11%]
-	and.b	#0x0f,d0                         	| [$185c: and  $0f] [freq=low, count=11%]
-	move.b	d0,d1                           	| [$185e: ld   b,a] [freq=low, count=11%]
+	move.b	(0x1f,a2),d1                    	| [$1859: ld   a,(ix+$1f)] [freq=low, count=11%]
+	and.b	#0x0f,d1                         	| [$185c: and  $0f] [freq=low, count=11%]
+	                           	| [$185e: ld   b,a] [freq=low, count=11%]
 	GET_ADDRESS	timing_variable_e002,a0    	| [$185f: ld   a,(timing_variable_e002)] [freq=low, count=11%]
 	move.b	(a0),d0                         	| [...]
 	and.b	#0x0f,d0                         	| [$1862: and  $0f] [freq=low, count=11%]
@@ -3880,7 +3880,7 @@ l_1a55:
 	move.b	d0,d1                           	| [$1a7f: ld   b,a]
 	LOAD_DE	#0x0020                        	| [$1a80: ld   de,$0020]
 l_1a83:
-	move.b	(0x00,a2),d0                    	| [$1a83: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$1a83: ld   a,(ix+$00)]
                                          | [$1a86: and  a]
 	jeq	l_1a90                             	| [$1a87: jr   z,$1a90]
 	MAKE_DE_NO_AR                          	| [$1a89: add  ix,de]
@@ -3894,7 +3894,7 @@ l_1a83:
 	move.l	(a7)+,a2                        	| [$1a8d: pop  ix]
 	rts                                    	| [$1a8f: ret]
 l_1a90:
-	move.b	#0xff,(0x00,a2)                 	| [$1a90: ld   (ix+$00),$ff]
+	move.b	#0xff,(a2)                 	| [$1a90: ld   (ix+$00),$ff]
 	move.b	#0xc0,(0x01,a2)                 	| [$1a94: ld   (ix+$01),$c0]
 	move.b	#0xc0,(0x02,a2)                 	| [$1a98: ld   (ix+$02),$c0]
 	move.b	d5,(0x03,a2)                    	| [$1a9c: ld   (ix+$03),h]
@@ -3937,7 +3937,7 @@ l_1ae1:
 	jcs	0f                                 	| [$1af2: ret  nc] [freq=low, count=0%]
 	rts                                    	| [...]
 0:
-	move.b	#0x3f,(0x00,a2)                 	| [$1af3: ld   (ix+$00),$3f] [freq=low, count=0%]
+	move.b	#0x3f,(a2)                 	| [$1af3: ld   (ix+$00),$3f] [freq=low, count=0%]
 	rts                                    	| [$1af7: ret] [freq=low, count=0%]
 l_1af8:
 	jbsr	l_3a8d                            	| [$1af8: call $3a8d]
@@ -4111,7 +4111,7 @@ l_1c50:
 	LOAD_DE	#0x0020                        	| [$1c62: ld   de,$0020] [freq=low, count=0%]
 	move.b	#0x08,d1                        	| [$1c65: ld   b,$08] [freq=low, count=0%]
 l_1c67:
-	move.b	(0x00,a2),d0                    	| [$1c67: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$1c67: ld   a,(ix+$00)] [freq=low, count=0%]
                                          | [$1c6a: and  a]
 	jeq	l_1c74                             	| [$1c6b: jr   z,$1c74] [freq=low, count=0%]
 	MAKE_DE_NO_AR                          	| [$1c6d: add  ix,de] [freq=low, count=0%]
@@ -4126,7 +4126,7 @@ l_1c67:
 	rts                                    	| [$1c73: ret]
 
 l_1c74:
-	move.b	#0xff,(0x00,a2)                 	| [$1c74: ld   (ix+$00),$ff] [freq=low, count=0%]
+	move.b	#0xff,(a2)                 	| [$1c74: ld   (ix+$00),$ff] [freq=low, count=0%]
 	move.b	#0x40,(0x01,a2)                 	| [$1c78: ld   (ix+$01),$40] [freq=low, count=0%]
 	move.b	#0x40,(0x02,a2)                 	| [$1c7c: ld   (ix+$02),$40] [freq=low, count=0%]
 	move.b	d5,(0x03,a2)                    	| [$1c80: ld   (ix+$03),h] [freq=low, count=0%]
@@ -4155,7 +4155,7 @@ l_1c74:
 	move.b	d1,(0x0d,a2)                    	| [$1cb0: ld   (ix+$0d),b] [freq=low, count=0%]
 	move.b	d2,(0x0e,a2)                    	| [$1cb3: ld   (ix+$0e),c] [freq=low, count=0%]
 	move.l	(a7)+,a2                        	| [$1cb6: pop  ix] [freq=low, count=0%]
-	clr.b	(0x00,a2)                        	| [$1cb8: ld   (ix+$00),$00] [freq=low, count=0%]
+	clr.b	(a2)                        	| [$1cb8: ld   (ix+$00),$00] [freq=low, count=0%]
 	clr.b	(0x02,a3)                        	| [$1cbc: ld   (iy+$02),$00] [freq=low, count=0%]
 	rts                                    	| [$1cc0: ret] [freq=low, count=0%]
 
@@ -4167,7 +4167,7 @@ l_1cd2:
 	and.b	#0x0f,d0                         	| [$1cd5: and  $0f]
 	jbsr	l_0028                            	| [$1cd7: rst  $28] call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 l_1cd8:
-	move.b	d4,(0x00,a3)                    	| [$1cd8: ld   (iy+$00),e] [freq=low, count=7%]
+	move.b	d4,(a3)                    	| [$1cd8: ld   (iy+$00),e] [freq=low, count=7%]
 	move.b	d3,(0x01,a3)                    	| [$1cdb: ld   (iy+$01),d] [freq=low, count=7%]
 	move.b	(0x03,a2),d0                    	| [$1cde: ld   a,(ix+$03)] [freq=low, count=7%]
 	move.b	d0,(0x02,a3)                    	| [$1ce1: ld   (iy+$02),a] [freq=low, count=7%]
@@ -4175,7 +4175,7 @@ l_1cd8:
 	move.b	d0,(0x03,a3)                    	| [$1ce7: ld   (iy+$03),a] [freq=low, count=7%]
 	rts                                    	| [$1cea: ret] [freq=low, count=7%]
 l_1ceb:
-	move.b	#0x3f,(0x00,a2)                 	| [$1ceb: ld   (ix+$00),$3f] [freq=low, count=0%]
+	move.b	#0x3f,(a2)                 	| [$1ceb: ld   (ix+$00),$3f] [freq=low, count=0%]
 	clr.b	(0x04,a2)                        	| [$1cef: ld   (ix+$04),$00] [freq=low, count=0%]
 	rts                                    	| [$1cf3: ret] [freq=low, count=0%]
 l_1cf4:
@@ -4273,7 +4273,7 @@ l_1d78:
 	LOAD_DE	#0x0020                        	| [$1d84: ld   de,$0020] [freq=low, count=0%]
 	move.b	#0x06,d1                        	| [$1d87: ld   b,$06] [freq=low, count=0%]
 l_1d89:
-	move.b	(0x00,a2),d0                    	| [$1d89: ld   a,(ix+$00)] [freq=low, count=1%]
+	move.b	(a2),d0                    	| [$1d89: ld   a,(ix+$00)] [freq=low, count=1%]
 	addq.b	#1,d0                           	| [$1d8c: inc  a] [freq=low, count=1%]
 	jne	l_1db0                             	| [$1d8d: jr   nz,$1db0] [freq=low, count=1%]
 	move.b	d6,d0                           	| [$1d8f: ld   a,l] [freq=low, count=1%]
@@ -4285,9 +4285,9 @@ l_1d89:
 	add.b	#0x08,d0                         	| [$1d9b: add  a,$08] [freq=low, count=0%]
 	cmp.b	#0x11,d0                         	| [$1d9d: cp   $11] [freq=low, count=0%]
 	jcc	l_1db0                             	| [$1d9f: jr   nc,$1db0] [freq=low, count=0%]
-	move.b	#0x3f,(0x00,a2)                 	| [$1da1: ld   (ix+$00),$3f] [freq=low, count=0%]
+	move.b	#0x3f,(a2)                 	| [$1da1: ld   (ix+$00),$3f] [freq=low, count=0%]
 	move.l	(a7)+,a2                        	| [$1da5: pop  ix] [freq=low, count=0%]
-	move.b	#0x3f,(0x00,a2)                 	| [$1da7: ld   (ix+$00),$3f] [freq=low, count=0%]
+	move.b	#0x3f,(a2)                 	| [$1da7: ld   (ix+$00),$3f] [freq=low, count=0%]
 	clr.b	(0x04,a2)                        	| [$1dab: ld   (ix+$04),$00] [freq=low, count=0%]
 	rts                                    	| [$1daf: ret] [freq=low, count=0%]
 
@@ -4359,7 +4359,7 @@ l_1e05:
 	LOAD_DE	#0x0020                        	| [$1e17: ld   de,$0020]
 	move.b	#0x08,d1                        	| [$1e1a: ld   b,$08]
 l_1e1c:
-	move.b	(0x00,a2),d0                    	| [$1e1c: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$1e1c: ld   a,(ix+$00)]
                                          | [$1e1f: and  a]
 	jeq	l_1e29                             	| [$1e20: jr   z,$1e29]
 	MAKE_DE_NO_AR                          	| [$1e22: add  ix,de]
@@ -4373,7 +4373,7 @@ l_1e1c:
 	move.l	(a7)+,a2                        	| [$1e26: pop  ix]
 	rts                                    	| [$1e28: ret]
 l_1e29:
-	move.b	#0xff,(0x00,a2)                 	| [$1e29: ld   (ix+$00),$ff]
+	move.b	#0xff,(a2)                 	| [$1e29: ld   (ix+$00),$ff]
 	move.b	#0x40,(0x01,a2)                 	| [$1e2d: ld   (ix+$01),$40]
 	move.b	#0x40,(0x02,a2)                 	| [$1e31: ld   (ix+$02),$40]
 	move.b	d5,(0x03,a2)                    	| [$1e35: ld   (ix+$03),h]
@@ -4486,22 +4486,22 @@ l_1f48:
 	move.b	(0x05,a2),d6                    	| [$1f4e: ld   l,(ix+$05)] [freq=low, count=0%]
 	LOAD_DE	#0xfe14                        	| [$1f51: ld   de,$fe14] [freq=low, count=0%]
 	GET_ADDRESS	0xe5e0,a2                  	| [$1f54: ld   ix,$e5e0] [freq=low, count=0%]
-	move.b	(0x00,a2),d0                    	| [$1f58: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$1f58: ld   a,(ix+$00)] [freq=low, count=0%]
                                          | [$1f5b: and  a]
 	jeq	l_1f79                             	| [$1f5c: jr   z,$1f79] [freq=low, count=0%]
 	LOAD_DE	#0xfe18                        	| [$1f5e: ld   de,$fe18] [freq=low, count=0%]
 	GET_ADDRESS	0xe5c0,a2                  	| [$1f61: ld   ix,$e5c0] [freq=low, count=0%]
-	move.b	(0x00,a2),d0                    	| [$1f65: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$1f65: ld   a,(ix+$00)] [freq=low, count=0%]
                                          | [$1f68: and  a]
 	jeq	l_1f79                             	| [$1f69: jr   z,$1f79] [freq=low, count=0%]
 	LOAD_DE	#0xfe1c                        	| [$1f6b: ld   de,$fe1c] [freq=low, count=0%]
 	GET_ADDRESS	0xe5a0,a2                  	| [$1f6e: ld   ix,$e5a0] [freq=low, count=0%]
-	move.b	(0x00,a2),d0                    	| [$1f72: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$1f72: ld   a,(ix+$00)] [freq=low, count=0%]
                                          | [$1f75: and  a]
 	jeq	l_1f79                             	| [$1f76: jr   z,$1f79] [freq=low, count=0%]
 	rts                                    	| [$1f78: ret]
 l_1f79:
-	move.b	#0xff,(0x00,a2)                 	| [$1f79: ld   (ix+$00),$ff] [freq=low, count=0%]
+	move.b	#0xff,(a2)                 	| [$1f79: ld   (ix+$00),$ff] [freq=low, count=0%]
 	move.b	#0x04,(0x13,a2)                 	| [$1f7d: ld   (ix+$13),$04] [freq=low, count=0%]
 	clr.b	(0x14,a2)                        	| [$1f81: ld   (ix+$14),$00] [freq=low, count=0%]
 	move.b	#0x04,(0x15,a2)                 	| [$1f85: ld   (ix+$15),$04] [freq=low, count=0%]
@@ -4536,7 +4536,7 @@ l_1fd3:
 	cmp.b	#0x02,d0                         	| [$1fd9: cp   $02] [freq=low, count=0%]
 	jeq	l_1fef                             	| [$1fdb: jr   z,$1fef] [freq=low, count=0%]
 	add.b	#0xd3,d0                         	| [$1fdd: add  a,$d3] [freq=low, count=0%]
-	move.b	d0,(0x00,a3)                    	| [$1fdf: ld   (iy+$00),a] [freq=low, count=0%]
+	move.b	d0,(a3)                    	| [$1fdf: ld   (iy+$00),a] [freq=low, count=0%]
 	move.b	(0x03,a2),d0                    	| [$1fe2: ld   a,(ix+$03)] [freq=low, count=0%]
 	move.b	d0,(0x02,a3)                    	| [$1fe5: ld   (iy+$02),a] [freq=low, count=0%]
 	move.b	(0x05,a2),d0                    	| [$1fe8: ld   a,(ix+$05)] [freq=low, count=0%]
@@ -4596,7 +4596,7 @@ l_203b:
 
 l_2048:
 	addq.w	#4,sp |  [$2048: pop  hl] [address_pop] [freq=low, count=0%]
-	clr.b	(0x00,a2)                        	| [$2049: ld   (ix+$00),$00] [freq=low, count=0%]
+	clr.b	(a2)                        	| [$2049: ld   (ix+$00),$00] [freq=low, count=0%]
 	move.b	(0x03,a2),d5                    	| [$204d: ld   h,(ix+$03)] [freq=low, count=0%]
 	move.b	(0x05,a2),d6                    	| [$2050: ld   l,(ix+$05)] [freq=low, count=0%]
 	clr.b	(0x02,a3)                        	| [$2053: ld   (iy+$02),$00] [freq=low, count=0%]
@@ -4830,17 +4830,17 @@ l_2225:
 	move.b	(0x02,a2),d1                    	| [$223e: ld   b,(ix+$02)]
 	GET_ADDRESS	0xe5e0,a2                  	| [$2241: ld   ix,$e5e0]
 	LOAD_HL	#0xfe14                        	| [$2245: ld   hl,$fe14]
-	move.b	(0x00,a2),d0                    	| [$2248: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$2248: ld   a,(ix+$00)]
                                          | [$224b: and  a]
 	jeq	l_2269                             	| [$224c: jr   z,$2269]
 	GET_ADDRESS	0xe5c0,a2                  	| [$224e: ld   ix,$e5c0]
 	LOAD_HL	#0xfe18                        	| [$2252: ld   hl,$fe18]
-	move.b	(0x00,a2),d0                    	| [$2255: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$2255: ld   a,(ix+$00)]
                                          | [$2258: and  a]
 	jeq	l_2269                             	| [$2259: jr   z,$2269]
 	GET_ADDRESS	0xe5a0,a2                  	| [$225b: ld   ix,$e5a0]
 	LOAD_HL	#0xfe1c                        	| [$225f: ld   hl,$fe1c]
-	move.b	(0x00,a2),d0                    	| [$2262: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$2262: ld   a,(ix+$00)]
                                          | [$2265: and  a]
 	jeq	l_2269                             	| [$2266: jr   z,$2269]
 	rts                                    	| [$2268: ret]
@@ -4848,7 +4848,7 @@ l_2269:
 	move.b	#0x01,(0x1a,a2)                 	| [$2269: ld   (ix+$1a),$01]
 	move.b	d5,(0x1b,a2)                    	| [$226d: ld   (ix+$1b),h]
 	move.b	d6,(0x1c,a2)                    	| [$2270: ld   (ix+$1c),l]
-	move.b	#0xff,(0x00,a2)                 	| [$2273: ld   (ix+$00),$ff]
+	move.b	#0xff,(a2)                 	| [$2273: ld   (ix+$00),$ff]
 	move.b	d1,(0x01,a2)                    	| [$2277: ld   (ix+$01),b]
 	move.b	d1,(0x02,a2)                    	| [$227a: ld   (ix+$02),b]
 	move.b	d2,(0x12,a2)                    	| [$227d: ld   (ix+$12),c]
@@ -4916,7 +4916,7 @@ l_22f3:
 	jeq	l_230d                             	| [$22fa: jr   z,$230d]
 	move.b	(0x03,a2),d5                    	| [$22fc: ld   h,(ix+$03)]
 	move.b	(0x05,a2),d6                    	| [$22ff: ld   l,(ix+$05)]
-	clr.b	(0x00,a2)                        	| [$2302: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$2302: ld   (ix+$00),$00]
 	clr.b	(0x02,a3)                        	| [$2306: ld   (iy+$02),$00]
 	jra	l_920d                             	| [$230a: jp   $920d]
 l_230d:
@@ -5005,7 +5005,7 @@ l_2353:
 	move.b	#0x08,d1                        	| [$2399: ld   b,$08]
 	LOAD_DE	#0x0020                        	| [$239b: ld   de,$0020]
 l_239e:
-	move.b	(0x00,a2),d0                    	| [$239e: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$239e: ld   a,(ix+$00)]
                                          | [$23a1: and  a]
 	jeq	l_23a9                             	| [$23a2: jr   z,$23a9]
 	MAKE_DE_NO_AR                          	| [$23a4: add  ix,de]
@@ -5018,7 +5018,7 @@ l_239e:
 	jne	l_239e                             	| [...]
 	rts                                    	| [$23a8: ret]
 l_23a9:
-	subq.b	#1,(0x00,a2)                    	| [$23a9: dec  (ix+$00)]
+	subq.b	#1,(a2)                    	| [$23a9: dec  (ix+$00)]
 	move.b	d5,(0x03,a2)                    	| [$23ac: ld   (ix+$03),h]
 	move.b	d5,(0x07,a2)                    	| [$23af: ld   (ix+$07),h]
 	move.b	d6,(0x05,a2)                    	| [$23b2: ld   (ix+$05),l]
@@ -5185,7 +5185,7 @@ l_24a8:
 	move.b	d1,(0x02,a2)                    	| [$24c4: ld   (ix+$02),b]
 	jra	l_9411                             	| [$24c7: jp   $9411]
 l_24ca:
-	clr.b	(0x00,a2)                        	| [$24ca: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$24ca: ld   (ix+$00),$00]
 	clr.b	(0x02,a3)                        	| [$24ce: ld   (iy+$02),$00]
 	rts                                    	| [$24d2: ret]
 l_24d3:
@@ -5242,7 +5242,7 @@ l_252b:
 	jra	l_1cd8                             	| [$2543: jp   $1cd8] [freq=low, count=2%]
 
 l_254e:
-	clr.b	(0x00,a2)                        	| [$254e: ld   (ix+$00),$00] [freq=low, count=0%]
+	clr.b	(a2)                        	| [$254e: ld   (ix+$00),$00] [freq=low, count=0%]
 	move.b	(0x03,a2),d5                    	| [$2552: ld   h,(ix+$03)] [freq=low, count=0%]
 	move.b	(0x05,a2),d6                    	| [$2555: ld   l,(ix+$05)] [freq=low, count=0%]
 	clr.b	(0x02,a3)                        	| [$2558: ld   (iy+$02),$00] [freq=low, count=0%]
@@ -5277,12 +5277,12 @@ l_255f:
 	rts                                    	| [...]
 0:
 	addq.w	#4,sp |  [$257e: pop  hl] [address_pop] [freq=low, count=0%]
-	clr.b	(0x00,a2)                        	| [$257f: ld   (ix+$00),$00] [freq=low, count=0%]
+	clr.b	(a2)                        	| [$257f: ld   (ix+$00),$00] [freq=low, count=0%]
 	clr.b	(0x02,a3)                        	| [$2583: ld   (iy+$02),$00] [freq=low, count=0%]
 	rts                                    	| [$2587: ret] [freq=low, count=0%]
 
 l_2598:
-	move.b	(0x00,a2),d0                    	| [$2598: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$2598: ld   a,(ix+$00)]
 	cmp.b	#0xfe,d0                         	| [$259b: cp   $fe]
 	jne	0f                                 	| [$259d: ret  z]
 	rts                                    	| [...]
@@ -5295,7 +5295,7 @@ l_2598:
 	jeq	0f                                 	| [$25ab: ret  nz]
 	rts                                    	| [...]
 0:
-	clr.b	(0x00,a2)                        	| [$25ac: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$25ac: ld   (ix+$00),$00]
 	clr.b	(0x02,a3)                        	| [$25b0: ld   (iy+$02),$00]
 	move.b	(0x03,a2),d5                    	| [$25b4: ld   h,(ix+$03)]
 	move.b	(0x05,a2),d6                    	| [$25b7: ld   l,(ix+$05)]
@@ -5434,7 +5434,7 @@ l_2689:
 	move.b	(0x12,a2),d2                    	| [$269e: ld   c,(ix+$12)]
 	MAKE_HL_NO_AR                          	| [$26a1: push hl]
 	lea	(a6,d6.l),a2 |  [$26a2: pop  ix]
-	move.b	#0xff,(0x00,a2)                 	| [$26a4: ld   (ix+$00),$ff]
+	move.b	#0xff,(a2)                 	| [$26a4: ld   (ix+$00),$ff]
 	move.b	#0x0c,(0x13,a2)                 	| [$26a8: ld   (ix+$13),$0c]
 	move.b	d3,(0x03,a2)                    	| [$26ac: ld   (ix+$03),d]
 	move.b	d4,(0x05,a2)                    	| [$26af: ld   (ix+$05),e]
@@ -5533,7 +5533,7 @@ l_2747:
 	GET_ADDRESS	0xe08f,a0                  	| [$2747: ld   iy,($e08f)] [freq=low, count=4%]
 	READ_ADDRESS	a0,a3                     	| [...]
 l_274b:
-	move.b	(0x00,a3),d6                    	| [$274b: ld   l,(iy+$00)] [freq=low, count=4%]
+	move.b	(a3),d6                    	| [$274b: ld   l,(iy+$00)] [freq=low, count=4%]
 	move.b	(0x01,a3),d0                    	| [$274e: ld   a,(iy+$01)] [freq=low, count=4%]
 	move.b	d0,d5                           	| [$2751: ld   h,a] [freq=low, count=4%]
 	cmp.b	#0xff,d0                         	| [$2752: cp   $ff] [freq=low, count=4%]
@@ -5576,7 +5576,7 @@ l_276d:
 	LOAD_DE	#0x0020                        	| [$277e: ld   de,$0020] [freq=low, count=0%]
 	move.b	#0x08,d1                        	| [$2781: ld   b,$08] [freq=low, count=0%]
 l_2783:
-	move.b	(0x00,a2),d0                    	| [$2783: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$2783: ld   a,(ix+$00)] [freq=low, count=0%]
                                          | [$2786: and  a]
 	jeq	l_2792                             	| [$2787: jr   z,$2792] [freq=low, count=0%]
 	MAKE_DE_NO_AR                          	| [$2789: add  ix,de] [freq=low, count=0%]
@@ -5593,7 +5593,7 @@ l_2783:
 	rts                                    	| [$2791: ret] [freq=low, count=0%]
 l_2792:
 	move.b	d1,(0x1f,a2)                    	| [$2792: ld   (ix+$1f),b] [freq=low, count=0%]
-	move.b	#0xff,(0x00,a2)                 	| [$2795: ld   (ix+$00),$ff] [freq=low, count=0%]
+	move.b	#0xff,(a2)                 	| [$2795: ld   (ix+$00),$ff] [freq=low, count=0%]
 	jbsr	exx                               	| [$2799: exx] [freq=low, count=0%]
 	move.b	d3,(0x1b,a2)                    	| [$279a: ld   (ix+$1b),d] [freq=low, count=0%]
 	move.b	d4,(0x1c,a2)                    	| [$279d: ld   (ix+$1c),e] [freq=low, count=0%]
@@ -5676,7 +5676,7 @@ l_2823:
 	move.b	(0x05,a2),d0                    	| [$2826: ld   a,(ix+$05)]
 	cmp.b	#0xf0,d0                         	| [$2829: cp   $f0]
 	jcc	l_2833                             	| [$282b: jp   nc,$2833]
-	clr.b	(0x00,a2)                        	| [$282e: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$282e: ld   (ix+$00),$00]
 	rts                                    	| [$2832: ret]
 l_2833:
 	GET_ADDRESS	0xe103,a0                  	| [$2833: ld   a,($e103)]
@@ -5694,7 +5694,7 @@ l_2842:
 	move.b	(0x05,a2),d0                    	| [$2845: ld   a,(ix+$05)]
 	cmp.b	#0xf0,d0                         	| [$2848: cp   $f0]
 	jcc	l_2852                             	| [$284a: jp   nc,$2852]
-	clr.b	(0x00,a2)                        	| [$284d: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$284d: ld   (ix+$00),$00]
 	rts                                    	| [$2851: ret]
 l_2852:
 	move.b	#0x50,(0x05,a2)                 	| [$2852: ld   (ix+$05),$50]
@@ -5885,7 +5885,7 @@ l_2a3e:
 l_2a44:
 	MAKE_BC_NO_AR                          	| [$2a44: push bc] [freq=low, count=23%]
 	move.w	d2,-(a7)                        	| [...]
-	move.b	(0x00,a2),d0                    	| [$2a45: ld   a,(ix+$00)] [freq=low, count=23%]
+	move.b	(a2),d0                    	| [$2a45: ld   a,(ix+$00)] [freq=low, count=23%]
                                          | [$2a48: and  a]
 	jeq	l_2a5b                             	| [$2a49: jr   z,$2a5b] [freq=low, count=23%]
 	move.b	(0x1b,a2),d5                    	| [$2a4b: ld   h,(ix+$1b)] [freq=low, count=14%]
@@ -6027,7 +6027,7 @@ l_2ad3:
 	.long	l_2b3a
 
 l_2b3a:
-	move.b	(0x00,a2),d0                    	| [$2b3a: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$2b3a: ld   a,(ix+$00)] [freq=low, count=0%]
 	cmp.b	#0x3f,d0                         	| [$2b3d: cp   $3f] [freq=low, count=0%]
 	jne	0f                                 	| [$2b3f: call z,$2b56] [freq=low, count=0%]
 	jbsr	l_2b56                            	| [...]
@@ -6045,7 +6045,7 @@ l_2b3a:
 	jra	l_1cd8                             	| [$2b53: jp   $1cd8] [freq=low, count=0%]
 l_2b56:
 	jbsr	l_8698                            	| [$2b56: call $8698] [freq=low, count=0%]
-	move.b	#0x01,(0x00,a2)                 	| [$2b59: ld   (ix+$00),$01] [freq=low, count=0%]
+	move.b	#0x01,(a2)                 	| [$2b59: ld   (ix+$00),$01] [freq=low, count=0%]
 	move.b	#0x10,(0x15,a2)                 	| [$2b5d: ld   (ix+$15),$10] [freq=low, count=0%]
 	move.b	(0x05,a2),d0                    	| [$2b61: ld   a,(ix+$05)] [freq=low, count=0%]
 	add.b	#0x03,d0                         	| [$2b64: add  a,$03] [freq=low, count=0%]
@@ -6129,7 +6129,7 @@ l_2b9a:
 	MAKE_DE_NO_AR                          	| [$2bbe: inc  de] [freq=low, count=14%]
 	addq.w	#1,d4                           	| [...]
 	MAKE_D
-	move.b	d0,(0x00,a3)                    	| [$2bbf: ld   (iy+$00),a] [freq=low, count=14%]
+	move.b	d0,(a3)                    	| [$2bbf: ld   (iy+$00),a] [freq=low, count=14%]
 	jbsr	exx                               	| [$2bc2: exx] [freq=low, count=14%]
 	MAKE_DE_NO_AR                          	| [$2bc3: add  iy,de] [freq=low, count=14%]
 	move.l	a3,d7                           	| [...]  [inspect_for_manual_optimization]
@@ -6142,12 +6142,12 @@ l_2b9a:
 	jbsr	exx                               	| [$2bc7: exx] [freq=low, count=7%]
 	rts                                    	| [$2bc8: ret] [freq=low, count=7%]
 l_2bc9:
-	move.b	(0x00,a2),d0                    	| [$2bc9: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$2bc9: ld   a,(ix+$00)] [freq=low, count=0%]
 	cmp.b	#0x3f,d0                         	| [$2bcc: cp   $3f] [freq=low, count=0%]
 	jeq	l_2be5                             	| [$2bce: jr   z,$2be5] [freq=low, count=0%]
-	subq.b	#1,(0x00,a2)                    	| [$2bd0: dec  (ix+$00)] [freq=low, count=0%]
+	subq.b	#1,(a2)                    	| [$2bd0: dec  (ix+$00)] [freq=low, count=0%]
 	jeq	l_3aa7                             	| [$2bd3: jp   z,$3aa7] [freq=low, count=0%]
-	move.b	(0x00,a2),d0                    	| [$2bd6: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$2bd6: ld   a,(ix+$00)] [freq=low, count=0%]
 	LOAD_HL	#0x2c28                        	| [$2bd9: ld   hl,$2c28] [freq=low, count=0%]
                                          | [$2bdc: rrca]
                                          | [$2bdd: rrca]
@@ -6156,21 +6156,21 @@ l_2bc9:
 	jbsr	l_0028                            	| [$2be1: rst  $28] call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL [freq=low, count=0%]
 	jra	l_2b88                             	| [$2be2: jp   $2b88] [freq=low, count=0%]
 l_2be5:
-	subq.b	#1,(0x00,a2)                    	| [$2be5: dec  (ix+$00)] [freq=low, count=0%]
+	subq.b	#1,(a2)                    	| [$2be5: dec  (ix+$00)] [freq=low, count=0%]
 	move.b	#0x05,d3                        	| [$2be8: ld   d,$05] [freq=low, count=0%]
 	move.b	#0x08,d4                        	| [$2bea: ld   e,$08] [freq=low, count=0%]
 	jbsr	l_0038                            	| [$2bec: rst  $38] queue_event_0038 [freq=low, count=0%]
 	jra	l_86ac                             	| [$2bed: jp   $86ac] [freq=low, count=0%]
 l_2bf0:
-	move.b	(0x00,a2),d0                    	| [$2bf0: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$2bf0: ld   a,(ix+$00)] [freq=low, count=0%]
 	cmp.b	#0x3f,d0                         	| [$2bf3: cp   $3f] [freq=low, count=0%]
 	jeq	l_2c03                             	| [$2bf5: jr   z,$2c03] [freq=low, count=0%]
-	subq.b	#1,(0x00,a2)                    	| [$2bf7: dec  (ix+$00)] [freq=low, count=0%]
+	subq.b	#1,(a2)                    	| [$2bf7: dec  (ix+$00)] [freq=low, count=0%]
 	jeq	l_3aa7                             	| [$2bfa: jp   z,$3aa7] [freq=low, count=0%]
 	LOAD_DE	#0x2c42                        	| [$2bfd: ld   de,$2c42] [freq=low, count=0%]
 	jra	l_2b88                             	| [$2c00: jp   $2b88] [freq=low, count=0%]
 l_2c03:
-	subq.b	#1,(0x00,a2)                    	| [$2c03: dec  (ix+$00)] [freq=low, count=0%]
+	subq.b	#1,(a2)                    	| [$2c03: dec  (ix+$00)] [freq=low, count=0%]
 	LOAD_HL	#0xe0bc                        	| [$2c06: ld   hl,$e0bc] [freq=low, count=0%]
 	MAKE_HL	a0                             	| [$2c09: dec  (hl)] [freq=low, count=0%]
 	subq.b	#1,(a0)                         	| [...]
@@ -6180,7 +6180,7 @@ l_2c03:
 	jbsr	l_0038                            	| [$2c11: rst  $38] queue_event_0038 [freq=low, count=0%]
 	rts                                    	| [$2c12: ret] [freq=low, count=0%]
 l_2c13:
-	move.b	(0x00,a2),d0                    	| [$2c13: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$2c13: ld   a,(ix+$00)] [freq=low, count=0%]
 	cmp.b	#0x3f,d0                         	| [$2c16: cp   $3f] [freq=low, count=0%]
 	jeq	l_2c54                             	| [$2c18: jr   z,$2c54] [freq=low, count=0%]
 	subq.b	#1,(0x15,a2)                    	| [$2c1a: dec  (ix+$15)] [freq=low, count=0%]
@@ -6191,7 +6191,7 @@ l_2c13:
 
 l_2c54:
 	jbsr	l_8698                            	| [$2c54: call $8698] [freq=low, count=0%]
-	subq.b	#1,(0x00,a2)                    	| [$2c57: dec  (ix+$00)] [freq=low, count=0%]
+	subq.b	#1,(a2)                    	| [$2c57: dec  (ix+$00)] [freq=low, count=0%]
 	move.b	#0x20,(0x15,a2)                 	| [$2c5a: ld   (ix+$15),$20] [freq=low, count=0%]
 	move.b	#0x05,d3                        	| [$2c5e: ld   d,$05] [freq=low, count=0%]
 	move.b	#0x05,d4                        	| [$2c60: ld   e,$05] [freq=low, count=0%]
@@ -6206,12 +6206,12 @@ l_2c64:
 	move.b	#0x08,d4                        	| [$2c6f: ld   e,$08]
 	jbsr	l_0038                            	| [$2c71: rst  $38] queue_event_0038
 	jbsr	l_3aa7                            	| [$2c72: call $3aa7]
-	move.b	#0xff,(0x00,a2)                 	| [$2c75: ld   (ix+$00),$ff]
+	move.b	#0xff,(a2)                 	| [$2c75: ld   (ix+$00),$ff]
 	jra	l_3629                             	| [$2c79: jp   $3629]
 l_2c7c:
 	jbsr	l_8665                            	| [$2c7c: call $8665]
 	addq.b	#1,(0x18,a2)                    	| [$2c7f: inc  (ix+$18)]
-	move.b	#0xff,(0x00,a2)                 	| [$2c82: ld   (ix+$00),$ff]
+	move.b	#0xff,(a2)                 	| [$2c82: ld   (ix+$00),$ff]
 	move.b	#0x05,d3                        	| [$2c86: ld   d,$05]
 	move.b	#0x05,d4                        	| [$2c88: ld   e,$05]
 	jbsr	l_0038                            	| [$2c8a: rst  $38] queue_event_0038
@@ -6235,7 +6235,7 @@ l_2c94:
 	add.b	#0x08,d0                         	| [$2caa: add  a,$08]
 	move.b	d0,(0x05,a2)                    	| [$2cac: ld   (ix+$05),a]
 	jbsr	l_3aa7                            	| [$2caf: call $3aa7]
-	move.b	#0xff,(0x00,a2)                 	| [$2cb2: ld   (ix+$00),$ff]
+	move.b	#0xff,(a2)                 	| [$2cb2: ld   (ix+$00),$ff]
 	jra	l_3629                             	| [$2cb6: jp   $3629]
 l_2cb9:
 	jbsr	l_8660                            	| [$2cb9: call $8660]
@@ -6250,10 +6250,10 @@ l_2cb9:
 	move.b	#0x05,d3                        	| [$2cd2: ld   d,$05]
 	move.b	#0x08,d4                        	| [$2cd4: ld   e,$08]
 	jbsr	l_0038                            	| [$2cd6: rst  $38] queue_event_0038
-	move.b	#0xff,(0x00,a2)                 	| [$2cd7: ld   (ix+$00),$ff]
+	move.b	#0xff,(a2)                 	| [$2cd7: ld   (ix+$00),$ff]
 	jra	l_3629                             	| [$2cdb: jp   $3629]
 l_2cde:
-	move.b	(0x00,a2),d0                    	| [$2cde: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$2cde: ld   a,(ix+$00)]
 	cmp.b	#0x3f,d0                         	| [$2ce1: cp   $3f]
 	jeq	l_2d0d                             	| [$2ce3: jr   z,$2d0d]
 	LOAD_HL	#0x2cfd                        	| [$2ce5: ld   hl,$2cfd]
@@ -6272,7 +6272,7 @@ l_2d0d:
 	move.b	#0x05,d3                        	| [$2d10: ld   d,$05]
 	move.b	#0x02,d4                        	| [$2d12: ld   e,$02]
 	jbsr	l_0038                            	| [$2d14: rst  $38] queue_event_0038
-	subq.b	#1,(0x00,a2)                    	| [$2d15: dec  (ix+$00)]
+	subq.b	#1,(a2)                    	| [$2d15: dec  (ix+$00)]
 	move.b	#0x20,(0x15,a2)                 	| [$2d18: ld   (ix+$15),$20]
 	rts                                    	| [$2d1c: ret]
 l_2d1d:
@@ -6712,11 +6712,11 @@ l_30da:
 	move.b	#0x08,d4                        	| [$3118: ld   e,$08] [freq=low, count=0%]
 	jbsr	l_0038                            	| [$311a: rst  $38] queue_event_0038 [freq=low, count=0%]
 l_311b:
-	clr.b	(0x00,a2)                        	| [$311b: ld   (ix+$00),$00] [freq=low, count=0%]
+	clr.b	(a2)                        	| [$311b: ld   (ix+$00),$00] [freq=low, count=0%]
 	clr.b	(0x03,a2)                        	| [$311f: ld   (ix+$03),$00] [freq=low, count=0%]
 	rts                                    	| [$3123: ret] [freq=low, count=0%]
 l_3124:
-	clr.b	(0x00,a2)                        	| [$3124: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$3124: ld   (ix+$00),$00]
 	clr.b	(0x03,a2)                        	| [$3128: ld   (ix+$03),$00]
 	move.b	#0x99,d0                        	| [$312c: ld   a,$99]
 	GET_ADDRESS	num_grenades_eda8,a0       	| [$312e: ld   (num_grenades_eda8),a] set NUM_GRENADES
@@ -6856,7 +6856,7 @@ l_31f4:
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d1                           	| [$322a: ld   b,a]
 l_322b:
-	move.b	(0x00,a2),d0                    	| [$322b: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$322b: ld   a,(ix+$00)]
                                          | [$322e: and  a]
 	jeq	l_3238                             	| [$322f: jr   z,$3238]
 	MAKE_DE_NO_AR                          	| [$3231: add  ix,de]
@@ -6870,7 +6870,7 @@ l_322b:
 	move.l	(a7)+,a2                        	| [$3235: pop  ix]
 	rts                                    	| [$3237: ret]
 l_3238:
-	move.b	#0xff,(0x00,a2)                 	| [$3238: ld   (ix+$00),$ff]
+	move.b	#0xff,(a2)                 	| [$3238: ld   (ix+$00),$ff]
 	move.b	#0xc0,(0x01,a2)                 	| [$323c: ld   (ix+$01),$c0]
 	move.b	#0xc0,(0x02,a2)                 	| [$3240: ld   (ix+$02),$c0]
 	move.b	d5,(0x03,a2)                    	| [$3244: ld   (ix+$03),h]
@@ -7119,7 +7119,7 @@ l_3419:
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d1                           	| [$3445: ld   b,a]
 l_3446:
-	move.b	(0x00,a2),d0                    	| [$3446: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$3446: ld   a,(ix+$00)]
                                          | [$3449: and  a]
 	jeq	l_3453                             	| [$344a: jr   z,$3453]
 	MAKE_DE_NO_AR                          	| [$344c: add  ix,de]
@@ -7133,7 +7133,7 @@ l_3446:
 	move.l	(a7)+,a2                        	| [$3450: pop  ix]
 	rts                                    	| [$3452: ret]
 l_3453:
-	move.b	#0xff,(0x00,a2)                 	| [$3453: ld   (ix+$00),$ff]
+	move.b	#0xff,(a2)                 	| [$3453: ld   (ix+$00),$ff]
 	move.b	#0xc0,(0x01,a2)                 	| [$3457: ld   (ix+$01),$c0]
 	move.b	#0xc0,(0x02,a2)                 	| [$345b: ld   (ix+$02),$c0]
 	move.b	d5,(0x03,a2)                    	| [$345f: ld   (ix+$03),h]
@@ -7255,7 +7255,7 @@ l_351a:
 	move.b	(0x03,a2),d5                    	| [$352b: ld   h,(ix+$03)]
 	move.b	(0x05,a2),d6                    	| [$352e: ld   l,(ix+$05)]
 l_3531:
-	move.b	(0x00,a3),d0                    	| [$3531: ld   a,(iy+$00)]
+	move.b	(a3),d0                    	| [$3531: ld   a,(iy+$00)]
 	addq.b	#1,d0                           	| [$3534: inc  a]
 	jne	l_3570                             	| [$3535: jr   nz,$3570]
 	move.b	(0x03,a3),d0                    	| [$3537: ld   a,(iy+$03)]
@@ -7269,7 +7269,7 @@ l_3531:
 	cmp.b	#0x21,d0                         	| [$3547: cp   $21]
 	jcc	l_3570                             	| [$3549: jr   nc,$3570]
 * we're going to exit the loop
-	move.b	#0x3f,(0x00,a3)                 	| [$354b: ld   (iy+$00),$3f]
+	move.b	#0x3f,(a3)                 	| [$354b: ld   (iy+$00),$3f]
 	move.l	(a7)+,a3                        	| [$354f: pop  iy] restore iy
 	jbsr	l_8651                            	| [$3551: call $8651]
 	move.b	#0x05,d3                        	| [$3554: ld   d,$05]
@@ -7584,7 +7584,7 @@ l_3811:
 	move.b	#0x30,(0x15,a2)                 	| [$3811: ld   (ix+$15),$30]
 	rts                                    	| [$3815: ret]
 l_3816:
-	clr.b	(0x00,a2)                        	| [$3816: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$3816: ld   (ix+$00),$00]
 	clr.b	(0x02,a3)                        	| [$381a: ld   (iy+$02),$00]
 	clr.b	(0x06,a3)                        	| [$381e: ld   (iy+$06),$00]
 	rts                                    	| [$3822: ret]
@@ -7818,7 +7818,7 @@ l_3a8d:
 0:
 	addq.w	#4,sp |  [$3aa6: pop  hl] [address_pop] [freq=low, count=0%]
 l_3aa7:
-	clr.b	(0x00,a2)                        	| [$3aa7: ld   (ix+$00),$00] [freq=low, count=0%]
+	clr.b	(a2)                        	| [$3aa7: ld   (ix+$00),$00] [freq=low, count=0%]
 	move.b	(0x1a,a2),d1                    	| [$3aab: ld   b,(ix+$1a)] [freq=low, count=0%]
 	LOAD_DE	#0x0004                        	| [$3aae: ld   de,$0004] [freq=low, count=0%]
 l_3ab1:
@@ -8493,7 +8493,7 @@ l_6d9f:
 	addq.b	#1,(0x02,a3)                    	| [$6da6: inc  (iy+$02)]
 l_6da9:
 	clr.b	(0x01,a3)                        	| [$6da9: ld   (iy+$01),$00]
-	move.b	#0xba,(0x00,a3)                 	| [$6dad: ld   (iy+$00),$ba]
+	move.b	#0xba,(a3)                 	| [$6dad: ld   (iy+$00),$ba]
 	GET_ADDRESS	0xfe08,a3                  	| [$6db1: ld   iy,$fe08]
 	GET_ADDRESS	0xe013,a0                  	| [$6db5: ld   a,($e013)]
 	move.b	(a0),d0                         	| [...]
@@ -8520,7 +8520,7 @@ l_6dd3:
 	addq.b	#1,(0x02,a3)                    	| [$6dda: inc  (iy+$02)]
 l_6ddd:
 	clr.b	(0x01,a3)                        	| [$6ddd: ld   (iy+$01),$00]
-	move.b	#0xb8,(0x00,a3)                 	| [$6de1: ld   (iy+$00),$b8]
+	move.b	#0xb8,(a3)                 	| [$6de1: ld   (iy+$00),$b8]
 	move.b	(0x02,a3),d0                    	| [$6de5: ld   a,(iy+$02)]
 	GET_ADDRESS	0xe07d,a0                  	| [$6de8: ld   ($e07d),a]
 	move.b	d0,(a0)                         	| [...]
@@ -8939,7 +8939,7 @@ display_high_scores_81dc:
 	GET_ADDRESS	0xe064,a3                  	| [$81f2: ld   iy,$e064]
 	GET_ADDRESS	hi_score_1st_ee00,a2       	| [$81f6: ld   ix,hi_score_1st_ee00]
 	LOAD_HL	#0xd131                        	| [$81fa: ld   hl,$d131]
-	move.b	#0x07,(0x00,a3)                 	| [$81fd: ld   (iy+$00),$07]
+	move.b	#0x07,(a3)                 	| [$81fd: ld   (iy+$00),$07]
 	clr.b	(0x01,a3)                        	| [$8201: ld   (iy+$01),$00]
 	jra	l_8208                             	| [$8205: jr   $8208]
 
@@ -8974,7 +8974,7 @@ l_8208:
 	move.b	#0x0a,d1                        	| [$8225: ld   b,$0a]
 * loop to write name
 l_8227:
-	move.b	(0x00,a2),d0                    	| [$8227: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$8227: ld   a,(ix+$00)]
 	addq.w	#1,a2                           	| [$822a: inc  ix]
 	MAKE_HL_UNCHECKED	a0                             	| [$822c: ld   (hl),a] [unchecked_address]
 	move.b	d0,(a0)                         	| [...] [unchecked_address]
@@ -8996,7 +8996,7 @@ l_823c:
 	add.w	d4,d6                            	| [...]
 	MAKE_H                                 	| [...] update MSB reg
 	addq.b	#1,(0x01,a3)                    	| [$8240: inc  (iy+$01)]
-	subq.b	#1,(0x00,a3)                    	| [$8243: dec  (iy+$00)]
+	subq.b	#1,(a3)                    	| [$8243: dec  (iy+$00)]
 	jne	l_8208                             	| [$8246: jr   nz,$8208]
 	rts                                    	| [$8248: ret]
 
@@ -9674,10 +9674,10 @@ l_8851:
 	MAKE_HL_NO_AR                          	| [$8852: inc  hl]
 	addq.w	#1,d6                           	| [...]
 	MAKE_H
-	move.b	(0x00,a3),d0                    	| [$8853: ld   a,(iy+$00)]
+	move.b	(a3),d0                    	| [$8853: ld   a,(iy+$00)]
 	addq.b	#1,d0                           	| [$8856: inc  a]
 	jeq	l_886f                             	| [$8857: jr   z,$886f]
-	move.b	d2,(0x00,a3)                    	| [$8859: ld   (iy+$00),c]
+	move.b	d2,(a3)                    	| [$8859: ld   (iy+$00),c]
 	move.b	d2,(0x10,a3)                    	| [$885c: ld   (iy+$10),c]
 	move.b	d2,(0x20,a3)                    	| [$885f: ld   (iy+$20),c]
 	move.b	d2,(0x30,a3)                    	| [$8862: ld   (iy+$30),c]
@@ -9703,7 +9703,7 @@ l_8874:
 	rts                                    	| [...]
 0:
 	move.b	#0xff,d0                        	| [$8884: ld   a,$ff]
-	move.b	d0,(0x00,a3)                    	| [$8886: ld   (iy+$00),a]
+	move.b	d0,(a3)                    	| [$8886: ld   (iy+$00),a]
 	move.b	d0,(0x10,a3)                    	| [$8889: ld   (iy+$10),a]
 	move.b	d0,(0x20,a3)                    	| [$888c: ld   (iy+$20),a]
 	move.b	d0,(0x30,a3)                    	| [$888f: ld   (iy+$30),a]
@@ -9714,7 +9714,7 @@ l_8874:
 l_88a6:
 	GET_ADDRESS	player_state_e100,a2       	| [$88a6: ld   ix,player_state_e100]
 	GET_ADDRESS	0xff38,a3                  	| [$88aa: ld   iy,$ff38]
-	move.b	(0x00,a2),d0                    	| [$88ae: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$88ae: ld   a,(ix+$00)]
 	cmp.b	#0xfe,d0                         	| [$88b1: cp   $fe]
 	jne	0f                                 	| [$88b3: ret  z]
 	rts                                    	| [...]
@@ -9730,7 +9730,7 @@ l_88a6:
 	jeq	0f                                 	| [$88ca: ret  nz]
 	rts                                    	| [...]
 0:
-	move.b	#0xfe,(0x00,a2)                 	| [$88cb: ld   (ix+$00),$fe]
+	move.b	#0xfe,(a2)                 	| [$88cb: ld   (ix+$00),$fe]
 	rts                                    	| [$88cf: ret]
 l_88d0:
 	move.b	(0x03,a2),d0                    	| [$88d0: ld   a,(ix+$03)]
@@ -9782,7 +9782,7 @@ l_890c:
 l_8939:
 	GET_ADDRESS	player_state_e100,a2       	| [$8939: ld   ix,player_state_e100] [freq=low, count=4%]
 	GET_ADDRESS	0xff38,a3                  	| [$893d: ld   iy,$ff38] [freq=low, count=4%]
-	move.b	(0x00,a2),d0                    	| [$8941: ld   a,(ix+$00)] [freq=low, count=4%]
+	move.b	(a2),d0                    	| [$8941: ld   a,(ix+$00)] [freq=low, count=4%]
                                          | [$8944: and  a]
 	jne	0f                                 	| [$8945: ret  z] [freq=low, count=4%]
 	rts                                    	| [...]
@@ -9790,7 +9790,7 @@ l_8939:
 	move.b	(0x1a,a2),d0                    	| [$8946: ld   a,(ix+$1a)] [freq=low, count=4%]
                                          | [$8949: and  a]
 	jne	l_8744                             	| [$894a: jp   nz,$8744] [freq=low, count=4%]
-	move.b	(0x00,a2),d0                    	| [$894d: ld   a,(ix+$00)] [freq=low, count=4%]
+	move.b	(a2),d0                    	| [$894d: ld   a,(ix+$00)] [freq=low, count=4%]
 	addq.b	#1,d0                           	| [$8950: inc  a] [freq=low, count=4%]
 	jeq	l_8955                             	| [$8951: jr   z,$8955] [freq=low, count=4%]
 	jra	l_897a                             	| [$8953: jr   $897a]
@@ -9818,7 +9818,7 @@ l_897a:
 	GET_ADDRESS	0xe057,a0                  	| [$897d: ld   ($e057),hl]
 	MAKE_HL_NO_AR                          	| [...]
 	MOVE_W_FROM_REG	d6,a0                         	| [...]
-	move.b	(0x00,a2),d0                    	| [$8980: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$8980: ld   a,(ix+$00)]
 	cmp.b	#0x3f,d0                         	| [$8983: cp   $3f]
 	jcc	l_8a42                             	| [$8985: jp   nc,$8a42]
 	move.b	(0x15,a2),d0                    	| [$8988: ld   a,(ix+$15)]
@@ -9914,22 +9914,22 @@ l_8a42:
 	move.b	(0x1b,a2),d0                    	| [$8a4e: ld   a,(ix+$1b)]
                                          | [$8a51: and  a]
 	jne	l_8a5d                             	| [$8a52: jr   nz,$8a5d]
-	move.b	#0x1e,(0x00,a2)                 	| [$8a54: ld   (ix+$00),$1e]
+	move.b	#0x1e,(a2)                 	| [$8a54: ld   (ix+$00),$1e]
 	move.b	#0x28,(0x15,a2)                 	| [$8a58: ld   (ix+$15),$28]
 	rts                                    	| [$8a5c: ret]
 l_8a5d:
-	move.b	#0x1e,(0x00,a2)                 	| [$8a5d: ld   (ix+$00),$1e]
+	move.b	#0x1e,(a2)                 	| [$8a5d: ld   (ix+$00),$1e]
 	move.b	#0x28,(0x15,a2)                 	| [$8a61: ld   (ix+$15),$28]
 	rts                                    	| [$8a65: ret]
 l_8a66:
-	subq.b	#1,(0x00,a2)                    	| [$8a66: dec  (ix+$00)]
+	subq.b	#1,(a2)                    	| [$8a66: dec  (ix+$00)]
 	jeq	0f                                 	| [$8a69: ret  nz]
 	rts                                    	| [...]
 0:
 	clr.b	(0x02,a3)                        	| [$8a6a: ld   (iy+$02),$00]
 	clr.b	(0x06,a3)                        	| [$8a6e: ld   (iy+$06),$00]
 	clr.b	(0x0a,a3)                        	| [$8a72: ld   (iy+$0a),$00]
-	clr.b	(0x00,a2)                        	| [$8a76: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$8a76: ld   (ix+$00),$00]
 	rts                                    	| [$8a7a: ret]
 
 
@@ -10066,7 +10066,7 @@ l_8b93:
 	LOAD_DE	#0x0010                        	| [$8ba1: ld   de,$0010] [freq=low, count=15%]
 	GET_ADDRESS	0xe800,a2                  	| [$8ba4: ld   ix,$e800] [freq=low, count=15%]
 l_8ba8:
-	move.b	(0x00,a2),d0                    	| [$8ba8: ld   a,(ix+$00)] [freq=low, count=31%]
+	move.b	(a2),d0                    	| [$8ba8: ld   a,(ix+$00)] [freq=low, count=31%]
 	addq.b	#1,d0                           	| [$8bab: inc  a] [freq=low, count=31%]
 	jne	l_8bc6                             	| [$8bac: jr   nz,$8bc6] [freq=low, count=31%]
 	move.b	d6,d0                           	| [$8bae: ld   a,l] [freq=low, count=17%]
@@ -10227,7 +10227,7 @@ l_8c80:
 	jne	0f                                 	| [$8c88: ret  z] [freq=low, count=0%]
 	rts                                    	| [...]
 0:
-	move.b	#0x3f,(0x00,a2)                 	| [$8c89: ld   (ix+$00),$3f]
+	move.b	#0x3f,(a2)                 	| [$8c89: ld   (ix+$00),$3f]
 	rts                                    	| [$8c8d: ret]
 l_8c8e:
 	move.b	(0x0d,a2),d3                    	| [$8c8e: ld   d,(ix+$0d)] [freq=low, count=2%]
@@ -10303,21 +10303,17 @@ l_8dc2:
 	move.b	d2,(0x05,a3)                    	| [$8dc5: ld   (iy+$05),c] [freq=low, count=17%]
 	move.b	d2,(0x09,a3)                    	| [$8dc8: ld   (iy+$09),c] [freq=low, count=17%]
 	MAKE_HL	a0                             	| [$8dcb: ld   a,(hl)] [freq=low, count=17%]
-	move.b	(a0),d0                         	| [...]
-	MAKE_HL_NO_AR                          	| [$8dcc: inc  hl] [freq=low, count=17%]
-	addq.w	#1,d6                           	| [...]
-	MAKE_H
-	move.b	d0,(0x00,a3)                    	| [$8dcd: ld   (iy+$00),a] [freq=low, count=17%]
-	MAKE_HL	a0                             	| [$8dd0: ld   a,(hl)] [freq=low, count=17%]
-	move.b	(a0),d0                         	| [...]
-	MAKE_HL_NO_AR                          	| [$8dd1: inc  hl] [freq=low, count=17%]
-	addq.w	#1,d6                           	| [...]
-	MAKE_H
+	move.b	(a0)+,d0                         	| [...]
+	                          	| [$8dcc: inc  hl] [freq=low, count=17%]
+	move.b	d0,(a3)                    	| [$8dcd: ld   (iy+$00),a] [freq=low, count=17%]
+	                             	| [$8dd0: ld   a,(hl)] [freq=low, count=17%]
+	move.b	(a0)+,d0                         	| [...]
+	                          	| [$8dd1: inc  hl] [freq=low, count=17%]
 	move.b	d0,(0x04,a3)                    	| [$8dd2: ld   (iy+$04),a] [freq=low, count=17%]
-	MAKE_HL	a0                             	| [$8dd5: ld   a,(hl)] [freq=low, count=17%]
+	                             	| [$8dd5: ld   a,(hl)] [freq=low, count=17%]
 	move.b	(a0),d0                         	| [...]
-	MAKE_HL_NO_AR                          	| [$8dd6: inc  hl] [freq=low, count=17%]
-	addq.w	#1,d6                           	| [...]
+	                          	| [$8dd6: inc  hl] [freq=low, count=17%]
+	addq.w	#3,d6                           	| [...]
 	MAKE_H
 	move.b	d0,(0x08,a3)                    	| [$8dd7: ld   (iy+$08),a] [freq=low, count=17%]
 	move.b	(0x1e,a2),d0                    	| [$8dda: ld   a,(ix+$1e)] [freq=low, count=17%]
@@ -10434,7 +10430,7 @@ l_8e9a:
 	LOAD_BC	#0x0004                        	| [$8ea7: ld   bc,$0004] BC = sizeof(BULLET_SPRITE) [freq=low, count=4%]
 l_8eaa:
 	jbsr	exx                               	| [$8eaa: exx] [freq=low, count=28%]
-	move.b	(0x00,a2),d0                    	| [$8eab: ld   a,(ix+$00)] [freq=low, count=28%]
+	move.b	(a2),d0                    	| [$8eab: ld   a,(ix+$00)] [freq=low, count=28%]
                                          | [$8eae: and  a]
 	jeq	l_8fc0                             	| [$8eaf: jp   z,$8fc0] [freq=low, count=28%]
 	addq.b	#1,d0                           	| [$8eb2: inc  a] [freq=low, count=19%]
@@ -10451,7 +10447,7 @@ l_8eaa:
 	and.b	#0x03,d0                         	| [$8eca: and  $03] [freq=low, count=2%]
 	LOAD_HL	#0x8ed6                        	| [$8ecc: ld   hl,$8ed6] [freq=low, count=2%]
 	jbsr	l_0020                            	| [$8ecf: rst  $20] call RETURN_BYTE_AT_HL_PLUS_A [freq=low, count=2%]
-	move.b	d0,(0x00,a3)                    	| [$8ed0: ld   (iy+$00),a] [freq=low, count=2%]
+	move.b	d0,(a3)                    	| [$8ed0: ld   (iy+$00),a] [freq=low, count=2%]
 	jra	l_8fc0                             	| [$8ed3: jp   $8fc0] [freq=low, count=2%]
 
 
@@ -10467,7 +10463,7 @@ l_8ed9:
 	move.b	(0x19,a2),d0                    	| [$8ee5: ld   a,(ix+$19)] [freq=low, count=1%]
 	LOAD_HL	#0x8f33                        	| [$8ee8: ld   hl,$8f33] [freq=low, count=1%]
 	jbsr	l_0028                            	| [$8eeb: rst  $28] call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL [freq=low, count=1%]
-	move.b	d4,(0x00,a3)                    	| [$8eec: ld   (iy+$00),e] set SPRITE.Code [freq=low, count=1%]
+	move.b	d4,(a3)                    	| [$8eec: ld   (iy+$00),e] set SPRITE.Code [freq=low, count=1%]
 	move.b	d3,(0x01,a3)                    	| [$8eef: ld   (iy+$01),d] set SPRITE.Attr [freq=low, count=1%]
 	GET_ADDRESS	0xe062,a0                  	| [$8ef2: ld   a,($e062)] [freq=low, count=1%]
 	move.b	(a0),d0                         	| [...]
@@ -10484,7 +10480,7 @@ l_8f06:
 	move.b	(0x19,a2),d0                    	| [$8f0c: ld   a,(ix+$19)]
 	LOAD_HL	#0x8f2d                        	| [$8f0f: ld   hl,$8f2d]
 	jbsr	l_0028                            	| [$8f12: rst  $28] call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
-	move.b	d4,(0x00,a3)                    	| [$8f13: ld   (iy+$00),e] set SPRITE.Code
+	move.b	d4,(a3)                    	| [$8f13: ld   (iy+$00),e] set SPRITE.Code
 	move.b	d3,(0x01,a3)                    	| [$8f16: ld   (iy+$01),d] set SPRITE.Attr
 	GET_ADDRESS	0xe062,a0                  	| [$8f19: ld   a,($e062)]
 	move.b	(a0),d0                         	| [...]
@@ -10505,7 +10501,7 @@ l_8f53:
 	jeq	l_8f61                             	| [$8f5d: jr   z,$8f61]
 	move.b	#0xaf,d1                        	| [$8f5f: ld   b,$af]
 l_8f61:
-	move.b	d1,(0x00,a3)                    	| [$8f61: ld   (iy+$00),b]
+	move.b	d1,(a3)                    	| [$8f61: ld   (iy+$00),b]
 l_8f64:
 	subq.b	#1,(0x12,a2)                    	| [$8f64: dec  (ix+$12)]
 	jeq	l_8f7f                             	| [$8f67: jr   z,$8f7f]
@@ -10518,7 +10514,7 @@ l_8f64:
 	jcs	l_901d                             	| [$8f79: jp   c,$901d]
 	jra	l_8fc0                             	| [$8f7c: jp   $8fc0]
 l_8f7f:
-	clr.b	(0x00,a2)                        	| [$8f7f: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$8f7f: ld   (ix+$00),$00]
 	clr.b	(0x02,a3)                        	| [$8f83: ld   (iy+$02),$00]
 	move.b	(0x03,a2),d5                    	| [$8f87: ld   h,(ix+$03)]
 	move.b	(0x05,a2),d6                    	| [$8f8a: ld   l,(ix+$05)]
@@ -10527,7 +10523,7 @@ l_8f7f:
 l_8f93:
 	btst.b	#0,(0x13,a2)                    	| [$8f93: bit  0,(ix+$13)] [freq=low, count=0%]
 	jne	l_8f53                             	| [$8f97: jr   nz,$8f53] [freq=low, count=0%]
-	move.b	#0xb5,(0x00,a3)                 	| [$8f99: ld   (iy+$00),$b5] [freq=low, count=0%]
+	move.b	#0xb5,(a3)                 	| [$8f99: ld   (iy+$00),$b5] [freq=low, count=0%]
 	move.b	#0x01,(0x14,a2)                 	| [$8f9d: ld   (ix+$14),$01] [freq=low, count=0%]
 l_8fa1:
 	btst.b	#0,(0x13,a2)                    	| [$8fa1: bit  0,(ix+$13)] [freq=low, count=13%]
@@ -10594,25 +10590,25 @@ l_8ff3:
 l_900a:
 	btst.b	#0,(0x13,a2)                    	| [$900a: bit  0,(ix+$13)] [freq=low, count=3%]
 	jne	l_8f7f                             	| [$900e: jp   nz,$8f7f] [freq=low, count=3%]
-	move.b	(0x00,a2),d0                    	| [$9011: ld   a,(ix+$00)] [freq=low, count=3%]
+	move.b	(a2),d0                    	| [$9011: ld   a,(ix+$00)] [freq=low, count=3%]
 	cmp.b	#0x10,d0                         	| [$9014: cp   $10] [freq=low, count=3%]
 	jcc	l_902b                             	| [$9016: jr   nc,$902b] [freq=low, count=3%]
-	subq.b	#1,(0x00,a2)                    	| [$9018: dec  (ix+$00)] [freq=low, count=3%]
+	subq.b	#1,(a2)                    	| [$9018: dec  (ix+$00)] [freq=low, count=3%]
 	jne	l_8fc0                             	| [$901b: jr   nz,$8fc0] [freq=low, count=3%]
 l_901d:
-	clr.b	(0x00,a2)                        	| [$901d: ld   (ix+$00),$00] [freq=low, count=0%]
+	clr.b	(a2)                        	| [$901d: ld   (ix+$00),$00] [freq=low, count=0%]
 	clr.b	(0x03,a2)                        	| [$9021: ld   (ix+$03),$00] [freq=low, count=0%]
 	clr.b	(0x02,a3)                        	| [$9025: ld   (iy+$02),$00] [freq=low, count=0%]
 	jra	l_8fc0                             	| [$9029: jr   $8fc0] [freq=low, count=0%]
 
 l_902b:
-	move.b	#0x07,(0x00,a2)                 	| [$902b: ld   (ix+$00),$07] [freq=low, count=0%]
-	move.b	#0xb8,(0x00,a3)                 	| [$902f: ld   (iy+$00),$b8] [freq=low, count=0%]
+	move.b	#0x07,(a2)                 	| [$902b: ld   (ix+$00),$07] [freq=low, count=0%]
+	move.b	#0xb8,(a3)                 	| [$902f: ld   (iy+$00),$b8] [freq=low, count=0%]
 	clr.b	(0x01,a3)                        	| [$9033: ld   (iy+$01),$00] [freq=low, count=0%]
 	jra	l_8fc0                             	| [$9037: jr   $8fc0] [freq=low, count=0%]
 
 l_9039:
-	move.b	#0x3f,(0x00,a2)                 	| [$9039: ld   (ix+$00),$3f] [freq=low, count=0%]
+	move.b	#0x3f,(a2)                 	| [$9039: ld   (ix+$00),$3f] [freq=low, count=0%]
 	jra	l_8fc0                             	| [$903d: jr   $8fc0] [freq=low, count=0%]
 
 l_903f:
@@ -10625,7 +10621,7 @@ l_903f:
 	LOAD_DE	#0x0010                        	| [$904d: ld   de,$0010] [freq=low, count=6%]
 	GET_ADDRESS	0xe800,a2                  	| [$9050: ld   ix,$e800] [freq=low, count=6%]
 l_9054:
-	move.b	(0x00,a2),d0                    	| [$9054: ld   a,(ix+$00)] [freq=low, count=12%]
+	move.b	(a2),d0                    	| [$9054: ld   a,(ix+$00)] [freq=low, count=12%]
 	addq.b	#1,d0                           	| [$9057: inc  a] [freq=low, count=12%]
 	jne	l_9072                             	| [$9058: jr   nz,$9072] [freq=low, count=12%]
 	move.b	d6,d0                           	| [$905a: ld   a,l] [freq=low, count=7%]
@@ -10772,7 +10768,7 @@ l_9100:
 	jbsr	l_9262                            	| [$9100: call $9262] [freq=low, count=4%]
 	GET_ADDRESS	0xe140,a2                  	| [$9103: ld   ix,$e140] [freq=low, count=4%]
 	GET_ADDRESS	0xff44,a3                  	| [$9107: ld   iy,$ff44] [freq=low, count=4%]
-	move.b	(0x00,a2),d0                    	| [$910b: ld   a,(ix+$00)] [freq=low, count=4%]
+	move.b	(a2),d0                    	| [$910b: ld   a,(ix+$00)] [freq=low, count=4%]
                                          | [$910e: and  a]
 	jeq	l_92c7                             	| [$910f: jp   z,$92c7] [freq=low, count=4%]
 	addq.b	#1,d0                           	| [$9112: inc  a] [freq=low, count=0%]
@@ -10806,7 +10802,7 @@ l_9129:
 	move.b	d1,d0                           	| [$9143: ld   a,b] [freq=low, count=0%]
 	LOAD_HL	#0x915c                        	| [$9144: ld   hl,$915c] [freq=low, count=0%]
 	jbsr	l_0020                            	| [$9147: rst  $20] call RETURN_BYTE_AT_HL_PLUS_A [freq=low, count=0%]
-	move.b	d0,(0x00,a3)                    	| [$9148: ld   (iy+$00),a] [freq=low, count=0%]
+	move.b	d0,(a3)                    	| [$9148: ld   (iy+$00),a] [freq=low, count=0%]
 	move.b	(0x05,a2),d0                    	| [$914b: ld   a,(ix+$05)] [freq=low, count=0%]
 	move.b	d0,(0x03,a3)                    	| [$914e: ld   (iy+$03),a] [freq=low, count=0%]
 	move.b	(0x03,a2),d0                    	| [$9151: ld   a,(ix+$03)] [freq=low, count=0%]
@@ -10815,7 +10811,7 @@ l_9129:
 	rts                                    	| [$915b: ret] [freq=low, count=0%]
 
 l_916e:
-	clr.b	(0x00,a2)                        	| [$916e: ld   (ix+$00),$00] [freq=low, count=0%]
+	clr.b	(a2)                        	| [$916e: ld   (ix+$00),$00] [freq=low, count=0%]
 	clr.b	(0x02,a3)                        	| [$9172: ld   (iy+$02),$00] [freq=low, count=0%]
 	move.b	(0x03,a2),d5                    	| [$9176: ld   h,(ix+$03)] [freq=low, count=0%]
 	move.b	(0x05,a2),d6                    	| [$9179: ld   l,(ix+$05)] [freq=low, count=0%]
@@ -10831,12 +10827,12 @@ l_916e:
 	move.b	d0,(a0)                         	| [...]
 	move.b	d0,d6                           	| [$918f: ld   l,a] [freq=low, count=0%]
 	GET_ADDRESS	0xe047,a3                  	| [$9190: ld   iy,$e047] [freq=low, count=0%]
-	clr.b	(0x00,a3)                        	| [$9194: ld   (iy+$00),$00] [freq=low, count=0%]
+	clr.b	(a3)                        	| [$9194: ld   (iy+$00),$00] [freq=low, count=0%]
 	GET_ADDRESS	0xe600,a2                  	| [$9198: ld   ix,$e600] [freq=low, count=0%]
 	LOAD_DE	#0x0020                        	| [$919c: ld   de,$0020] [freq=low, count=0%]
 	move.b	#0x08,d1                        	| [$919f: ld   b,$08] [freq=low, count=0%]
 l_91a1:
-	move.b	(0x00,a2),d0                    	| [$91a1: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$91a1: ld   a,(ix+$00)] [freq=low, count=0%]
 	addq.b	#1,d0                           	| [$91a4: inc  a] [freq=low, count=0%]
 	jne	l_91c2                             	| [$91a5: jr   nz,$91c2] [freq=low, count=0%]
 	move.b	(0x03,a2),d0                    	| [$91a7: ld   a,(ix+$03)] [freq=low, count=0%]
@@ -10849,8 +10845,8 @@ l_91a1:
 	add.b	#0x28,d0                         	| [$91b5: add  a,$28] [freq=low, count=0%]
 	cmp.b	#0x40,d0                         	| [$91b7: cp   $40] [freq=low, count=0%]
 	jcc	l_91c2                             	| [$91b9: jr   nc,$91c2] [freq=low, count=0%]
-	move.b	#0x3f,(0x00,a2)                 	| [$91bb: ld   (ix+$00),$3f] [freq=low, count=0%]
-	addq.b	#1,(0x00,a3)                    	| [$91bf: inc  (iy+$00)] [freq=low, count=0%]
+	move.b	#0x3f,(a2)                 	| [$91bb: ld   (ix+$00),$3f] [freq=low, count=0%]
+	addq.b	#1,(a3)                    	| [$91bf: inc  (iy+$00)] [freq=low, count=0%]
 l_91c2:
 	add.w	#0x20,a2 |  [$91c2: add  ix,de] de=$20 [freq=low, count=0%]
 	subq.b	#1,d1                           	| [$91c4: djnz $91a1] [freq=low, count=0%]
@@ -10859,7 +10855,7 @@ l_91c2:
 	LOAD_DE	#0x0010                        	| [$91ca: ld   de,$0010] [freq=low, count=0%]
 	move.b	#0x0c,d1                        	| [$91cd: ld   b,$0c] [freq=low, count=0%]
 l_91cf:
-	move.b	(0x00,a2),d0                    	| [$91cf: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$91cf: ld   a,(ix+$00)] [freq=low, count=0%]
 	addq.b	#1,d0                           	| [$91d2: inc  a] [freq=low, count=0%]
 	jne	l_91f4                             	| [$91d3: jr   nz,$91f4] [freq=low, count=0%]
 	move.b	(0x06,a2),d0                    	| [$91d5: ld   a,(ix+$06)] [freq=low, count=0%]
@@ -10874,13 +10870,13 @@ l_91cf:
 	add.b	#0x13,d0                         	| [$91e7: add  a,$13]
 	cmp.b	#0x19,d0                         	| [$91e9: cp   $19]
 	jcc	l_91f4                             	| [$91eb: jr   nc,$91f4]
-	move.b	#0x3f,(0x00,a2)                 	| [$91ed: ld   (ix+$00),$3f]
-	addq.b	#1,(0x00,a3)                    	| [$91f1: inc  (iy+$00)]
+	move.b	#0x3f,(a2)                 	| [$91ed: ld   (ix+$00),$3f]
+	addq.b	#1,(a3)                    	| [$91f1: inc  (iy+$00)]
 l_91f4:
 	add.w	#0x10,a2 |  [$91f4: add  ix,de] de=$10 [freq=low, count=0%]
 	subq.b	#1,d1                           	| [$91f6: djnz $91cf] [freq=low, count=0%]
 	jne	l_91cf                             	| [...]
-	move.b	(0x00,a3),d0                    	| [$91f8: ld   a,(iy+$00)] [freq=low, count=0%]
+	move.b	(a3),d0                    	| [$91f8: ld   a,(iy+$00)] [freq=low, count=0%]
                                          | [$91fb: and  a]
 	jne	0f                                 	| [$91fc: ret  z] [freq=low, count=0%]
 	rts                                    	| [...]
@@ -10963,7 +10959,7 @@ l_9262:
 	and.b	#0x03,d0                         	| [$9277: and  $03] [freq=low, count=0%]
 	LOAD_HL	#0x92c3                        	| [$9279: ld   hl,$92c3] [freq=low, count=0%]
 	jbsr	l_0020                            	| [$927c: rst  $20] call RETURN_BYTE_AT_HL_PLUS_A [freq=low, count=0%]
-	move.b	d0,(0x00,a3)                    	| [$927d: ld   (iy+$00),a] [freq=low, count=0%]
+	move.b	d0,(a3)                    	| [$927d: ld   (iy+$00),a] [freq=low, count=0%]
 	addq.b	#1,d0                           	| [$9280: inc  a] [freq=low, count=0%]
 	move.b	d0,(0x04,a3)                    	| [$9281: ld   (iy+$04),a] [freq=low, count=0%]
 	add.b	#0x07,d0                         	| [$9284: add  a,$07] [freq=low, count=0%]
@@ -11056,7 +11052,7 @@ l_92ea:
 	rts                                    	| [$9301: ret] [freq=low, count=0%]
 l_9302:
 	GET_ADDRESS	0xe140,a2                  	| [$9302: ld   ix,$e140] [freq=low, count=0%]
-	subq.b	#1,(0x00,a2)                    	| [$9306: dec  (ix+$00)] [freq=low, count=0%]
+	subq.b	#1,(a2)                    	| [$9306: dec  (ix+$00)] [freq=low, count=0%]
 	move.b	#0x30,(0x15,a2)                 	| [$9309: ld   (ix+$15),$30] [freq=low, count=0%]
 	GET_ADDRESS	0xe103,a0                  	| [$930d: ld   a,($e103)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
@@ -11146,7 +11142,7 @@ l_936f:
 	LOAD_DE	#0x0020                        	| [$9373: ld   de,$0020] [freq=low, count=0%]
 	move.b	#0x06,d1                        	| [$9376: ld   b,$06] [freq=low, count=0%]
 l_9378:
-	move.b	(0x00,a2),d0                    	| [$9378: ld   a,(ix+$00)] [freq=low, count=1%]
+	move.b	(a2),d0                    	| [$9378: ld   a,(ix+$00)] [freq=low, count=1%]
                                          | [$937b: and  a]
 	jeq	l_9383                             	| [$937c: jr   z,$9383] [freq=low, count=1%]
 	add.w	#0x20,a2 |  [$937e: add  ix,de] de=$20 [freq=low, count=1%]
@@ -11155,7 +11151,7 @@ l_9378:
 	rts                                    	| [$9382: ret] [freq=low, count=0%]
 l_9383:
 	move.b	d1,(0x1f,a2)                    	| [$9383: ld   (ix+$1f),b] [freq=low, count=0%]
-	subq.b	#1,(0x00,a2)                    	| [$9386: dec  (ix+$00)] [freq=low, count=0%]
+	subq.b	#1,(a2)                    	| [$9386: dec  (ix+$00)] [freq=low, count=0%]
 	GET_ADDRESS	0xe103,a0                  	| [$9389: ld   a,($e103)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d3                           	| [$938c: ld   d,a] [freq=low, count=0%]
@@ -11280,7 +11276,7 @@ l_9447:
 	GET_ADDRESS	0xe2c0,a2                  	| [$944b: ld   ix,$e2c0] [freq=low, count=0%]
 	LOAD_DE	#0x0020                        	| [$944f: ld   de,$0020] [freq=low, count=0%]
 l_9452:
-	move.b	(0x00,a2),d0                    	| [$9452: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$9452: ld   a,(ix+$00)] [freq=low, count=0%]
                                          | [$9455: and  a]
 	jeq	l_9460                             	| [$9456: jr   z,$9460] [freq=low, count=0%]
 	add.w	#0x20,a2 |  [$9458: add  ix,de] de=$20 [freq=low, count=0%]
@@ -11294,7 +11290,7 @@ l_9460:
 	move.b	d6,(0x13,a2)                    	| [$9460: ld   (ix+$13),l] [freq=low, count=0%]
 	move.w	(a7)+,d6                        	| [$9463: pop  hl] restore hl [freq=low, count=0%]
 	MAKE_H                                 	| [...] restore hl
-	subq.b	#1,(0x00,a2)                    	| [$9464: dec  (ix+$00)] [freq=low, count=0%]
+	subq.b	#1,(a2)                    	| [$9464: dec  (ix+$00)] [freq=low, count=0%]
 	move.b	d5,(0x03,a2)                    	| [$9467: ld   (ix+$03),h] [freq=low, count=0%]
 	move.b	d6,(0x05,a2)                    	| [$946a: ld   (ix+$05),l] [freq=low, count=0%]
 	jbsr	l_6ce2                            	| [$946d: call $6ce2] [freq=low, count=0%]
@@ -11367,7 +11363,7 @@ l_9507:
 	GET_ADDRESS	0xe096,a0                  	| [$9507: ld   ix,($e096)] [freq=low, count=0%]
 	READ_ADDRESS	a0,a2                     	| [...]
 	move.b	(0x01,a2),d5                    	| [$950b: ld   h,(ix+$01)] [freq=low, count=0%]
-	move.b	(0x00,a2),d6                    	| [$950e: ld   l,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d6                    	| [$950e: ld   l,(ix+$00)] [freq=low, count=0%]
 	GET_ADDRESS	global_y_msb_copy_e05b,a0  	| [$9511: ld   de,(global_y_msb_copy_e05b)] [freq=low, count=0%]
 	MOVE_W_TO_REG	a0,d4                         	| [...]
 	MAKE_D                                 	| [...]
@@ -11402,7 +11398,7 @@ l_9507:
 	move.b	#0x08,d1                        	| [$953d: ld   b,$08] [freq=low, count=0%]
 	LOAD_DE	#0x0020                        	| [$953f: ld   de,$0020] [freq=low, count=0%]
 l_9542:
-	move.b	(0x00,a2),d0                    	| [$9542: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$9542: ld   a,(ix+$00)] [freq=low, count=0%]
                                          | [$9545: and  a]
 	jeq	l_954d                             	| [$9546: jr   z,$954d] [freq=low, count=0%]
 	add.w	d4,a2                          	| [$9548: add  ix,de] [freq=low, count=0%]
@@ -11443,7 +11439,7 @@ l_954d:
 	jbsr	l_970a                            	| [$9585: call $970a] [freq=low, count=0%]
 	jne	l_95be                             	| [$9588: jr   nz,$95be] [freq=low, count=0%]
 l_958a:
-	move.b	#0xff,(0x00,a2)                 	| [$958a: ld   (ix+$00),$ff] [freq=low, count=0%]
+	move.b	#0xff,(a2)                 	| [$958a: ld   (ix+$00),$ff] [freq=low, count=0%]
 	jbsr	l_95c4                            	| [$958e: call $95c4] [freq=low, count=0%]
 	GET_ADDRESS	0xe0f5,a0                  	| [$9591: ld   a,($e0f5)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
@@ -11532,7 +11528,7 @@ l_960e:
 	move.b	#0x08,d1                        	| [$9612: ld   b,$08] [freq=low, count=0%]
 	LOAD_DE	#0x0020                        	| [$9614: ld   de,$0020] [freq=low, count=0%]
 l_9617:
-	move.b	(0x00,a2),d0                    	| [$9617: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$9617: ld   a,(ix+$00)] [freq=low, count=0%]
                                          | [$961a: and  a]
 	jeq	l_9622                             	| [$961b: jr   z,$9622] [freq=low, count=0%]
 	add.w	d4,a2                          	| [$961d: add  ix,de] [freq=low, count=0%]
@@ -11552,7 +11548,7 @@ l_9622:
 	.long	l_96cb                           	|  $962a
 
 l_962c:
-	subq.b	#1,(0x00,a2)                    	| [$962c: dec  (ix+$00)] [freq=low, count=0%]
+	subq.b	#1,(a2)                    	| [$962c: dec  (ix+$00)] [freq=low, count=0%]
 	clr.b	(0x11,a2)                        	| [$962f: ld   (ix+$11),$00] [freq=low, count=0%]
 	move.b	#0x03,(0x13,a2)                 	| [$9633: ld   (ix+$13),$03] [freq=low, count=0%]
 	jbsr	l_982f                            	| [$9637: call $982f] [freq=low, count=0%]
@@ -11573,7 +11569,7 @@ l_962c:
 	jra	l_96e6                             	| [$9664: jp   $96e6] [freq=low, count=0%]
 	rts                                    	| [$9667: ret]
 l_9668:
-	subq.b	#1,(0x00,a2)                    	| [$9668: dec  (ix+$00)] [freq=low, count=0%]
+	subq.b	#1,(a2)                    	| [$9668: dec  (ix+$00)] [freq=low, count=0%]
 	clr.b	(0x11,a2)                        	| [$966b: ld   (ix+$11),$00] [freq=low, count=0%]
 	move.b	#0x04,(0x13,a2)                 	| [$966f: ld   (ix+$13),$04] [freq=low, count=0%]
 	jbsr	l_982f                            	| [$9673: call $982f] [freq=low, count=0%]
@@ -11614,10 +11610,10 @@ l_968b:
 	jne	0f                                 	| [$96c5: ret  z] [freq=low, count=0%]
 	rts                                    	| [...]
 0:
-	clr.b	(0x00,a2)                        	| [$96c6: ld   (ix+$00),$00] [freq=low, count=0%]
+	clr.b	(a2)                        	| [$96c6: ld   (ix+$00),$00] [freq=low, count=0%]
 	rts                                    	| [$96ca: ret] [freq=low, count=0%]
 l_96cb:
-	subq.b	#1,(0x00,a2)                    	| [$96cb: dec  (ix+$00)]
+	subq.b	#1,(a2)                    	| [$96cb: dec  (ix+$00)]
 	clr.b	(0x11,a2)                        	| [$96ce: ld   (ix+$11),$00]
 	move.b	#0x05,(0x13,a2)                 	| [$96d2: ld   (ix+$13),$05]
 	jbsr	l_982f                            	| [$96d6: call $982f]
@@ -11652,7 +11648,7 @@ l_96f3:
 	move.b	d0,(0x07,a2)                    	| [$9700: ld   (ix+$07),a] [freq=low, count=0%]
 	subq.b	#1,d1                           	| [$9703: djnz $96f3] [freq=low, count=0%]
 	jne	l_96f3                             	| [...]
-	clr.b	(0x00,a2)                        	| [$9705: ld   (ix+$00),$00] [freq=low, count=0%]
+	clr.b	(a2)                        	| [$9705: ld   (ix+$00),$00] [freq=low, count=0%]
 	rts                                    	| [$9709: ret] [freq=low, count=0%]
 
 l_970a:
@@ -11770,12 +11766,12 @@ l_9776:
 	jbsr	l_0028                            	| [$978c: rst  $28] call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 	MAKE_DE_NO_AR                          	| [$978d: push de]
 	lea	(a6,d4.l),a3 |  [$978e: pop  iy]
-	move.b	(0x00,a3),d2                    	| [$9790: ld   c,(iy+$00)]
+	move.b	(a3),d2                    	| [$9790: ld   c,(iy+$00)]
 	addq.w	#1,a3                           	| [$9793: inc  iy]
 	GET_ADDRESS	0xe600,a2                  	| [$9795: ld   ix,$e600]
 	move.b	#0x08,d1                        	| [$9799: ld   b,$08]
 l_979b:
-	move.b	(0x00,a2),d0                    	| [$979b: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$979b: ld   a,(ix+$00)]
                                          | [$979e: and  a]
 	jeq	l_97a9                             	| [$979f: jr   z,$97a9]
 l_97a1:
@@ -11790,8 +11786,8 @@ l_97a1:
 	jne	l_979b                             	| [...]
 	rts                                    	| [$97a8: ret]
 l_97a9:
-	subq.b	#1,(0x00,a2)                    	| [$97a9: dec  (ix+$00)]
-	move.b	(0x00,a3),d0                    	| [$97ac: ld   a,(iy+$00)]
+	subq.b	#1,(a2)                    	| [$97a9: dec  (ix+$00)]
+	move.b	(a3),d0                    	| [$97ac: ld   a,(iy+$00)]
 	move.b	d0,(0x03,a2)                    	| [$97af: ld   (ix+$03),a]
 	move.b	d0,(0x07,a2)                    	| [$97b2: ld   (ix+$07),a]
 	move.b	(0x01,a3),d0                    	| [$97b5: ld   a,(iy+$01)]
@@ -11947,7 +11943,7 @@ l_988d:
 	move.b	#0x0a,d1                        	| [$989d: ld   b,$0a]
 	LOAD_DE	#0x0004                        	| [$989f: ld   de,$0004]
 l_98a2:
-	clr.b	(0x00,a2)                        	| [$98a2: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$98a2: ld   (ix+$00),$00]
 	add.w	d4,a2                          	| [$98a6: add  ix,de]
 	subq.b	#1,d1                           	| [$98a8: djnz $98a2]
 	jne	l_98a2                             	| [...]
@@ -11957,7 +11953,7 @@ l_98a2:
 l_98ab:
 	GET_ADDRESS	player_state_e100,a2       	| [$98ab: ld   ix,player_state_e100]
 	GET_ADDRESS	0xff38,a3                  	| [$98af: ld   iy,$ff38]
-	clr.b	(0x00,a2)                        	| [$98b3: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$98b3: ld   (ix+$00),$00]
 	move.b	#0x2c,(0x03,a2)                 	| [$98b7: ld   (ix+$03),$2c]
 	move.b	#0x40,(0x05,a2)                 	| [$98bb: ld   (ix+$05),$40]
 l_98bf:
@@ -11968,7 +11964,7 @@ l_98bf:
 l_98cb:
 	GET_ADDRESS	0xe108,a2                  	| [$98cb: ld   ix,$e108]
 	GET_ADDRESS	0xff40,a3                  	| [$98cf: ld   iy,$ff40]
-	clr.b	(0x00,a2)                        	| [$98d3: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$98d3: ld   (ix+$00),$00]
 	move.b	#0x2c,(0x03,a2)                 	| [$98d7: ld   (ix+$03),$2c]
 	move.b	#0xac,(0x05,a2)                 	| [$98db: ld   (ix+$05),$ac]
 l_98df:
@@ -12033,7 +12029,7 @@ l_9941:
 	LOAD_HL	#0x9c3f                        	| [$9948: ld   hl,$9c3f]
 	GET_ADDRESS	0xff38,a3                  	| [$994b: ld   iy,$ff38]
 	jbsr	l_0028                            	| [$994f: rst  $28] call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
-	move.b	d4,(0x00,a3)                    	| [$9950: ld   (iy+$00),e]
+	move.b	d4,(a3)                    	| [$9950: ld   (iy+$00),e]
 	move.b	d3,(0x04,a3)                    	| [$9953: ld   (iy+$04),d]
 	rts                                    	| [$9956: ret]
 
@@ -12056,7 +12052,7 @@ l_9957:
 0:
 	jra	l_99a9                             	| [$9977: jp   $99a9]
 l_997a:
-	move.b	(0x00,a2),d0                    	| [$997a: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$997a: ld   a,(ix+$00)]
                                          | [$997d: and  a]
 	jeq	0f                                 	| [$997e: ret  nz]
 	rts                                    	| [...]
@@ -12125,7 +12121,7 @@ l_99b6:
 l_99bf:
 	GET_ADDRESS	player_state_e100,a2       	| [$99bf: ld   ix,player_state_e100]
 	GET_ADDRESS	0xff38,a3                  	| [$99c3: ld   iy,$ff38]
-	move.b	(0x00,a2),d0                    	| [$99c7: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$99c7: ld   a,(ix+$00)]
                                          | [$99ca: and  a]
 	jeq	l_9a0a                             	| [$99cb: jr   z,$9a0a]
 	move.b	#0x02,d1                        	| [$99cd: ld   b,$02]
@@ -12140,7 +12136,7 @@ l_99d7:
 	move.b	d0,(0x0b,a2)                    	| [$99de: ld   (ix+$0b),a]
 	move.b	d0,(0x0a,a3)                    	| [$99e1: ld   (iy+$0a),a]
 	jbsr	l_98bf                            	| [$99e4: call $98bf]
-	subq.b	#1,(0x00,a2)                    	| [$99e7: dec  (ix+$00)]
+	subq.b	#1,(a2)                    	| [$99e7: dec  (ix+$00)]
 	jeq	0f                                 	| [$99ea: ret  nz]
 	rts                                    	| [...]
 0:
@@ -12209,7 +12205,7 @@ l_9a2f:
 	rts                                    	| [...]
 0:
 	move.b	#0x01,(0x01,a2)                 	| [$9a35: ld   (ix+$01),$01]
-	move.b	#0x08,(0x00,a2)                 	| [$9a39: ld   (ix+$00),$08]
+	move.b	#0x08,(a2)                 	| [$9a39: ld   (ix+$00),$08]
 	rts                                    	| [$9a3d: ret]
 
 l_9a3e:
@@ -12219,13 +12215,13 @@ l_9a3e:
 	rts                                    	| [...]
 0:
 	clr.b	(0x01,a2)                        	| [$9a44: ld   (ix+$01),$00]
-	move.b	#0x08,(0x00,a2)                 	| [$9a48: ld   (ix+$00),$08]
+	move.b	#0x08,(a2)                 	| [$9a48: ld   (ix+$00),$08]
 	rts                                    	| [$9a4c: ret]
 
 l_9a4d:
 	GET_ADDRESS	0xe108,a2                  	| [$9a4d: ld   ix,$e108]
 	GET_ADDRESS	0xff40,a3                  	| [$9a51: ld   iy,$ff40]
-	move.b	(0x00,a2),d0                    	| [$9a55: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$9a55: ld   a,(ix+$00)]
                                          | [$9a58: and  a]
 	jeq	l_9a98                             	| [$9a59: jr   z,$9a98]
 	move.b	#0x02,d1                        	| [$9a5b: ld   b,$02]
@@ -12238,7 +12234,7 @@ l_9a65:
 	add.b	d1,d0                            	| [$9a68: add  a,b]
 	move.b	d0,(0x05,a2)                    	| [$9a69: ld   (ix+$05),a]
 	jbsr	l_98df                            	| [$9a6c: call $98df]
-	subq.b	#1,(0x00,a2)                    	| [$9a6f: dec  (ix+$00)]
+	subq.b	#1,(a2)                    	| [$9a6f: dec  (ix+$00)]
 	jeq	0f                                 	| [$9a72: ret  nz]
 	rts                                    	| [...]
 0:
@@ -12313,7 +12309,7 @@ l_9abd:
 	rts                                    	| [...]
 0:
 	clr.b	(0x01,a2)                        	| [$9ac3: ld   (ix+$01),$00]
-	move.b	#0x08,(0x00,a2)                 	| [$9ac7: ld   (ix+$00),$08]
+	move.b	#0x08,(a2)                 	| [$9ac7: ld   (ix+$00),$08]
 	rts                                    	| [$9acb: ret]
 
 l_9acc:
@@ -12323,7 +12319,7 @@ l_9acc:
 	rts                                    	| [...]
 0:
 	move.b	#0x01,(0x01,a2)                 	| [$9ad2: ld   (ix+$01),$01]
-	move.b	#0x08,(0x00,a2)                 	| [$9ad6: ld   (ix+$00),$08]
+	move.b	#0x08,(a2)                 	| [$9ad6: ld   (ix+$00),$08]
 	rts                                    	| [$9ada: ret]
 
 l_9adb:
@@ -12347,7 +12343,7 @@ l_9ae8:
 	LOAD_BC	#0x0010                        	| [$9af9: ld   bc,$0010]
 	move.b	#0x04,d5                        	| [$9afc: ld   h,$04]
 l_9afe:
-	move.b	(0x00,a2),d0                    	| [$9afe: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$9afe: ld   a,(ix+$00)]
                                          | [$9b01: and  a]
 	jeq	l_9b0d                             	| [$9b02: jr   z,$9b0d]
 	add.w	d2,a2                          	| [$9b04: add  ix,bc]
@@ -12358,7 +12354,7 @@ l_9afe:
 0:
 	jra	l_9afe                             	| [$9b0a: jp   $9afe]
 l_9b0d:
-	move.b	#0xff,(0x00,a2)                 	| [$9b0d: ld   (ix+$00),$ff]
+	move.b	#0xff,(a2)                 	| [$9b0d: ld   (ix+$00),$ff]
 	GET_ADDRESS	0xe103,a0                  	| [$9b11: ld   a,($e103)]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,(0x02,a3)                    	| [$9b14: ld   (iy+$02),a]
@@ -12368,7 +12364,7 @@ l_9b0d:
 	GET_ADDRESS	0xe105,a0                  	| [$9b1d: ld   a,($e105)]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,(0x03,a3)                    	| [$9b20: ld   (iy+$03),a]
-	move.b	#0xb5,(0x00,a3)                 	| [$9b23: ld   (iy+$00),$b5]
+	move.b	#0xb5,(a3)                 	| [$9b23: ld   (iy+$00),$b5]
 	clr.b	(0x01,a3)                        	| [$9b27: ld   (iy+$01),$00]
 	GET_ADDRESS	0xe0b9,a0                  	| [$9b2b: ld   a,($e0b9)]
 	move.b	(a0),d0                         	| [...]
@@ -12389,7 +12385,7 @@ l_9b3f:
 l_9b49:
 	MAKE_BC_NO_AR                          	| [$9b49: push bc]
 	move.w	d2,-(a7)                        	| [...]
-	move.b	(0x00,a2),d0                    	| [$9b4a: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$9b4a: ld   a,(ix+$00)]
                                          | [$9b4d: and  a]
 	jeq	l_9b53                             	| [$9b4e: jr   z,$9b53]
 	jbsr	l_9b61                            	| [$9b50: call $9b61]
@@ -12435,14 +12431,14 @@ l_9b61:
 	move.b	(0x01,a2),d5                    	| [$9b83: ld   h,(ix+$01)]
 	move.b	(0x02,a2),d3                    	| [$9b86: ld   d,(ix+$02)]
 	move.b	(0x03,a2),d4                    	| [$9b89: ld   e,(ix+$03)]
-	clr.b	(0x00,a2)                        	| [$9b8c: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$9b8c: ld   (ix+$00),$00]
 	clr.b	(0x02,a3)                        	| [$9b90: ld   (iy+$02),$00]
 	jbsr	exx                               	| [$9b94: exx]
 	move.l	a2,-(a7)                        	| [$9b95: push ix]
 	GET_ADDRESS	0xe2c0,a2                  	| [$9b97: ld   ix,$e2c0]
 	LOAD_DE	#0x0004                        	| [$9b9b: ld   de,$0004]
 l_9b9e:
-	move.b	(0x00,a2),d0                    	| [$9b9e: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$9b9e: ld   a,(ix+$00)]
                                          | [$9ba1: and  a]
 	jeq	l_9ba9                             	| [$9ba2: jr   z,$9ba9]
 	MAKE_DE_NO_AR                          	| [$9ba4: add  ix,de]
@@ -12454,7 +12450,7 @@ l_9b9e:
 	jra	l_9b9e                             	| [$9ba6: jp   $9b9e]
 l_9ba9:
 	jbsr	exx                               	| [$9ba9: exx]
-	move.b	#0x60,(0x00,a2)                 	| [$9baa: ld   (ix+$00),$60]
+	move.b	#0x60,(a2)                 	| [$9baa: ld   (ix+$00),$60]
 	move.b	d5,(0x01,a2)                    	| [$9bae: ld   (ix+$01),h]
 	move.b	d3,(0x02,a2)                    	| [$9bb1: ld   (ix+$02),d]
 	move.b	d4,(0x03,a2)                    	| [$9bb4: ld   (ix+$03),e]
@@ -12489,7 +12485,7 @@ l_9ba9:
 	rts                                    	| [$9bd1: ret]
 
 l_9bd2:
-	clr.b	(0x00,a2)                        	| [$9bd2: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$9bd2: ld   (ix+$00),$00]
 	clr.b	(0x02,a3)                        	| [$9bd6: ld   (iy+$02),$00]
 	LOAD_DE	#0xd179                        	| [$9bda: ld   de,$d179]
 	GET_ADDRESS	0xe06b,a0                  	| [$9bdd: ld   hl,($e06b)]
@@ -12526,7 +12522,7 @@ l_9bf5:
 	GET_ADDRESS	0xe0b8,a0                  	| [$9bf7: ld   ($e0b8),a]
 	move.b	d0,(a0)                         	| [...]
 l_9bfa:
-	clr.b	(0x00,a2)                        	| [$9bfa: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$9bfa: ld   (ix+$00),$00]
 	clr.b	(0x02,a3)                        	| [$9bfe: ld   (iy+$02),$00]
 	rts                                    	| [$9c02: ret]
 
@@ -12536,7 +12532,7 @@ l_9c03:
 	move.b	#0x0a,d1                        	| [$9c0a: ld   b,$0a]
 l_9c0c:
 	jbsr	exx                               	| [$9c0c: exx]
-	move.b	(0x00,a2),d0                    	| [$9c0d: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$9c0d: ld   a,(ix+$00)]
                                          | [$9c10: and  a]
 	jeq	l_9c16                             	| [$9c11: jr   z,$9c16]
 	jbsr	l_9c1c                            	| [$9c13: call $9c1c]
@@ -12552,9 +12548,9 @@ l_9c16:
 	jne	l_9c0c                             	| [...]
 	rts                                    	| [$9c1b: ret]
 l_9c1c:
-	subq.b	#1,(0x00,a2)                    	| [$9c1c: dec  (ix+$00)]
+	subq.b	#1,(a2)                    	| [$9c1c: dec  (ix+$00)]
 	jeq	l_9c5d                             	| [$9c1f: jr   z,$9c5d]
-	move.b	(0x00,a2),d0                    	| [$9c21: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$9c21: ld   a,(ix+$00)]
 	ror.b	#1,d0                            	| [$9c24: rrca]
 	and.b	#0x07,d0                         	| [$9c25: and  $07]
 	move.b	d0,d1                           	| [$9c27: ld   b,a]
@@ -13261,10 +13257,10 @@ l_9f09:
 	move.b	d6,d0                           	| [$9f3c: ld   a,l] [freq=low, count=2%]
 	GET_ADDRESS	0xe05d,a0                  	| [$9f3d: ld   ($e05d),a] [freq=low, count=2%]
 	move.b	d0,(a0)                         	| [...]
-	move.b	(0x00,a2),d0                    	| [$9f40: ld   a,(ix+$00)] [freq=low, count=2%]
+	move.b	(a2),d0                    	| [$9f40: ld   a,(ix+$00)] [freq=low, count=2%]
 	move.b	#0x00,d7 | [$9f43: [freq=low, count=2%]
 	addx.b	d7,d0                        	| [...]
-	move.b	d0,(0x00,a2)                    	| [$9f45: ld   (ix+$00),a] [freq=low, count=2%]
+	move.b	d0,(a2)                    	| [$9f45: ld   (ix+$00),a] [freq=low, count=2%]
 	GET_ADDRESS	global_y_msb_copy_e05b,a0  	| [$9f48: ld   (global_y_msb_copy_e05b),a] [freq=low, count=2%]
 	move.b	d0,(a0)                         	| [...]
 	GET_ADDRESS	0xeda3,a0                  	| [$9f4b: ld   ($eda3),a] [freq=low, count=2%]
@@ -13533,7 +13529,7 @@ entry_a2cf:
 	LOAD_DE	#0x0010                        	| [$a2f1: ld   de,$0010]
 	move.b	#0x0c,d1                        	| [$a2f4: ld   b,$0c]
 l_a2f6:
-	move.b	(0x00,a2),d0                    	| [$a2f6: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$a2f6: ld   a,(ix+$00)]
                                          | [$a2f9: and  a]
 	jeq	l_a30d                             	| [$a2fa: jr   z,$a30d]
 	move.b	d2,d0                           	| [$a2fc: ld   a,c]
@@ -13541,7 +13537,7 @@ l_a2f6:
 	addq.b	#1,d0                           	| [$a300: inc  a]
 	move.b	d0,(0x0c,a3)                    	| [$a301: ld   (iy+$0c),a]
 	add.b	#0x07,d0                         	| [$a304: add  a,$07]
-	move.b	d0,(0x00,a3)                    	| [$a306: ld   (iy+$00),a]
+	move.b	d0,(a3)                    	| [$a306: ld   (iy+$00),a]
 	addq.b	#1,d0                           	| [$a309: inc  a]
 	move.b	d0,(0x04,a3)                    	| [$a30a: ld   (iy+$04),a]
 l_a30d:
@@ -13610,17 +13606,17 @@ l_a343:
 	and.b	#0x08,d0                         	| [$a348: and  $08] [freq=low, count=0%]
 	add.b	#0xb0,d0                         	| [$a34a: add  a,$b0] [freq=low, count=0%]
 	move.b	d0,d2                           	| [$a34c: ld   c,a] [freq=low, count=0%]
-	move.b	(0x00,a3),d5                    	| [$a34d: ld   h,(iy+$00)] [freq=low, count=0%]
+	move.b	(a3),d5                    	| [$a34d: ld   h,(iy+$00)] [freq=low, count=0%]
 	move.b	(0x01,a3),d1                    	| [$a350: ld   b,(iy+$01)] [freq=low, count=0%]
 	jbsr	exx                               	| [$a353: exx] [freq=low, count=0%]
 	LOAD_BC	#0x0010                        	| [$a354: ld   bc,$0010] [freq=low, count=0%]
 	GET_ADDRESS	0xe800,a2                  	| [$a357: ld   ix,$e800] [freq=low, count=0%]
 	jbsr	exx                               	| [$a35b: exx] [freq=low, count=0%]
 l_a35c:
-	move.b	(0x00,a2),d0                    	| [$a35c: ld   a,(ix+$00)] [freq=low, count=0%]
+	move.b	(a2),d0                    	| [$a35c: ld   a,(ix+$00)] [freq=low, count=0%]
                                          | [$a35f: and  a]
 	jne	l_a392                             	| [$a360: jr   nz,$a392] [freq=low, count=0%]
-	subq.b	#1,(0x00,a2)                    	| [$a362: dec  (ix+$00)] [freq=low, count=0%]
+	subq.b	#1,(a2)                    	| [$a362: dec  (ix+$00)] [freq=low, count=0%]
 	move.b	d5,(0x03,a2)                    	| [$a365: ld   (ix+$03),h] [freq=low, count=0%]
 	clr.b	(0x04,a2)                        	| [$a368: ld   (ix+$04),$00] [freq=low, count=0%]
 	move.b	d6,(0x05,a2)                    	| [$a36c: ld   (ix+$05),l] [freq=low, count=0%]
@@ -13672,7 +13668,7 @@ l_a3ac:
 	move.b	#0x09,d1                        	| [$a3b5: ld   b,$09] [freq=low, count=3%]
 l_a3b7:
 	jbsr	exx                               	| [$a3b7: exx] [freq=low, count=21%]
-	move.b	(0x00,a2),d0                    	| [$a3b8: ld   a,(ix+$00)] [freq=low, count=21%]
+	move.b	(a2),d0                    	| [$a3b8: ld   a,(ix+$00)] [freq=low, count=21%]
                                          | [$a3bb: and  a]
 	jeq	entry_a3ec                         	| [$a3bc: jr   z,entry_a3ec] [freq=low, count=21%]
 	addq.b	#1,d0                           	| [$a3be: inc  a] [freq=low, count=14%]
@@ -13698,7 +13694,7 @@ l_a3cd:
 	move.b	d6,d0                           	| [$a3de: ld   a,l] [freq=low, count=1%]
 	cmp.b	#0xe0,d0                         	| [$a3df: cp   $e0] [freq=low, count=1%]
 	jcc	l_a3e9                             	| [$a3e1: jr   nc,$a3e9] [freq=low, count=1%]
-	clr.b	(0x00,a2)                        	| [$a3e3: ld   (ix+$00),$00] [freq=low, count=0%]
+	clr.b	(a2)                        	| [$a3e3: ld   (ix+$00),$00] [freq=low, count=0%]
 	jra	entry_a3ec                         	| [$a3e7: jr   entry_a3ec] [freq=low, count=0%]
 l_a3e9:
 	jbsr	l_a498                            	| [$a3e9: call $a498] [freq=low, count=14%]
@@ -13734,20 +13730,20 @@ l_a3f8:
 l_a405:
 	 |  [$a405: ld   hl,entry_a3ec] [push_function]
 	pea	entry_a3ec |  [$a408: push hl]
-	move.b	(0x00,a2),d0                    	| [$a409: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$a409: ld   a,(ix+$00)]
 	cmp.b	#0x3f,d0                         	| [$a40c: cp   $3f]
 	jcc	l_a485                             	| [$a40e: jp   nc,$a485]
-	subq.b	#1,(0x00,a2)                    	| [$a411: dec  (ix+$00)]
+	subq.b	#1,(a2)                    	| [$a411: dec  (ix+$00)]
 	jeq	l_a491                             	| [$a414: jp   z,$a491]
 	LOAD_DE	#0xa47d                        	| [$a417: ld   de,$a47d]
 	move.b	#0x14,d2                        	| [$a41a: ld   c,$14]
-	move.b	(0x00,a2),d0                    	| [$a41c: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$a41c: ld   a,(ix+$00)]
 	cmp.b	#0x08,d0                         	| [$a41f: cp   $08]
 	jcc	l_a428                             	| [$a421: jr   nc,$a428]
 	LOAD_DE	#0xa481                        	| [$a423: ld   de,$a481]
 	move.b	#0x15,d2                        	| [$a426: ld   c,$15]
 l_a428:
-	move.b	d2,(0x00,a3)                    	| [$a428: ld   (iy+$00),c]
+	move.b	d2,(a3)                    	| [$a428: ld   (iy+$00),c]
 	move.b	d2,(0x04,a3)                    	| [$a42b: ld   (iy+$04),c]
 	move.b	d2,d0                           	| [$a42e: ld   a,c]
 	add.b	#0x07,d0                         	| [$a42f: add  a,$07]
@@ -13799,19 +13795,19 @@ l_a450:
 	move.b	d0,(0x0f,a3)                    	| [$a477: ld   (iy+$0f),a]
 	jra	l_a512                             	| [$a47a: jp   $a512]
 l_a485:
-	move.b	#0x10,(0x00,a2)                 	| [$a485: ld   (ix+$00),$10]
+	move.b	#0x10,(a2)                 	| [$a485: ld   (ix+$00),$10]
 	move.b	#0x05,d3                        	| [$a489: ld   d,$05]
 	move.b	#0x02,d4                        	| [$a48b: ld   e,$02]
 	jbsr	l_0038                            	| [$a48d: rst  $38] queue_event_0038
 	jra	l_a512                             	| [$a48e: jp   $a512]
 l_a491:
-	clr.b	(0x00,a2)                        	| [$a491: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$a491: ld   (ix+$00),$00]
 	jra	l_a512                             	| [$a495: jp   $a512]
 l_a498:
 	move.b	(0x06,a2),d0                    	| [$a498: ld   a,(ix+$06)] [freq=low, count=14%]
 	cmp.b	#0x01,d0                         	| [$a49b: cp   $01] [freq=low, count=14%]
 	jcs	l_a4a4                             	| [$a49d: jr   c,$a4a4] [freq=low, count=14%]
-	jeq	l_a523                             	| [$a49f: jp   z,$a523] [freq=low, count=3%]
+	                             	| [$a49f: jp   z,$a523] [freq=low, count=3%]
 	jra	l_a523                             	| [$a4a2: jr   $a523]
 l_a4a4:
 	btst.b	#3,(0x08,a2)                    	| [$a4a4: bit  3,(ix+$08)] [freq=low, count=10%]
@@ -13840,7 +13836,7 @@ l_a4ce:
 	move.b	d0,(0x0b,a3)                    	| [$a4dd: ld   (iy+$0b),a] [freq=low, count=10%]
 	move.b	d0,(0x0f,a3)                    	| [$a4e0: ld   (iy+$0f),a] [freq=low, count=10%]
 	move.b	(0x07,a2),d0                    	| [$a4e3: ld   a,(ix+$07)] [freq=low, count=10%]
-	move.b	d0,(0x00,a3)                    	| [$a4e6: ld   (iy+$00),a] [freq=low, count=10%]
+	move.b	d0,(a3)                    	| [$a4e6: ld   (iy+$00),a] [freq=low, count=10%]
 	addq.b	#1,d0                           	| [$a4e9: inc  a] [freq=low, count=10%]
 	move.b	d0,(0x04,a3)                    	| [$a4ea: ld   (iy+$04),a] [freq=low, count=10%]
 	add.b	#0xf7,d0                         	| [$a4ed: add  a,$f7] [freq=low, count=10%]
@@ -13904,7 +13900,7 @@ l_a541:
 	move.b	d6,(0x03,a3)                    	| [$a547: ld   (iy+$03),l] [freq=low, count=3%]
 	move.b	d6,(0x07,a3)                    	| [$a54a: ld   (iy+$07),l] [freq=low, count=3%]
 	move.b	(0x07,a2),d0                    	| [$a54d: ld   a,(ix+$07)] [freq=low, count=3%]
-	move.b	d0,(0x00,a3)                    	| [$a550: ld   (iy+$00),a] [freq=low, count=3%]
+	move.b	d0,(a3)                    	| [$a550: ld   (iy+$00),a] [freq=low, count=3%]
 	addq.b	#1,d0                           	| [$a553: inc  a] [freq=low, count=3%]
 	move.b	d0,(0x04,a3)                    	| [$a554: ld   (iy+$04),a] [freq=low, count=3%]
 	move.b	d5,d0                           	| [$a557: ld   a,h] [freq=low, count=3%]
@@ -13961,7 +13957,7 @@ l_a58e:
 	MAKE_D                                 	| [...]
 l_a599:
 	move.b	(0x01,a2),d5                    	| [$a599: ld   h,(ix+$01)]
-	move.b	(0x00,a2),d6                    	| [$a59c: ld   l,(ix+$00)]
+	move.b	(a2),d6                    	| [$a59c: ld   l,(ix+$00)]
 	 |  [$a59f: and  a]
 	MAKE_DE_NO_AR                          	| [$a5a0: sbc  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
@@ -14015,7 +14011,7 @@ l_a5d3:
 	LOAD_BC	#0x0004                        	| [$a5db: ld   bc,$0004]
 l_a5de:
 	move.b	(0x01,a2),d5                    	| [$a5de: ld   h,(ix+$01)]
-	move.b	(0x00,a2),d6                    	| [$a5e1: ld   l,(ix+$00)]
+	move.b	(a2),d6                    	| [$a5e1: ld   l,(ix+$00)]
 	 |  [$a5e4: and  a]
 	MAKE_DE_NO_AR                          	| [$a5e5: sbc  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
@@ -14107,7 +14103,7 @@ l_a668:
 	move.b	d5,d0                           	| [$a66f: ld   a,h]
 	GET_ADDRESS	global_y_msb_copy_e05b,a0  	| [$a670: ld   (global_y_msb_copy_e05b),a]
 	move.b	d0,(a0)                         	| [...]
-	move.b	d0,(0x00,a2)                    	| [$a673: ld   (ix+$00),a]
+	move.b	d0,(a2)                    	| [$a673: ld   (ix+$00),a]
 	move.b	#0x00,d0                        	| [$a676: ld   a,$00]
 	GET_ADDRESS	0xe05d,a0                  	| [$a678: ld   ($e05d),a]
 	move.b	d0,(a0)                         	| [...]
@@ -14352,7 +14348,7 @@ l_a792:
 l_a867:
 	GET_ADDRESS	0xe160,a2                  	| [$a867: ld   ix,$e160]
 	GET_ADDRESS	0xfe4c,a3                  	| [$a86b: ld   iy,$fe4c]
-	move.b	#0xff,(0x00,a2)                 	| [$a86f: ld   (ix+$00),$ff]
+	move.b	#0xff,(a2)                 	| [$a86f: ld   (ix+$00),$ff]
 	move.b	#0x80,(0x03,a2)                 	| [$a873: ld   (ix+$03),$80]
 	clr.b	(0x04,a2)                        	| [$a877: ld   (ix+$04),$00]
 	move.b	#0x30,(0x05,a2)                 	| [$a87b: ld   (ix+$05),$30]
@@ -14374,7 +14370,7 @@ l_a8a8:
 	GET_ADDRESS	0xe160,a2                  	| [$a8ab: ld   ix,$e160]
 	GET_ADDRESS	0xfe4c,a3                  	| [$a8af: ld   iy,$fe4c]
 	jbsr	l_a8c1                            	| [$a8b3: call $a8c1]
-	move.b	(0x00,a2),d0                    	| [$a8b6: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$a8b6: ld   a,(ix+$00)]
                                          | [$a8b9: and  a]
 	jne	0f                                 	| [$a8ba: ret  z]
 	rts                                    	| [...]
@@ -14503,7 +14499,7 @@ l_a97e:
 	jra	l_aad9                             	| [$a97e: jp   $aad9]
 l_a981:
 	addq.w	#4,sp |  [$a981: pop  hl] [address_pop]
-	clr.b	(0x00,a2)                        	| [$a982: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$a982: ld   (ix+$00),$00]
 	jbsr	l_a9a3                            	| [$a986: call $a9a3]
 	rts                                    	| [$a989: ret]
 l_a98a:
@@ -14535,7 +14531,7 @@ l_a9bc:
 	jbsr	l_a98a                            	| [$a9bf: call $a98a]
 	GET_ADDRESS	0xe160,a2                  	| [$a9c2: ld   ix,$e160]
 	GET_ADDRESS	0xfe4c,a3                  	| [$a9c6: ld   iy,$fe4c]
-	move.b	#0xff,(0x00,a2)                 	| [$a9ca: ld   (ix+$00),$ff]
+	move.b	#0xff,(a2)                 	| [$a9ca: ld   (ix+$00),$ff]
 	move.b	#0x80,(0x03,a2)                 	| [$a9ce: ld   (ix+$03),$80]
 	clr.b	(0x04,a2)                        	| [$a9d2: ld   (ix+$04),$00]
 	move.b	#0x30,(0x05,a2)                 	| [$a9d6: ld   (ix+$05),$30]
@@ -14702,11 +14698,11 @@ l_ab0f:
 	rts                                    	| [$ab15: ret]
 l_ab16:
 	addq	#4,sp |  [$ab16: pop  hl] [pop_stack]
-	clr.b	(0x00,a2)                        	| [$ab17: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$ab17: ld   (ix+$00),$00]
 	jbsr	l_a9a3                            	| [$ab1b: call $a9a3]
 	rts                                    	| [$ab1e: ret]
 l_ab1f:
-	move.b	(0x00,a2),d0                    	| [$ab1f: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$ab1f: ld   a,(ix+$00)]
                                          | [$ab22: and  a]
 	jne	0f                                 	| [$ab23: ret  z]
 	rts                                    	| [...]
@@ -14722,7 +14718,7 @@ l_ab27:
 	GET_ADDRESS	0xe160,a2                  	| [$abca: ld   ix,$e160]
 l_abce:
 	jbsr	l_ad26                            	| [$abce: call $ad26]
-	move.b	(0x00,a2),d0                    	| [$abd1: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$abd1: ld   a,(ix+$00)]
                                          | [$abd4: and  a]
 	jne	0f                                 	| [$abd5: ret  z]
 	rts                                    	| [...]
@@ -14764,7 +14760,7 @@ l_abe9:
 	jbsr	l_0028                            	| [$ac16: rst  $28] call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 	MAKE_DE_NO_AR                          	| [$ac17: push de]
 	lea	(a6,d4.l),a2 |  [$ac18: pop  ix]
-	move.b	(0x00,a2),d4                    	| [$ac1a: ld   e,(ix+$00)]
+	move.b	(a2),d4                    	| [$ac1a: ld   e,(ix+$00)]
 	move.b	(0x01,a2),d3                    	| [$ac1d: ld   d,(ix+$01)]
 	move.b	(0x02,a2),d0                    	| [$ac20: ld   a,(ix+$02)]
 * just swap A/A'
@@ -14837,7 +14833,7 @@ l_ad34:
 	MAKE_DE_NO_AR                          	| [$ad3b: inc  de]
 	addq.w	#1,d4                           	| [...]
 	MAKE_D
-	move.b	d0,(0x00,a3)                    	| [$ad3c: ld   (iy+$00),a]
+	move.b	d0,(a3)                    	| [$ad3c: ld   (iy+$00),a]
 	MAKE_DE	a0                             	| [$ad3f: ld   a,(de)]
 	move.b	(a0),d0                         	| [...]
 	MAKE_DE_NO_AR                          	| [$ad40: inc  de]
@@ -14869,7 +14865,7 @@ l_ad54:
 l_ad63:
 	GET_ADDRESS	0xe420,a2                  	| [$ad63: ld   ix,$e420]
 	GET_ADDRESS	0xfe3c,a3                  	| [$ad67: ld   iy,$fe3c]
-	move.b	(0x00,a2),d0                    	| [$ad6b: ld   a,(ix+$00)]
+	move.b	(a2),d0                    	| [$ad6b: ld   a,(ix+$00)]
                                          | [$ad6e: and  a]
 	jne	0f                                 	| [$ad6f: ret  z]
 	rts                                    	| [...]
@@ -14899,7 +14895,7 @@ l_ad84:
 	add.b	#0xf2,d0                         	| [$ad92: add  a,$f2]
 	move.b	d0,(0x03,a3)                    	| [$ad94: ld   (iy+$03),a]
 	move.b	d0,(0x05,a2)                    	| [$ad97: ld   (ix+$05),a]
-	move.b	#0xce,(0x00,a3)                 	| [$ad9a: ld   (iy+$00),$ce]
+	move.b	#0xce,(a3)                 	| [$ad9a: ld   (iy+$00),$ce]
 	clr.b	(0x01,a3)                        	| [$ad9e: ld   (iy+$01),$00]
 	rts                                    	| [$ada2: ret]
 
@@ -14999,7 +14995,7 @@ l_ae6b:
 	rts                                    	| [$ae7c: ret]
 
 l_ae81:
-	clr.b	(0x00,a2)                        	| [$ae81: ld   (ix+$00),$00]
+	clr.b	(a2)                        	| [$ae81: ld   (ix+$00),$00]
 	clr.b	(0x02,a3)                        	| [$ae85: ld   (iy+$02),$00]
 	clr.b	(0x06,a3)                        	| [$ae89: ld   (iy+$06),$00]
 	clr.b	(0x0a,a3)                        	| [$ae8d: ld   (iy+$0a),$00]
@@ -15035,7 +15031,7 @@ l_aea3:
 	move.b	#0x06,d3                        	| [$aebb: ld   d,$06] [freq=low, count=2%]
 	move.b	#0x0d,d4                        	| [$aebd: ld   e,$0d] [freq=low, count=2%]
 l_aebf:
-	move.b	(0x00,a2),d0                    	| [$aebf: ld   a,(ix+$00)] [freq=low, count=4%]
+	move.b	(a2),d0                    	| [$aebf: ld   a,(ix+$00)] [freq=low, count=4%]
 	addq.b	#1,d0                           	| [$aec2: inc  a] [freq=low, count=4%]
 	jne	l_aede                             	| [$aec3: jr   nz,$aede] [freq=low, count=4%]
 	move.b	(0x05,a2),d0                    	| [$aec5: ld   a,(ix+$05)] [freq=low, count=2%]
@@ -15054,7 +15050,7 @@ l_aebf:
 	move.b	d0,(a0)
 0:
  |  [$aed6: ld   (player_state_e100),a] hit by bullet
-	move.b	#0x01,(0x00,a2)                 	| [$aed9: ld   (ix+$00),$01] [freq=low, count=0%]
+	move.b	#0x01,(a2)                 	| [$aed9: ld   (ix+$00),$01] [freq=low, count=0%]
 	rts                                    	| [$aedd: ret] [freq=low, count=0%]
 
 l_aede:
@@ -15085,7 +15081,7 @@ l_aee5:
 	move.b	#0x06,d3                        	| [$aefd: ld   d,$06] [freq=low, count=2%]
 	move.b	#0x0d,d4                        	| [$aeff: ld   e,$0d] [freq=low, count=2%]
 l_af01:
-	move.b	(0x00,a2),d0                    	| [$af01: ld   a,(ix+$00)] [freq=low, count=4%]
+	move.b	(a2),d0                    	| [$af01: ld   a,(ix+$00)] [freq=low, count=4%]
 	addq.b	#1,d0                           	| [$af04: inc  a] [freq=low, count=4%]
 	jne	l_af1c                             	| [$af05: jr   nz,$af1c] [freq=low, count=4%]
 	move.b	d6,d0                           	| [$af07: ld   a,l] [freq=low, count=4%]
@@ -15124,7 +15120,7 @@ l_af28:
 	move.b	#0x07,d3                        	| [$af33: ld   d,$07] [freq=low, count=2%]
 	move.b	#0x0f,d4                        	| [$af35: ld   e,$0f] [freq=low, count=2%]
 l_af37:
-	move.b	(0x00,a2),d0                    	| [$af37: ld   a,(ix+$00)] [freq=low, count=4%]
+	move.b	(a2),d0                    	| [$af37: ld   a,(ix+$00)] [freq=low, count=4%]
 	addq.b	#1,d0                           	| [$af3a: inc  a] [freq=low, count=4%]
 	jne	l_af71                             	| [$af3b: jr   nz,$af71] [freq=low, count=4%]
 	move.b	(0x03,a2),d5                    	| [$af3d: ld   h,(ix+$03)] [freq=low, count=3%]
@@ -15132,7 +15128,7 @@ l_af37:
 	GET_ADDRESS	0xe600,a3                  	| [$af43: ld   iy,$e600] [freq=low, count=3%]
 	move.b	#0x08,d1                        	| [$af47: ld   b,$08] [freq=low, count=3%]
 l_af49:
-	move.b	(0x00,a3),d0                    	| [$af49: ld   a,(iy+$00)] [freq=low, count=3%]
+	move.b	(a3),d0                    	| [$af49: ld   a,(iy+$00)] [freq=low, count=3%]
 	addq.b	#1,d0                           	| [$af4c: inc  a] [freq=low, count=3%]
 	jne	l_af6b                             	| [$af4d: jr   nz,$af6b] [freq=low, count=3%]
 	move.b	d6,d0                           	| [$af4f: ld   a,l] [freq=low, count=3%]
@@ -15145,8 +15141,8 @@ l_af49:
 	add.b	d3,d0                            	| [$af5d: add  a,d] [freq=low, count=1%]
 	cmp.b	d4,d0                            	| [$af5e: cp   e] [freq=low, count=1%]
 	jcc	l_af6b                             	| [$af5f: jr   nc,$af6b] [freq=low, count=1%]
-	move.b	#0x01,(0x00,a2)                 	| [$af61: ld   (ix+$00),$01] [freq=low, count=0%]
-	move.b	#0x3f,(0x00,a3)                 	| [$af65: ld   (iy+$00),$3f] [freq=low, count=0%]
+	move.b	#0x01,(a2)                 	| [$af61: ld   (ix+$00),$01] [freq=low, count=0%]
+	move.b	#0x3f,(a3)                 	| [$af65: ld   (iy+$00),$3f] [freq=low, count=0%]
 	jra	l_af71                             	| [$af69: jr   $af71] [freq=low, count=0%]
 l_af6b:
 	 |  [$af6b: exx]
