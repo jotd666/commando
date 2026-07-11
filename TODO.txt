@@ -1,6 +1,12 @@
 - green flash when completing a level
-- check if enemies behind walls shoot straight/opposite??? or optim issue
-- graphics "wrap" in Y, add limit again
+- check if enemies behind walls shoot straight/opposite??? or optim issue (one fix done around 8c34)
+  => before optim, enemies shoot only in a straight line (so it's incorrect)
+  => after optim, something works better enemies shoot diagonally, but only at 45 degrees
+     (not straight, not in the intermediate angle) and sometimes in the wrong direction
+  => needs reverse engineering of static enemy aim behaviour
+
+- sound priorities: shots should be low pri
+- graphics "wrap" in Y for instance in the end with the level gate
 - end merging problematic profiled code
 
 - add looped sounds (siren, heli) not as loops (repeat siren a few times)

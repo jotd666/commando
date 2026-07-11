@@ -3132,14 +3132,14 @@ l_13e4:
 	jne	l_141d                             	| [$13fe: jr   nz,$141d] [freq=low, count=0%]
 l_1400:
 	clr.b	(0x11,a2)                        	| [$1400: ld   (ix+$11),$00] [freq=low, count=12%]
-	move.b	(0x07,a2),d5                    	| [$1404: ld   h,(ix+$07)] [freq=low, count=12%]
-	move.b	(0x08,a2),d6                    	| [$1407: ld   l,(ix+$08)] [freq=low, count=12%]
-	move.b	(0x09,a2),d3                    	| [$140a: ld   d,(ix+$09)] [freq=low, count=12%]
-	move.b	(0x0a,a2),d4                    	| [$140d: ld   e,(ix+$0a)] [freq=low, count=12%]
-	move.b	d5,(0x03,a2)                    	| [$1410: ld   (ix+$03),h] [freq=low, count=12%]
-	move.b	d6,(0x04,a2)                    	| [$1413: ld   (ix+$04),l] [freq=low, count=12%]
-	move.b	d3,(0x05,a2)                    	| [$1416: ld   (ix+$05),d] [freq=low, count=12%]
-	move.b	d4,(0x06,a2)                    	| [$1419: ld   (ix+$06),e] [freq=low, count=12%]
+	move.b	(0x07,a2),(0x03,a2)                    	| [$1404: ld   h,(ix+$07)] [freq=low, count=12%]
+	move.w	(0x08,a2),(0x04,a2)                    	| [$1407: ld   l,(ix+$08)] [freq=low, count=12%]
+	                    	| [$140a: ld   d,(ix+$09)] [freq=low, count=12%]
+	move.b	(0x0a,a2),(0x06,a2)                    	| [$140d: ld   e,(ix+$0a)] [freq=low, count=12%]
+	                    	| [$1410: ld   (ix+$03),h] [freq=low, count=12%]
+	                    	| [$1413: ld   (ix+$04),l] [freq=low, count=12%]
+	                    	| [$1416: ld   (ix+$05),d] [freq=low, count=12%]
+	                    	| [$1419: ld   (ix+$06),e] [freq=low, count=12%]
 	rts                                    	| [$141c: ret] [freq=low, count=12%]
 l_141d:
 	SET_X_FROM_C
@@ -10174,6 +10174,7 @@ l_8c2e:
 										| [$8c33: add  hl,hl]
 											| [...]
 										| [...] update MSB reg
+	move.b	d1,d0                           	| [$8c34: ld   a,b] [freq=low, count=0%]
 	ror.b	#1,d0                            	| [$8c35: rrca] [freq=low, count=0%]
 	not.b	d0                               	| [$8c36: cpl] [freq=low, count=0%]
 	and.b	#0x07,d0                         	| [$8c37: and  $07] [freq=low, count=0%]
