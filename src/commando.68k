@@ -1550,7 +1550,7 @@ l_0727:
 	jra	l_86de                             	| [$0731: jp   $86de]
 
 l_0734:
-	LOAD_HL	#0xe600                        	| [$0734: ld   hl,$e600]
+	LOAD_HL	#walking_soldier_list_e600                        	| [$0734: ld   hl,$e600]
 	LOAD_DE	#0xe601                        	| [$0737: ld   de,$e601]
 	LOAD_BC	#0x00ff                        	| [$073a: ld   bc,$00ff]
 	MAKE_HL	a0                             	| [$073d: ld   (hl),$00]
@@ -1562,7 +1562,7 @@ l_0734:
 	MAKE_HL	a0                             	| [$074a: ld   (hl),$00]
 	clr.b	(a0)                             	| [...]
 	jbsr	ldir                              	| [$074c: ldir]
-	LOAD_HL	#0xe500                        	| [$074e: ld   hl,$e500]
+	LOAD_HL	#other_objects_structure_list_e500                        	| [$074e: ld   hl,$e500]
 	LOAD_DE	#0xe501                        	| [$0751: ld   de,$e501]
 	LOAD_BC	#0x00ff                        	| [$0754: ld   bc,$00ff]
 	MAKE_HL	a0                             	| [$0757: ld   (hl),$00]
@@ -2518,7 +2518,7 @@ l_0f9e:
 	clr.b	d0                               	| [...]
 	GET_ADDRESS	0xe055,a0                  	| [$0f9f: ld   ($e055),a] [freq=low, count=4%]
 	move.b	d0,(a0)                         	| [...]
-	GET_ADDRESS	0xe600,a2                  	| [$0fa2: ld   ix,$e600] [freq=low, count=4%]
+	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$0fa2: ld   ix,$e600] [freq=low, count=4%]
 	GET_ADDRESS	0xfed8,a3                  	| [$0fa6: ld   iy,$fed8] [freq=low, count=4%]
 	move.b	#0x08,d1                        	| [$0faa: ld   b,$08] [freq=low, count=4%]
 l_0fac:
@@ -2800,13 +2800,13 @@ l_11c1:
 	move.b	d0,d4                           	| [$11cd: ld   e,a]
 	move.b	(0x03,a2),d5                    	| [$11ce: ld   h,(ix+$03)]
 	move.b	(0x05,a2),d6                    	| [$11d1: ld   l,(ix+$05)]
-	GET_ADDRESS	0xe103,a0                  	| [$11d4: ld   a,($e103)]
+	GET_ADDRESS	player_x_e103,a0                  	| [$11d4: ld   a,($e103)]
 	move.b	(a0),d0                         	| [...]
 	sub.b	d5,d0                            	| [$11d7: sub  h]
 	add.b	d3,d0                            	| [$11d8: add  a,d]
 	cmp.b	d4,d0                            	| [$11d9: cp   e]
 	jcc	l_11e4                             	| [$11da: jr   nc,$11e4]
-	GET_ADDRESS	0xe105,a0                  	| [$11dc: ld   a,($e105)]
+	GET_ADDRESS	player_y_e105,a0                  	| [$11dc: ld   a,($e105)]
 	move.b	(a0),d0                         	| [...]
 	sub.b	d6,d0                            	| [$11df: sub  l]
 	add.b	d3,d0                            	| [$11e0: add  a,d]
@@ -3597,7 +3597,7 @@ l_1859:
 	rts                                    	| [...]
 0:
 	jra	l_9411                             	| [$1866: jp   $9411] [freq=low, count=0%]
-l_1869:
+update_ambushed_static_soldier_1869:
 	LOAD_HL	#0xe055                        	| [$1869: ld   hl,$e055] [freq=low, count=1%]
 	MAKE_HL	a0                             	| [$186c: inc  (hl)] [freq=low, count=1%]
 	addq.b	#1,(a0)                         	| [...]
@@ -3615,11 +3615,13 @@ l_187f:
 	jeq	l_3aa7                             	| [$1883: jp   z,$3aa7] [freq=low, count=1%]
 	cmp.b	#0x74,d0                         	| [$1886: cp   $74] [freq=low, count=1%]
 	jcs	l_1c17                             	| [$1888: jp   c,$1c17] [freq=low, count=1%]
-	jbsr	l_1be1                            	| [$188b: call $1be1] [freq=low, count=1%]
+	jbsr	decrement_object_timer_1be1                            	| [$188b: call $1be1] [freq=low, count=1%]
 	move.b	(0x08,a2),d0                    	| [$188e: ld   a,(ix+$08)] [freq=low, count=1%]
 	LOAD_HL	#0x18d7                        	| [$1891: ld   hl,$18d7] [freq=low, count=1%]
 	jbsr	l_0028                            	| [$1894: rst  $28] call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL [freq=low, count=1%]
 	jra	l_1cd8                             	| [$1895: jp   $1cd8] [freq=low, count=1%]
+
+
 l_1898:
 	LOAD_HL	#0xe055                        	| [$1898: ld   hl,$e055]
 	MAKE_HL	a0                             	| [$189b: inc  (hl)]
@@ -3634,12 +3636,12 @@ l_1898:
 	jeq	l_18af                             	| [$18ab: jr   z,$18af]
 	move.b	#0x08,d1                        	| [$18ad: ld   b,$08]
 l_18af:
-	GET_ADDRESS	0xe105,a0                  	| [$18af: ld   a,($e105)]
+	GET_ADDRESS	player_y_e105,a0                  	| [$18af: ld   a,($e105)]
 	move.b	(a0),d0                         	| [...]
 	sub.b	(0x05,a2),d0                     	| [$18b2: sub  (ix+$05)]
 	cmp.b	#0x08,d0                         	| [$18b5: cp   $08]
 	jcc	l_18ca                             	| [$18b7: jr   nc,$18ca]
-	GET_ADDRESS	0xe103,a0                  	| [$18b9: ld   a,($e103)]
+	GET_ADDRESS	player_x_e103,a0                  	| [$18b9: ld   a,($e103)]
 	move.b	(a0),d0                         	| [...]
 	sub.b	(0x03,a2),d0                     	| [$18bc: sub  (ix+$03)]
 	add.b	#0x10,d0                         	| [$18bf: add  a,$10]
@@ -3666,7 +3668,7 @@ l_191f:
 	and.b	#0x07,d0                         	| [$1925: and  $07]
 	jne	l_193a                             	| [$1927: jr   nz,$193a]
 	move.b	(0x05,a2),d1                    	| [$1929: ld   b,(ix+$05)]
-	GET_ADDRESS	0xe105,a0                  	| [$192c: ld   a,($e105)]
+	GET_ADDRESS	player_y_e105,a0                  	| [$192c: ld   a,($e105)]
 	move.b	(a0),d0                         	| [...]
 	sub.b	d1,d0                            	| [$192f: sub  b]
 	jcc	l_1937                             	| [$1930: jr   nc,$1937]
@@ -3753,14 +3755,14 @@ l_19a8:
 	jeq	0f                                 	| [$19ac: ret  nz]
 	rts                                    	| [...]
 0:
-	GET_ADDRESS	0xe105,a0                  	| [$19ad: ld   a,($e105)]
+	GET_ADDRESS	player_y_e105,a0                  	| [$19ad: ld   a,($e105)]
 	move.b	(a0),d0                         	| [...]
 	sub.b	(0x05,a2),d0                     	| [$19b0: sub  (ix+$05)]
 	cmp.b	#0x20,d0                         	| [$19b3: cp   $20]
 	jcs	0f                                 	| [$19b5: ret  nc]
 	rts                                    	| [...]
 0:
-	GET_ADDRESS	0xe103,a0                  	| [$19b6: ld   a,($e103)]
+	GET_ADDRESS	player_x_e103,a0                  	| [$19b6: ld   a,($e103)]
 	move.b	(a0),d0                         	| [...]
 	sub.b	(0x03,a2),d0                     	| [$19b9: sub  (ix+$03)]
 	add.b	#0x0c,d0                         	| [$19bc: add  a,$0c]
@@ -3874,7 +3876,7 @@ l_1a55:
 	add.b	#0x0d,d0                         	| [$1a73: add  a,$0d]
 	move.b	d0,d6                           	| [$1a75: ld   l,a]
 	move.l	a2,-(a7)                        	| [$1a76: push ix]
-	GET_ADDRESS	0xe600,a2                  	| [$1a78: ld   ix,$e600]
+	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$1a78: ld   ix,$e600]
 	GET_ADDRESS	0xe0f4,a0                  	| [$1a7c: ld   a,($e0f4)]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d1                           	| [$1a7f: ld   b,a]
@@ -4044,12 +4046,12 @@ l_1bc9:
 	jeq	l_3aa7                             	| [$1bcd: jp   z,$3aa7] [freq=low, count=2%]
 	cmp.b	#0x74,d0                         	| [$1bd0: cp   $74] [freq=low, count=2%]
 	jcs	l_1c17                             	| [$1bd2: jr   c,$1c17] [freq=low, count=2%]
-	jbsr	l_1be1                            	| [$1bd4: call $1be1] [freq=low, count=2%]
+	jbsr	decrement_object_timer_1be1                            	| [$1bd4: call $1be1] [freq=low, count=2%]
 	move.b	(0x08,a2),d0                    	| [$1bd7: ld   a,(ix+$08)] [freq=low, count=2%]
 	LOAD_HL	#0x1c40                        	| [$1bda: ld   hl,$1c40] [freq=low, count=2%]
 	jbsr	l_0028                            	| [$1bdd: rst  $28] call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL [freq=low, count=2%]
 	jra	l_1cd8                             	| [$1bde: jp   $1cd8] [freq=low, count=2%]
-l_1be1:
+decrement_object_timer_1be1:
 	subq.b	#1,(0x15,a2)                    	| [$1be1: dec  (ix+$15)] [freq=low, count=3%]
 	jeq	l_1c2a                             	| [$1be4: jr   z,$1c2a] [freq=low, count=3%]
 	btst.b	#0,(0x14,a2)                    	| [$1be6: bit  0,(ix+$14)] [freq=low, count=3%]
@@ -4107,7 +4109,7 @@ l_1c50:
 	add.b	#0x07,d0                         	| [$1c58: add  a,$07] [freq=low, count=0%]
 	move.b	d0,d6                           	| [$1c5a: ld   l,a] [freq=low, count=0%]
 	move.b	(0x1f,a2),d2                    	| [$1c5b: ld   c,(ix+$1f)] [freq=low, count=0%]
-	GET_ADDRESS	0xe600,a2                  	| [$1c5e: ld   ix,$e600] [freq=low, count=0%]
+	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$1c5e: ld   ix,$e600] [freq=low, count=0%]
 	LOAD_DE	#0x0020                        	| [$1c62: ld   de,$0020] [freq=low, count=0%]
 	move.b	#0x08,d1                        	| [$1c65: ld   b,$08] [freq=low, count=0%]
 l_1c67:
@@ -4355,7 +4357,7 @@ l_1e05:
 	add.b	#0x07,d0                         	| [$1e0d: add  a,$07]
 	move.b	d0,d6                           	| [$1e0f: ld   l,a]
 	move.b	(0x1f,a2),d2                    	| [$1e10: ld   c,(ix+$1f)]
-	GET_ADDRESS	0xe600,a2                  	| [$1e13: ld   ix,$e600]
+	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$1e13: ld   ix,$e600]
 	LOAD_DE	#0x0020                        	| [$1e17: ld   de,$0020]
 	move.b	#0x08,d1                        	| [$1e1a: ld   b,$08]
 l_1e1c:
@@ -4600,14 +4602,14 @@ l_2048:
 	move.b	(0x03,a2),d5                    	| [$204d: ld   h,(ix+$03)] [freq=low, count=0%]
 	move.b	(0x05,a2),d6                    	| [$2050: ld   l,(ix+$05)] [freq=low, count=0%]
 	clr.b	(0x02,a3)                        	| [$2053: ld   (iy+$02),$00] [freq=low, count=0%]
-	jbsr	l_920d                            	| [$2057: call $920d] [freq=low, count=0%]
+	jbsr	check_if_player_hit_by_grenade_920d                            	| [$2057: call $920d] [freq=low, count=0%]
 	rts                                    	| [$205a: ret] [freq=low, count=0%]
 l_205b:
 	move.b	#0x04,(0x15,a2)                 	| [$205b: ld   (ix+$15),$04] [freq=low, count=0%]
 	rts                                    	| [$205f: ret] [freq=low, count=0%]
 l_2060:
 	move.b	#0x80,(0x15,a2)                 	| [$2060: ld   (ix+$15),$80] [freq=low, count=0%]
-	GET_ADDRESS	0xe105,a0                  	| [$2064: ld   a,($e105)] [freq=low, count=0%]
+	GET_ADDRESS	player_y_e105,a0                  	| [$2064: ld   a,($e105)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d5                           	| [$2067: ld   h,a] [freq=low, count=0%]
 	move.b	#0x00,d6                        	| [$2068: ld   l,$00] [freq=low, count=0%]
@@ -4635,7 +4637,7 @@ l_2060:
 	move.b	d5,(0x0d,a2)                    	| [$208e: ld   (ix+$0d),h] [freq=low, count=0%]
 	move.b	d6,(0x0e,a2)                    	| [$2091: ld   (ix+$0e),l] [freq=low, count=0%]
 	clr.b	(0x06,a2)                        	| [$2094: ld   (ix+$06),$00] [freq=low, count=0%]
-	GET_ADDRESS	0xe103,a0                  	| [$2098: ld   a,($e103)] [freq=low, count=0%]
+	GET_ADDRESS	player_x_e103,a0                  	| [$2098: ld   a,($e103)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d5                           	| [$209b: ld   h,a] [freq=low, count=0%]
 	move.b	#0x00,d6                        	| [$209c: ld   l,$00] [freq=low, count=0%]
@@ -4878,13 +4880,13 @@ l_22a9:
 	move.b	(a0),d0                         	| [...]
 	addq.b	#1,d0                           	| [$22ba: inc  a]
 	jne	l_22da                             	| [$22bb: jr   nz,$22da]
-	GET_ADDRESS	0xe103,a0                  	| [$22bd: ld   a,($e103)]
+	GET_ADDRESS	player_x_e103,a0                  	| [$22bd: ld   a,($e103)]
 	move.b	(a0),d0                         	| [...]
 	sub.b	(0x03,a2),d0                     	| [$22c0: sub  (ix+$03)]
 	add.b	#0x0c,d0                         	| [$22c3: add  a,$0c]
 	cmp.b	#0x19,d0                         	| [$22c5: cp   $19]
 	jcc	l_22da                             	| [$22c7: jr   nc,$22da]
-	GET_ADDRESS	0xe105,a0                  	| [$22c9: ld   a,($e105)]
+	GET_ADDRESS	player_y_e105,a0                  	| [$22c9: ld   a,($e105)]
 	move.b	(a0),d0                         	| [...]
 	sub.b	(0x05,a2),d0                     	| [$22cc: sub  (ix+$05)]
 	add.b	#0x0c,d0                         	| [$22cf: add  a,$0c]
@@ -4918,7 +4920,7 @@ l_22f3:
 	move.b	(0x05,a2),d6                    	| [$22ff: ld   l,(ix+$05)]
 	clr.b	(a2)                        	| [$2302: ld   (ix+$00),$00]
 	clr.b	(0x02,a3)                        	| [$2306: ld   (iy+$02),$00]
-	jra	l_920d                             	| [$230a: jp   $920d]
+	jra	check_if_player_hit_by_grenade_920d                             	| [$230a: jp   $920d]
 l_230d:
 	move.b	#0x50,(0x15,a2)                 	| [$230d: ld   (ix+$15),$50]
 	rts                                    	| [$2311: ret]
@@ -5001,7 +5003,7 @@ l_2353:
 	move.b	(0x05,a2),d0                    	| [$238f: ld   a,(ix+$05)]
 	add.b	#0x08,d0                         	| [$2392: add  a,$08]
 	move.b	d0,d6                           	| [$2394: ld   l,a]
-	GET_ADDRESS	0xe600,a2                  	| [$2395: ld   ix,$e600]
+	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$2395: ld   ix,$e600]
 	move.b	#0x08,d1                        	| [$2399: ld   b,$08]
 	LOAD_DE	#0x0020                        	| [$239b: ld   de,$0020]
 l_239e:
@@ -5118,7 +5120,7 @@ l_244e:
 	jne	l_24a8                             	| [$2451: jr   nz,$24a8]
 	move.b	(0x05,a2),d0                    	| [$2453: ld   a,(ix+$05)]
 	move.b	d0,d1                           	| [$2456: ld   b,a]
-	GET_ADDRESS	0xe105,a0                  	| [$2457: ld   a,($e105)]
+	GET_ADDRESS	player_y_e105,a0                  	| [$2457: ld   a,($e105)]
 	move.b	(a0),d0                         	| [...]
 	cmp.b	d1,d0                            	| [$245a: cp   b]
 	jcc	l_2485                             	| [$245b: jr   nc,$2485]
@@ -5246,7 +5248,7 @@ l_254e:
 	move.b	(0x03,a2),d5                    	| [$2552: ld   h,(ix+$03)] [freq=low, count=0%]
 	move.b	(0x05,a2),d6                    	| [$2555: ld   l,(ix+$05)] [freq=low, count=0%]
 	clr.b	(0x02,a3)                        	| [$2558: ld   (iy+$02),$00] [freq=low, count=0%]
-	jra	l_920d                             	| [$255c: jp   $920d] [freq=low, count=0%]
+	jra	check_if_player_hit_by_grenade_920d                             	| [$255c: jp   $920d] [freq=low, count=0%]
 l_255f:
 	move.b	(0x15,a2),d0                    	| [$255f: ld   a,(ix+$15)] [freq=low, count=2%]
                                          | [$2562: rrca]
@@ -5299,7 +5301,7 @@ l_2598:
 	clr.b	(0x02,a3)                        	| [$25b0: ld   (iy+$02),$00]
 	move.b	(0x03,a2),d5                    	| [$25b4: ld   h,(ix+$03)]
 	move.b	(0x05,a2),d6                    	| [$25b7: ld   l,(ix+$05)]
-	jra	l_920d                             	| [$25ba: jp   $920d]
+	jra	check_if_player_hit_by_grenade_920d                             	| [$25ba: jp   $920d]
 	rts                                    	| [$25bd: ret]
 l_25be:
 	LOAD_HL	#0xe055                        	| [$25be: ld   hl,$e055]
@@ -5522,7 +5524,7 @@ l_272f:
 	clr.b	d0                               	| [...]
 	GET_ADDRESS	0xe0a4,a0                  	| [$2739: ld   ($e0a4),a] [freq=low, count=4%]
 	move.b	d0,(a0)                         	| [...]
-	jbsr	l_2a3e                            	| [$273c: call $2a3e] [freq=low, count=4%]
+	jbsr	update_misc_objects_2a3e                            	| [$273c: call $2a3e] [freq=low, count=4%]
 	rts                                    	| [$273f: ret] [freq=low, count=4%]
 	LOAD_HL	#0x71ae                        	| [$2740: ld   hl,$71ae]
 	GET_ADDRESS	0xe08f,a0                  	| [$2743: ld   ($e08f),hl]
@@ -5571,7 +5573,7 @@ l_276d:
 	move.b	(0x03,a3),d2                    	| [$2770: ld   c,(iy+$03)] [freq=low, count=0%]
 	move.b	(0x04,a3),d4                    	| [$2773: ld   e,(iy+$04)] [freq=low, count=0%]
 	move.b	(0x05,a3),d3                    	| [$2776: ld   d,(iy+$05)] [freq=low, count=0%]
-	GET_ADDRESS	0xe500,a2                  	| [$2779: ld   ix,$e500] [freq=low, count=0%]
+	GET_ADDRESS	other_objects_structure_list_e500,a2                  	| [$2779: ld   ix,$e500] [freq=low, count=0%]
 	jbsr	exx                               	| [$277d: exx] [freq=low, count=0%]
 	LOAD_DE	#0x0020                        	| [$277e: ld   de,$0020] [freq=low, count=0%]
 	move.b	#0x08,d1                        	| [$2781: ld   b,$08] [freq=low, count=0%]
@@ -5679,7 +5681,7 @@ l_2823:
 	clr.b	(a2)                        	| [$282e: ld   (ix+$00),$00]
 	rts                                    	| [$2832: ret]
 l_2833:
-	GET_ADDRESS	0xe103,a0                  	| [$2833: ld   a,($e103)]
+	GET_ADDRESS	player_x_e103,a0                  	| [$2833: ld   a,($e103)]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d1                           	| [$2836: ld   b,a]
 	GET_ADDRESS	timing_variable_e002,a0    	| [$2837: ld   a,(timing_variable_e002)]
@@ -5763,7 +5765,7 @@ l_28dc:
 	and.b	#0x80,d0                         	| [$28df: and  $80]
 	sub.b	#0x40,d0                         	| [$28e1: sub  $40]
 	move.b	d0,d1                           	| [$28e3: ld   b,a]
-	GET_ADDRESS	0xe103,a0                  	| [$28e4: ld   a,($e103)]
+	GET_ADDRESS	player_x_e103,a0                  	| [$28e4: ld   a,($e103)]
 	move.b	(a0),d0                         	| [...]
 	add.b	d1,d0                            	| [$28e7: add  a,b]
 	move.b	d0,(0x03,a2)                    	| [$28e8: ld   (ix+$03),a]
@@ -5879,8 +5881,9 @@ l_29fa:
 	jbsr	l_866f                            	| [$2a0a: call $866f]
 	rts                                    	| [$2a0d: ret]
 
-l_2a3e:
-	GET_ADDRESS	0xe500,a2                  	| [$2a3e: ld   ix,$e500] [freq=low, count=4%]
+* updates static enemies, enemy grenades, ammo crates...
+update_misc_objects_2a3e:
+	GET_ADDRESS	other_objects_structure_list_e500,a2                  	| [$2a3e: ld   ix,$e500] [freq=low, count=4%]
 	move.b	#0x08,d1                        	| [$2a42: ld   b,$08] [freq=low, count=4%]
 l_2a44:
 	MAKE_BC_NO_AR                          	| [$2a44: push bc] [freq=low, count=23%]
@@ -5896,13 +5899,9 @@ l_2a44:
 	jcs	l_2a64                             	| [$2a56: jr   c,$2a64] [freq=low, count=14%]
 	jbsr	l_2a6f                            	| [$2a58: call $2a6f] [freq=low, count=14%]
 l_2a5b:
+	* next object
 	LOAD_DE	#0x0020                        	| [$2a5b: ld   de,$0020] [freq=low, count=22%]
-	MAKE_DE_NO_AR                          	| [$2a5e: add  ix,de] [freq=low, count=22%]
-	move.l	a2,d7                           	| [...]  [inspect_for_manual_optimization]
-	sub.l	a6,d7                            	| [...]
-	add.w	d4,d7                            	| [...]
-	add.l	a6,d7                            	| [...]
-	move.l	d7,a2                           	| [...]
+	add.w	d4,a2                          	| [$2a5e: add  ix,de] [freq=low, count=22%]
 	move.w	(a7)+,d2                        	| [$2a60: pop  bc] [freq=low, count=22%]
 	MAKE_B                                 	| [...]
 	subq.b	#1,d1                           	| [$2a61: djnz $2a44] [freq=low, count=22%]
@@ -5914,6 +5913,7 @@ l_2a64:
 	jbsr	l_2ad3                            	| [$2a69: call $2ad3] [freq=low, count=0%]
 	jra	l_2a5b                             	| [$2a6c: jp   $2a5b] [freq=low, count=0%]
 l_2a6f:
+	* get object type
 	move.b	(0x13,a2),d0                    	| [$2a6f: ld   a,(ix+$13)] [freq=low, count=14%]
 	.ifndef	RELEASE
 	move.w	#48,d7
@@ -5967,7 +5967,7 @@ l_2a6f:
 	.long	l_199c                           	|  $2acb
 	.long	l_19d1                           	|  $2acd
 	.long	l_2428                           	|  $2acf
-	.long	l_1869                           	|  $2ad1
+	.long	update_ambushed_static_soldier_1869 |  $2ad1
 
 l_2ad3:
 	jbsr	l_3a8d                            	| [$2ad3: call $3a8d] [freq=low, count=0%]
@@ -6030,7 +6030,7 @@ l_2b3a:
 	move.b	(a2),d0                    	| [$2b3a: ld   a,(ix+$00)] [freq=low, count=0%]
 	cmp.b	#0x3f,d0                         	| [$2b3d: cp   $3f] [freq=low, count=0%]
 	jne	0f                                 	| [$2b3f: call z,$2b56] [freq=low, count=0%]
-	jbsr	l_2b56                            	| [...]
+	jbsr	grenade_hit_static_soldier_2b56                            	| [...]
 0:
 	subq.b	#1,(0x15,a2)                    	| [$2b42: dec  (ix+$15)] [freq=low, count=0%]
 	jeq	l_3aa7                             	| [$2b45: jp   z,$3aa7] [freq=low, count=0%]
@@ -6043,7 +6043,7 @@ l_2b3a:
 	move.b	(a0),d4                         	| [...]
 	move.b	#0x00,d3                        	| [$2b51: ld   d,$00] [freq=low, count=0%]
 	jra	l_1cd8                             	| [$2b53: jp   $1cd8] [freq=low, count=0%]
-l_2b56:
+grenade_hit_static_soldier_2b56:
 	jbsr	l_8698                            	| [$2b56: call $8698] [freq=low, count=0%]
 	move.b	#0x01,(a2)                 	| [$2b59: ld   (ix+$00),$01] [freq=low, count=0%]
 	move.b	#0x10,(0x15,a2)                 	| [$2b5d: ld   (ix+$15),$10] [freq=low, count=0%]
@@ -6375,7 +6375,7 @@ l_2dad:
 	move.b	#0x20,(0x15,a2)                 	| [$2dbc: ld   (ix+$15),$20]
 	rts                                    	| [$2dc0: ret]
 l_2dc1:
-	GET_ADDRESS	0xe105,a0                  	| [$2dc1: ld   a,($e105)]
+	GET_ADDRESS	player_y_e105,a0                  	| [$2dc1: ld   a,($e105)]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d1                           	| [$2dc4: ld   b,a]
 	move.b	(0x05,a2),d0                    	| [$2dc5: ld   a,(ix+$05)]
@@ -6677,7 +6677,7 @@ l_30da:
 	jeq	0f                                 	| [$30e7: ret  nz] [freq=low, count=3%]
 	rts                                    	| [...]
 0:
-	GET_ADDRESS	0xe103,a0                  	| [$30e8: ld   a,($e103)] [freq=low, count=3%]
+	GET_ADDRESS	player_x_e103,a0                  	| [$30e8: ld   a,($e103)] [freq=low, count=3%]
 	move.b	(a0),d0                         	| [...]
 	sub.b	(0x03,a2),d0                     	| [$30eb: sub  (ix+$03)] [freq=low, count=3%]
 	add.b	#0x10,d0                         	| [$30ee: add  a,$10] [freq=low, count=3%]
@@ -6685,7 +6685,7 @@ l_30da:
 	jcs	0f                                 	| [$30f2: ret  nc] [freq=low, count=3%]
 	rts                                    	| [...]
 0:
-	GET_ADDRESS	0xe105,a0                  	| [$30f3: ld   a,($e105)] [freq=low, count=0%]
+	GET_ADDRESS	player_y_e105,a0                  	| [$30f3: ld   a,($e105)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
 	sub.b	(0x05,a2),d0                     	| [$30f6: sub  (ix+$05)] [freq=low, count=0%]
 	add.b	#0x10,d0                         	| [$30f9: add  a,$10] [freq=low, count=0%]
@@ -6850,7 +6850,7 @@ l_31f4:
 	move.b	(0x05,a2),d0                    	| [$321a: ld   a,(ix+$05)]
 	add.b	#0x04,d0                         	| [$321d: add  a,$04]
 	move.b	d0,d6                           	| [$321f: ld   l,a]
-	GET_ADDRESS	0xe600,a2                  	| [$3220: ld   ix,$e600]
+	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$3220: ld   ix,$e600]
 	LOAD_DE	#0x0020                        	| [$3224: ld   de,$0020]
 	GET_ADDRESS	0xe0f4,a0                  	| [$3227: ld   a,($e0f4)]
 	move.b	(a0),d0                         	| [...]
@@ -7113,7 +7113,7 @@ l_3419:
 	move.b	(0x05,a2),d0                    	| [$3435: ld   a,(ix+$05)]
 	add.b	#0x00,d0                         	| [$3438: add  a,$00]
 	move.b	d0,d6                           	| [$343a: ld   l,a]
-	GET_ADDRESS	0xe600,a2                  	| [$343b: ld   ix,$e600]
+	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$343b: ld   ix,$e600]
 	LOAD_DE	#0x0020                        	| [$343f: ld   de,$0020]
 	GET_ADDRESS	0xe0f4,a0                  	| [$3442: ld   a,($e0f4)]
 	move.b	(a0),d0                         	| [...]
@@ -7196,7 +7196,7 @@ l_34ca:
 	jeq	0f                                 	| [$34da: ret  nz]
 	rts                                    	| [...]
 0:
-	GET_ADDRESS	0xe103,a0                  	| [$34db: ld   a,($e103)]
+	GET_ADDRESS	player_x_e103,a0                  	| [$34db: ld   a,($e103)]
 	move.b	(a0),d0                         	| [...]
 	sub.b	(0x03,a2),d0                     	| [$34de: sub  (ix+$03)]
 	add.b	#0x0c,d0                         	| [$34e1: add  a,$0c]
@@ -7204,7 +7204,7 @@ l_34ca:
 	jcs	0f                                 	| [$34e5: ret  nc]
 	rts                                    	| [...]
 0:
-	GET_ADDRESS	0xe105,a0                  	| [$34e6: ld   a,($e105)]
+	GET_ADDRESS	player_y_e105,a0                  	| [$34e6: ld   a,($e105)]
 	move.b	(a0),d0                         	| [...]
 	sub.b	(0x05,a2),d0                     	| [$34e9: sub  (ix+$05)]
 	cmp.b	#0x19,d0                         	| [$34ec: cp   $19]
@@ -7283,7 +7283,7 @@ l_3531:
 	move.b	(0x03,a2),d5                    	| [$3564: ld   h,(ix+$03)]
 	move.b	(0x05,a2),d6                    	| [$3567: ld   l,(ix+$05)]
 	jbsr	l_3aa7                            	| [$356a: call $3aa7]
-	jra	l_920d                             	| [$356d: jp   $920d]
+	jra	check_if_player_hit_by_grenade_920d                             	| [$356d: jp   $920d]
 
 l_3570:
 	MAKE_DE_NO_AR                          	| [$3570: add  iy,de]
@@ -7476,7 +7476,7 @@ l_36df:
 	jra	l_8fd4                             	| [$36fe: jp   $8fd4] [freq=low, count=0%]
 l_3701:
 	jbsr	l_369e                            	| [$3701: call $369e] [freq=low, count=0%]
-	GET_ADDRESS	0xe105,a0                  	| [$3704: ld   a,($e105)] [freq=low, count=0%]
+	GET_ADDRESS	player_y_e105,a0                  	| [$3704: ld   a,($e105)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d1                           	| [$3707: ld   b,a] [freq=low, count=0%]
 	move.b	(0x05,a2),d0                    	| [$3708: ld   a,(ix+$05)] [freq=low, count=0%]
@@ -8347,7 +8347,7 @@ l_6cd6:
 	LOAD_DE	#0x0000                        	| [$6cde: ld   de,$0000] [freq=low, count=0%]
 	rts                                    	| [$6ce1: ret] [freq=low, count=0%]
 l_6ce2:
-	LOAD_HL	#0xe103                        	| [$6ce2: ld   hl,$e103] [freq=low, count=0%]
+	LOAD_HL	#player_x_e103                        	| [$6ce2: ld   hl,$e103] [freq=low, count=0%]
 l_6ce5:
 	move.b	#0x00,d2                        	| [$6ce5: ld   c,$00] [freq=low, count=0%]
 	MAKE_HL	a0                             	| [$6ce7: ld   a,(hl)] [freq=low, count=0%]
@@ -8390,6 +8390,10 @@ l_6d17:
 	move.b	d3,d4                           	| [$6d18: ld   e,d] [freq=low, count=0%]
 	move.b	#0x00,d6                        	| [$6d19: ld   l,$00] [freq=low, count=0%]
 l_6d1b:
+	* this is the only routine where manual debugging (and also luck) was involved
+	* if not fixed properly, carry flag is lost by the djnz (subq+bne) emulation
+	* once that is fixed, another issue remains. addx and sub set X flag, but cmp (6d23)
+	* doesn't
 	move.w	#0x08-1,d1                        	| [$6d1b: ld   b,$08] [freq=low, count=0%]
 	CLR_XC_FLAGS                           	| [$6d1d: xor  a] [freq=low, count=0%]
 	clr.b	d0                               	| [...]
@@ -8402,6 +8406,9 @@ l_6d1e:
 	POP_SR                                 	| [...] restore CC| swapped
 	jcs	l_6d26                             	| [$6d21: jr   c,$6d26] [freq=low, count=0%]
 	cmp.b	d4,d0                            	| [$6d23: cp   e] [freq=low, count=0%]
+	* propagate C flag to X else addx above fails:
+	* static soldiers only shoot straight
+	SET_X_FROM_C		
 	jcs	l_6d29                             	| [$6d24: jr   c,$6d29] [freq=low, count=0%]
 l_6d26:
 	sub.b	d4,d0                            	| [$6d26: sub  e] [freq=low, count=0%]
@@ -8412,7 +8419,6 @@ l_6d29:
 	* dbf required else X flag is broken and in level 2 trench soldiers lack one
 	* frame, bunker cannons lack frames
 	dbf		d1,l_6d1e                       | [$6d2a: djnz $6d1e] [freq=low, count=0%]
-	SET_X_FROM_C
 	roxl.b	#1,d6                           	| [$6d2c: rl   l] [freq=low, count=0%]
 	move.b	d6,d0                           	| [$6d2e: ld   a,l] [freq=low, count=0%]
                                          | [$6d2f: rrca]
@@ -8527,7 +8533,7 @@ l_6ddd:
 	move.b	(0x03,a3),d0                    	| [$6deb: ld   a,(iy+$03)]
 	GET_ADDRESS	0xe07f,a0                  	| [$6dee: ld   ($e07f),a]
 	move.b	d0,(a0)                         	| [...]
-	GET_ADDRESS	0xe600,a2                  	| [$6df1: ld   ix,$e600]
+	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$6df1: ld   ix,$e600]
 	GET_ADDRESS	0xfe04,a3                  	| [$6df5: ld   iy,$fe04]
 	move.b	(0x02,a3),d0                    	| [$6df9: ld   a,(iy+$02)]
 	move.b	d0,(0x03,a2)                    	| [$6dfc: ld   (ix+$03),a]
@@ -8594,14 +8600,14 @@ l_801d:
 	.long	l_81d1                           	|  $802d
 	.long	l_825d                           	|  $802f
 	.long	l_8260                           	|  $8031
-	.long	l_851c                           	|  $8033
+	.long	add_to_score_851c                   |  $8033
 	.long	l_9f8b                           	|  $8035
 	.long	display_high_scores_81dc         	|  $8037
 	.long	l_8607                           	|  $8039
 	.long	clear_screen_81a2                	|  $803b
 	.long	l_8183                           	|  $803d
-	.long	l_8130                           	|  $803f
-	.long	l_af28                           	|  $8041
+	.long	player_grenade_launch_8130         |  $803f
+	.long	moving_soldiers_player_bullet_check_af28                           	|  $8041
 	.long	l_8076                           	|  $8043
 	.long	l_8047                           	|  $8045
 
@@ -8779,8 +8785,8 @@ l_811d:
 	LOAD_HL	#0xd220                        	| [$8128: ld   hl,$d220]
 	move.b	#0x0d,d1                        	| [$812b: ld   b,$0d]
 	jbsr	l_8163                            	| [$812d: call $8163]
-l_8130:
-	jbsr	l_8153                            	| [$8130: call $8153] [freq=low, count=0%]
+player_grenade_launch_8130:
+	jbsr	erase_grenade_digits_8153                            	| [$8130: call $8153] [freq=low, count=0%]
 	LOAD_HL	#0xd181                        	| [$8133: ld   hl,$d181] [freq=low, count=0%]
 	move.b	#0xa2,d3                        	| [$8136: ld   d,$a2] [freq=low, count=0%]
 	move.b	#0x0c,d4                        	| [$8138: ld   e,$0c] [freq=low, count=0%]
@@ -8798,9 +8804,9 @@ l_8130:
 	LOAD_HL	#0xd1e0                        	| [$8149: ld   hl,$d1e0] [freq=low, count=0%]
 	GET_ADDRESS	num_grenades_eda8,a0       	| [$814c: ld   a,(num_grenades_eda8)] read NUM_GRENADES [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...] read NUM_GRENADES
-	jbsr	l_8169                            	| [$814f: call $8169] [freq=low, count=0%]
+	jbsr	write_2_digits_8169                            	| [$814f: call $8169] [freq=low, count=0%]
 	rts                                    	| [$8152: ret] [freq=low, count=0%]
-l_8153:
+erase_grenade_digits_8153:
 	LOAD_DE	#0x0020                        	| [$8153: ld   de,$0020] [freq=low, count=0%]
 	LOAD_HL	#0xd181                        	| [$8156: ld   hl,$d181] [freq=low, count=0%]
 	move.b	#0x02,d1                        	| [$8159: ld   b,$02] [freq=low, count=0%]
@@ -8818,7 +8824,7 @@ l_8163:
 	subq.b	#1,d1                           	| [$8166: djnz $8163] [freq=low, count=0%]
 	jne	l_8163                             	| [...]
 	rts                                    	| [$8168: ret] [freq=low, count=0%]
-l_8169:
+write_2_digits_8169:
 	move.b	d0,d1                           	| [$8169: ld   b,a] [freq=low, count=0%]
 	and.b	#0xf0,d0                         	| [$816a: and  $f0] [freq=low, count=0%]
 	jeq	l_8175                             	| [$816c: jr   z,$8175] [freq=low, count=0%]
@@ -9069,7 +9075,7 @@ l_8260:
 *84FF:  40 94 D0 00 59 4F 55 52 20 45 56 45 52 59 20 44	|@...YOUR EVERY D
 *850F:  55 54 59 20 46 49 4E 49 53 48 45 44 40 B2 00 E0	|UTY FINISHED@...
 
-l_851c:
+add_to_score_851c:
 	GET_ADDRESS	0xe000,a0                  	| [$851c: ld   a,($e000)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
 	subq.b	#1,d0                           	| [$851f: dec  a] [freq=low, count=0%]
@@ -9086,12 +9092,12 @@ l_852e:
 	GET_ADDRESS	player_score_address_e0a6,a0                  	| [$852e: ld   ($e0a6),hl] [freq=low, count=0%]
 	MAKE_HL_NO_AR                          	| [...]
 	MOVE_W_FROM_REG	d6,a0                         	| [...]
-	jbsr	l_853e                            	| [$8531: call $853e] [freq=low, count=0%]
+	jbsr	add_to_score_853e                            	| [$8531: call $853e] [freq=low, count=0%]
 	jbsr	update_hiscore_if_lower_855b                            	| [$8534: call $855b] [freq=low, count=0%]
 	jbsr	l_8582                            	| [$8537: call $8582] [freq=low, count=0%]
 	jbsr	l_85d0                            	| [$853a: call $85d0] [freq=low, count=0%]
 	rts                                    	| [$853d: ret] [freq=low, count=0%]
-l_853e:
+add_to_score_853e:
 	LOAD_HL	#0x85db                        	| [$853e: ld   hl,$85db] [freq=low, count=0%]
 	GET_ADDRESS	0xed84,a0                  	| [$8541: ld   a,($ed84)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
@@ -9361,7 +9367,7 @@ l_864c:
 l_8651:
 	move.b	#0x05,d0                        	| [$8651: ld   a,$05] [freq=low, count=0%]
 	jra	queue_sound_8717                   	| [$8653: jp   queue_sound_8717] [freq=low, count=0%]
-l_8656:
+play_grenade_launch_8656:
 	move.b	#0x06,d0                        	| [$8656: ld   a,$06] [freq=low, count=0%]
 	jra	queue_sound_8717                   	| [$8658: jp   queue_sound_8717] [freq=low, count=0%]
 l_865b:
@@ -9934,7 +9940,7 @@ l_8a66:
 
 
 l_8a90:
-	jbsr	l_9302                            	| [$8a90: call $9302] [freq=low, count=0%]
+	jbsr	init_player_grenade_9302                            	| [$8a90: call $9302] [freq=low, count=0%]
 	clr.b	(0x13,a2)                        	| [$8a93: ld   (ix+$13),$00] [freq=low, count=0%]
 	jra	l_8cb1                             	| [$8a97: jp   $8cb1] [freq=low, count=0%]
 l_8a9a:
@@ -10415,7 +10421,7 @@ l_8e75:
 	rts                                    	| [$8e92: ret]
 l_8e93:
 	jbsr	l_8e9a                            	| [$8e93: call $8e9a] [freq=low, count=4%]
-	jbsr	l_9100                            	| [$8e96: call $9100] [freq=low, count=4%]
+	jbsr	grenade_stuff_9100                            	| [$8e96: call $9100] [freq=low, count=4%]
 	rts                                    	| [$8e99: ret] [freq=low, count=4%]
 
 
@@ -10427,7 +10433,7 @@ l_8e9a:
 	GET_ADDRESS	player_bullets_e200,a2     	| [$8e9a: ld   ix,player_bullets_e200] [freq=low, count=4%]
 	move.b	#0x0e,d5                        	| [$8e9e: ld   h,$0e] [freq=low, count=4%]
 	LOAD_DE	#0x0020                        	| [$8ea0: ld   de,$0020] DE = sizeof(PLAYER_BULLET) [freq=low, count=4%]
-	GET_ADDRESS	0xff48,a3                  	| [$8ea3: ld   iy,$ff48] IY = pointer to sprites [freq=low, count=4%]
+	GET_ADDRESS	unknown_structure_list_ff48,a3                  	| [$8ea3: ld   iy,$ff48] IY = pointer to sprites [freq=low, count=4%]
 	LOAD_BC	#0x0004                        	| [$8ea7: ld   bc,$0004] BC = sizeof(BULLET_SPRITE) [freq=low, count=4%]
 l_8eaa:
 	jbsr	exx                               	| [$8eaa: exx] [freq=low, count=28%]
@@ -10519,7 +10525,7 @@ l_8f7f:
 	clr.b	(0x02,a3)                        	| [$8f83: ld   (iy+$02),$00]
 	move.b	(0x03,a2),d5                    	| [$8f87: ld   h,(ix+$03)]
 	move.b	(0x05,a2),d6                    	| [$8f8a: ld   l,(ix+$05)]
-	jbsr	l_920d                            	| [$8f8d: call $920d]
+	jbsr	check_if_player_hit_by_grenade_920d                            	| [$8f8d: call $920d]
 	jra	l_8fc0                             	| [$8f90: jp   $8fc0]
 l_8f93:
 	btst.b	#0,(0x13,a2)                    	| [$8f93: bit  0,(ix+$13)] [freq=low, count=0%]
@@ -10767,13 +10773,15 @@ l_90ec:
 	jbsr	l_8651                            	| [$90f4: call $8651] [freq=low, count=0%]
 	rts                                    	| [$90f7: ret] [freq=low, count=0%]
 
-l_9100:
+* player grenade movement, also enemy grenade explosions!
+grenade_stuff_9100:
 	jbsr	l_9262                            	| [$9100: call $9262] [freq=low, count=4%]
-	GET_ADDRESS	0xe140,a2                  	| [$9103: ld   ix,$e140] [freq=low, count=4%]
-	GET_ADDRESS	0xff44,a3                  	| [$9107: ld   iy,$ff44] [freq=low, count=4%]
+	GET_ADDRESS	player_grenade_structure_e140,a2                  	| [$9103: ld   ix,$e140] [freq=low, count=4%]
+	GET_ADDRESS	unknown_enemy_structure_list_ff44,a3                  	| [$9107: ld   iy,$ff44] [freq=low, count=4%]
 	move.b	(a2),d0                    	| [$910b: ld   a,(ix+$00)] [freq=low, count=4%]
                                          | [$910e: and  a]
 	jeq	l_92c7                             	| [$910f: jp   z,$92c7] [freq=low, count=4%]
+	* grenade active
 	addq.b	#1,d0                           	| [$9112: inc  a] [freq=low, count=0%]
 	jne	l_916e                             	| [$9113: jr   nz,$916e] [freq=low, count=0%]
 	subq.b	#1,(0x15,a2)                    	| [$9115: dec  (ix+$15)] [freq=low, count=0%]
@@ -10818,7 +10826,7 @@ l_916e:
 	clr.b	(0x02,a3)                        	| [$9172: ld   (iy+$02),$00] [freq=low, count=0%]
 	move.b	(0x03,a2),d5                    	| [$9176: ld   h,(ix+$03)] [freq=low, count=0%]
 	move.b	(0x05,a2),d6                    	| [$9179: ld   l,(ix+$05)] [freq=low, count=0%]
-	jbsr	l_920d                            	| [$917c: call $920d] [freq=low, count=0%]
+	jbsr	check_if_player_hit_by_grenade_920d                            	| [$917c: call $920d] [freq=low, count=0%]
 	move.b	(0x03,a2),d0                    	| [$917f: ld   a,(ix+$03)] [freq=low, count=0%]
 	GET_ADDRESS	0xe09d,a0                  	| [$9182: ld   ($e09d),a] [freq=low, count=0%]
 	move.b	d0,(a0)                         	| [...]
@@ -10831,7 +10839,9 @@ l_916e:
 	move.b	d0,d6                           	| [$918f: ld   l,a] [freq=low, count=0%]
 	GET_ADDRESS	0xe047,a3                  	| [$9190: ld   iy,$e047] [freq=low, count=0%]
 	clr.b	(a3)                        	| [$9194: ld   (iy+$00),$00] [freq=low, count=0%]
-	GET_ADDRESS	0xe600,a2                  	| [$9198: ld   ix,$e600] [freq=low, count=0%]
+	* check if soldiers are hit by player grenade
+	* (not the one in trenches or behind walls)
+	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$9198: ld   ix,$e600] [freq=low, count=0%]
 	LOAD_DE	#0x0020                        	| [$919c: ld   de,$0020] [freq=low, count=0%]
 	move.b	#0x08,d1                        	| [$919f: ld   b,$08] [freq=low, count=0%]
 l_91a1:
@@ -10854,6 +10864,7 @@ l_91c2:
 	add.w	#0x20,a2 |  [$91c2: add  ix,de] de=$20 [freq=low, count=0%]
 	subq.b	#1,d1                           	| [$91c4: djnz $91a1] [freq=low, count=0%]
 	jne	l_91a1                             	| [...]
+
 	GET_ADDRESS	unknown_structure_list_e800,a2                  	| [$91c6: ld   ix,$e800] [freq=low, count=0%]
 	LOAD_DE	#0x0010                        	| [$91ca: ld   de,$0010] [freq=low, count=0%]
 	move.b	#0x0c,d1                        	| [$91cd: ld   b,$0c] [freq=low, count=0%]
@@ -10895,7 +10906,8 @@ l_9203:
 	move.b	d0,d4                           	| [$920a: ld   e,a] [freq=low, count=0%]
 	jbsr	l_0038                            	| [$920b: rst  $38] queue_event_0038 [freq=low, count=0%]
 	rts                                    	| [$920c: ret] [freq=low, count=0%]
-l_920d:
+	
+check_if_player_hit_by_grenade_920d:
 	move.b	#0x10,d0                        	| [$920d: ld   a,$10] [freq=low, count=0%]
 	GET_ADDRESS	0xe080,a0                  	| [$920f: ld   ($e080),a] [freq=low, count=0%]
 	move.b	d0,(a0)                         	| [...]
@@ -10920,13 +10932,13 @@ l_920d:
 	move.b	(a0),d0                         	| [...]
 	addq.b	#1,d0                           	| [$923f: inc  a] [freq=low, count=0%]
 	jne	l_865b                             	| [$9240: jp   nz,$865b] [freq=low, count=0%]
-	GET_ADDRESS	0xe103,a0                  	| [$9243: ld   a,($e103)] [freq=low, count=0%]
+	GET_ADDRESS	player_x_e103,a0                  	| [$9243: ld   a,($e103)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
 	sub.b	d5,d0                            	| [$9246: sub  h] [freq=low, count=0%]
 	add.b	#0x10,d0                         	| [$9247: add  a,$10] [freq=low, count=0%]
 	cmp.b	#0x21,d0                         	| [$9249: cp   $21] [freq=low, count=0%]
 	jcc	l_865b                             	| [$924b: jp   nc,$865b] [freq=low, count=0%]
-	GET_ADDRESS	0xe105,a0                  	| [$924e: ld   a,($e105)] [freq=low, count=0%]
+	GET_ADDRESS	player_y_e105,a0                  	| [$924e: ld   a,($e105)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
 	sub.b	d6,d0                            	| [$9251: sub  l] [freq=low, count=0%]
 	add.b	#0x10,d0                         	| [$9252: add  a,$10] [freq=low, count=0%]
@@ -10986,12 +10998,12 @@ l_9262:
 	subq.b	#1,(0x0f,a3)                    	| [$92a9: dec  (iy+$0f)] [freq=low, count=0%]
 	rts                                    	| [$92ac: ret] [freq=low, count=0%]
 l_92ad:
-	CLR_XC_FLAGS                           	| [$92ad: xor  a] [freq=low, count=0%]
+	                           	| [$92ad: xor  a] [freq=low, count=0%]
 	clr.b	d0                               	| [...]
-	move.b	d0,(0x02,a3)                    	| [$92ae: ld   (iy+$02),a] [freq=low, count=0%]
-	move.b	d0,(0x06,a3)                    	| [$92b1: ld   (iy+$06),a] [freq=low, count=0%]
-	move.b	d0,(0x0a,a3)                    	| [$92b4: ld   (iy+$0a),a] [freq=low, count=0%]
-	move.b	d0,(0x0e,a3)                    	| [$92b7: ld   (iy+$0e),a] [freq=low, count=0%]
+	clr.b	(0x02,a3)                    	| [$92ae: ld   (iy+$02),a] [freq=low, count=0%]
+	clr.b	(0x06,a3)                    	| [$92b1: ld   (iy+$06),a] [freq=low, count=0%]
+	clr.b	(0x0a,a3)                    	| [$92b4: ld   (iy+$0a),a] [freq=low, count=0%]
+	clr.b	(0x0e,a3)                    	| [$92b7: ld   (iy+$0e),a] [freq=low, count=0%]
 	rts                                    	| [$92ba: ret] [freq=low, count=0%]
 
 l_92c7:
@@ -11030,7 +11042,7 @@ l_92e1:
 	rts                                    	| [...]
 0:
 l_92ea:
-	GET_ADDRESS	0xe116,a0                  	| [$92ea: ld   a,($e116)] [freq=low, count=0%]
+	GET_ADDRESS	launch_grenade_request_e116,a0                  	| [$92ea: ld   a,($e116)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
                                          | [$92ed: and  a]
 	jeq	0f                                 	| [$92ee: ret  nz] [freq=low, count=0%]
@@ -11042,6 +11054,7 @@ l_92ea:
 	jne	0f                                 	| [$92f3: ret  z] [freq=low, count=0%]
 	rts                                    	| [...]
 0:
+	* grenades available, remove one
 	moveq	#1,d7 |  [$92f4: dec  a] [freq=low, count=0%]
 	CLR_XC_FLAGS
 	sbcd	d7,d0 |  [$92f5: daa] [freq=low, count=0%]
@@ -11050,21 +11063,23 @@ l_92ea:
 	move.b	#0x0b,d3                        	| [$92f9: ld   d,$0b] [freq=low, count=0%]
 	jbsr	l_0038                            	| [$92fb: rst  $38] queue_event_0038 [freq=low, count=0%]
 	move.b	#0x08,d0                        	| [$92fc: ld   a,$08] [freq=low, count=0%]
-	GET_ADDRESS	0xe116,a0                  	| [$92fe: ld   ($e116),a] [freq=low, count=0%]
+	GET_ADDRESS	launch_grenade_request_e116,a0                  	| [$92fe: ld   ($e116),a] [freq=low, count=0%]
 	move.b	d0,(a0)                         	| [...]
 	rts                                    	| [$9301: ret] [freq=low, count=0%]
-l_9302:
-	GET_ADDRESS	0xe140,a2                  	| [$9302: ld   ix,$e140] [freq=low, count=0%]
+	
+init_player_grenade_9302:
+	GET_ADDRESS	player_grenade_structure_e140,a2                  	| [$9302: ld   ix,$e140] [freq=low, count=0%]
 	subq.b	#1,(a2)                    	| [$9306: dec  (ix+$00)] [freq=low, count=0%]
 	move.b	#0x30,(0x15,a2)                 	| [$9309: ld   (ix+$15),$30] [freq=low, count=0%]
-	GET_ADDRESS	0xe103,a0                  	| [$930d: ld   a,($e103)] [freq=low, count=0%]
+	* copy player coordinates into grenade coordinates
+	GET_ADDRESS	player_x_e103,a0                  	| [$930d: ld   a,($e103)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,(0x03,a2)                    	| [$9310: ld   (ix+$03),a] [freq=low, count=0%]
-	GET_ADDRESS	0xe105,a0                  	| [$9313: ld   a,($e105)] [freq=low, count=0%]
+	GET_ADDRESS	player_y_e105,a0                  	| [$9313: ld   a,($e105)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,(0x05,a2)                    	| [$9316: ld   (ix+$05),a] [freq=low, count=0%]
-	jbsr	l_8656                            	| [$9319: call $8656] [freq=low, count=0%]
-	rts                                    	| [$931c: ret] [freq=low, count=0%]
+	jra	play_grenade_launch_8656                            	| [$9319: call $8656] [freq=low, count=0%]
+	                                    	| [$931c: ret] [freq=low, count=0%]
 l_931d:
 	GET_ADDRESS	player_state_e100,a0       	| [$931d: ld   a,(player_state_e100)] [freq=low, count=4%]
 	move.b	(a0),d0                         	| [...]
@@ -11130,7 +11145,7 @@ l_9358:
 	jeq	0f                                 	| [$9361: ret  nz] [freq=low, count=1%]
 	rts                                    	| [...]
 0:
-	jbsr	l_936f                            	| [$9362: call $936f] [freq=low, count=0%]
+	jbsr	handle_player_bullets_936f                            	| [$9362: call $936f] [freq=low, count=0%]
 	LOAD_HL	#0xe089                        	| [$9365: ld   hl,$e089] [freq=low, count=0%]
 	MAKE_HL	a0                             	| [$9368: dec  (hl)] [freq=low, count=0%]
 	subq.b	#1,(a0)                         	| [...]
@@ -11140,7 +11155,7 @@ l_9358:
 	rts                                    	| [$936e: ret] [freq=low, count=0%]
 
 
-l_936f:
+handle_player_bullets_936f:
 	GET_ADDRESS	player_bullets_e200,a2     	| [$936f: ld   ix,player_bullets_e200] [freq=low, count=0%]
 	LOAD_DE	#0x0020                        	| [$9373: ld   de,$0020] [freq=low, count=0%]
 	move.b	#0x06,d1                        	| [$9376: ld   b,$06] [freq=low, count=0%]
@@ -11155,10 +11170,10 @@ l_9378:
 l_9383:
 	move.b	d1,(0x1f,a2)                    	| [$9383: ld   (ix+$1f),b] [freq=low, count=0%]
 	subq.b	#1,(a2)                    	| [$9386: dec  (ix+$00)] [freq=low, count=0%]
-	GET_ADDRESS	0xe103,a0                  	| [$9389: ld   a,($e103)] [freq=low, count=0%]
+	GET_ADDRESS	player_x_e103,a0                  	| [$9389: ld   a,($e103)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d3                           	| [$938c: ld   d,a] [freq=low, count=0%]
-	GET_ADDRESS	0xe105,a0                  	| [$938d: ld   a,($e105)] [freq=low, count=0%]
+	GET_ADDRESS	player_y_e105,a0                  	| [$938d: ld   a,($e105)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d4                           	| [$9390: ld   e,a] [freq=low, count=0%]
 	GET_ADDRESS	0xe102,a0                  	| [$9391: ld   a,($e102)] [freq=low, count=0%]
@@ -11249,13 +11264,13 @@ l_941f:
 	add.b	d0,d0                            	| [$9428: add  a,a] [freq=low, count=0%]
 	addq.b	#1,d0                           	| [$9429: inc  a] [freq=low, count=0%]
 	move.b	d0,d4                           	| [$942a: ld   e,a] [freq=low, count=0%]
-	GET_ADDRESS	0xe103,a0                  	| [$942b: ld   a,($e103)] [freq=low, count=0%]
+	GET_ADDRESS	player_x_e103,a0                  	| [$942b: ld   a,($e103)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
 	sub.b	d5,d0                            	| [$942e: sub  h] [freq=low, count=0%]
 	add.b	d3,d0                            	| [$942f: add  a,d] [freq=low, count=0%]
 	cmp.b	d4,d0                            	| [$9430: cp   e] [freq=low, count=0%]
 	jcc	l_943a                             	| [$9431: jr   nc,$943a] [freq=low, count=0%]
-	GET_ADDRESS	0xe105,a0                  	| [$9433: ld   a,($e105)] [freq=low, count=0%]
+	GET_ADDRESS	player_y_e105,a0                  	| [$9433: ld   a,($e105)] [freq=low, count=0%]
 	move.b	(a0),d0                         	| [...]
 	sub.b	d6,d0                            	| [$9436: sub  l] [freq=low, count=0%]
 	add.b	d3,d0                            	| [$9437: add  a,d] [freq=low, count=0%]
@@ -11397,7 +11412,7 @@ l_9507:
 	exg	d3,d5                              	| [$9537: ex   de,hl] [freq=low, count=0%]
 	exg	d4,d6                              	| [...]
 	jbsr	exx                               	| [$9538: exx] [freq=low, count=0%]
-	GET_ADDRESS	0xe600,a2                  	| [$9539: ld   ix,$e600] [freq=low, count=0%]
+	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$9539: ld   ix,$e600] [freq=low, count=0%]
 	move.b	#0x08,d1                        	| [$953d: ld   b,$08] [freq=low, count=0%]
 	LOAD_DE	#0x0020                        	| [$953f: ld   de,$0020] [freq=low, count=0%]
 l_9542:
@@ -11527,7 +11542,7 @@ l_9609:
 	GET_ADDRESS	0xe0fa,a0                  	| [$960b: ld   ($e0fa),a]
 	move.b	d0,(a0)                         	| [...]
 l_960e:
-	GET_ADDRESS	0xe600,a2                  	| [$960e: ld   ix,$e600] [freq=low, count=0%]
+	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$960e: ld   ix,$e600] [freq=low, count=0%]
 	move.b	#0x08,d1                        	| [$9612: ld   b,$08] [freq=low, count=0%]
 	LOAD_DE	#0x0020                        	| [$9614: ld   de,$0020] [freq=low, count=0%]
 l_9617:
@@ -11771,7 +11786,7 @@ l_9776:
 	lea	(a6,d4.l),a3 |  [$978e: pop  iy]
 	move.b	(a3),d2                    	| [$9790: ld   c,(iy+$00)]
 	addq.w	#1,a3                           	| [$9793: inc  iy]
-	GET_ADDRESS	0xe600,a2                  	| [$9795: ld   ix,$e600]
+	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$9795: ld   ix,$e600]
 	move.b	#0x08,d1                        	| [$9799: ld   b,$08]
 l_979b:
 	move.b	(a2),d0                    	| [$979b: ld   a,(ix+$00)]
@@ -12341,7 +12356,7 @@ l_9ae8:
 	rts                                    	| [...]
 0:
 	GET_ADDRESS	player_bullets_e200,a2     	| [$9aee: ld   ix,player_bullets_e200]
-	GET_ADDRESS	0xff48,a3                  	| [$9af2: ld   iy,$ff48]
+	GET_ADDRESS	unknown_structure_list_ff48,a3                  	| [$9af2: ld   iy,$ff48]
 	LOAD_DE	#0x0004                        	| [$9af6: ld   de,$0004]
 	LOAD_BC	#0x0010                        	| [$9af9: ld   bc,$0010]
 	move.b	#0x04,d5                        	| [$9afc: ld   h,$04]
@@ -12358,13 +12373,13 @@ l_9afe:
 	jra	l_9afe                             	| [$9b0a: jp   $9afe]
 l_9b0d:
 	move.b	#0xff,(a2)                 	| [$9b0d: ld   (ix+$00),$ff]
-	GET_ADDRESS	0xe103,a0                  	| [$9b11: ld   a,($e103)]
+	GET_ADDRESS	player_x_e103,a0                  	| [$9b11: ld   a,($e103)]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,(0x02,a3)                    	| [$9b14: ld   (iy+$02),a]
 	GET_ADDRESS	0xe10d,a0                  	| [$9b17: ld   a,($e10d)]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,(0x04,a2)                    	| [$9b1a: ld   (ix+$04),a]
-	GET_ADDRESS	0xe105,a0                  	| [$9b1d: ld   a,($e105)]
+	GET_ADDRESS	player_y_e105,a0                  	| [$9b1d: ld   a,($e105)]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,(0x03,a3)                    	| [$9b20: ld   (iy+$03),a]
 	move.b	#0xb5,(a3)                 	| [$9b23: ld   (iy+$00),$b5]
@@ -12383,7 +12398,7 @@ l_9b0d:
 
 l_9b3f:
 	GET_ADDRESS	player_bullets_e200,a2     	| [$9b3f: ld   ix,player_bullets_e200]
-	GET_ADDRESS	0xff48,a3                  	| [$9b43: ld   iy,$ff48]
+	GET_ADDRESS	unknown_structure_list_ff48,a3                  	| [$9b43: ld   iy,$ff48]
 	move.b	#0x04,d1                        	| [$9b47: ld   b,$04]
 l_9b49:
 	MAKE_BC_NO_AR                          	| [$9b49: push bc]
@@ -15021,10 +15036,10 @@ l_aea3:
 	rts                                    	| [...]
 0:
 	GET_ADDRESS	0xe2c0,a2                  	| [$aea8: ld   ix,$e2c0] [freq=low, count=2%]
-	GET_ADDRESS	0xe103,a0                  	| [$aeac: ld   a,($e103)] [freq=low, count=2%]
+	GET_ADDRESS	player_x_e103,a0                  	| [$aeac: ld   a,($e103)] [freq=low, count=2%]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d5                           	| [$aeaf: ld   h,a] [freq=low, count=2%]
-	GET_ADDRESS	0xe105,a0                  	| [$aeb0: ld   a,($e105)] [freq=low, count=2%]
+	GET_ADDRESS	player_y_e105,a0                  	| [$aeb0: ld   a,($e105)] [freq=low, count=2%]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d6                           	| [$aeb3: ld   l,a] [freq=low, count=2%]
 	move.b	#0x08,d1                        	| [$aeb4: ld   b,$08] [freq=low, count=2%]
@@ -15070,11 +15085,11 @@ l_aee5:
 	jeq	0f                                 	| [$aee9: ret  nz] [freq=low, count=2%]
 	rts                                    	| [...]
 0:
-	GET_ADDRESS	0xe600,a2                  	| [$aeea: ld   ix,$e600] [freq=low, count=2%]
-	GET_ADDRESS	0xe103,a0                  	| [$aeee: ld   a,($e103)] [freq=low, count=2%]
+	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$aeea: ld   ix,$e600] [freq=low, count=2%]
+	GET_ADDRESS	player_x_e103,a0                  	| [$aeee: ld   a,($e103)] [freq=low, count=2%]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d5                           	| [$aef1: ld   h,a] [freq=low, count=2%]
-	GET_ADDRESS	0xe105,a0                  	| [$aef2: ld   a,($e105)] [freq=low, count=2%]
+	GET_ADDRESS	player_y_e105,a0                  	| [$aef2: ld   a,($e105)] [freq=low, count=2%]
 	move.b	(a0),d0                         	| [...]
 	move.b	d0,d6                           	| [$aef5: ld   l,a] [freq=low, count=2%]
 	move.b	#0x08,d1                        	| [$aef6: ld   b,$08] [freq=low, count=2%]
@@ -15114,7 +15129,10 @@ l_af1c:
 l_af23:
 	move.b	#0x0c,d3                        	| [$af23: ld   d,$0c] [freq=low, count=2%]
 	jra	queue_event_0038                   	| [$af25: jp   queue_event_0038] [freq=low, count=2%]
-l_af28:
+
+* checks if player bullets hit walking soldiers
+
+moving_soldiers_player_bullet_check_af28:
 	GET_ADDRESS	player_bullets_e200,a2     	| [$af28: ld   ix,player_bullets_e200] [freq=low, count=2%]
 	move.b	#0x06,d2                        	| [$af2c: ld   c,$06] [freq=low, count=2%]
 	 |  [$af2e: exx]
@@ -15128,7 +15146,7 @@ l_af37:
 	jne	l_af71                             	| [$af3b: jr   nz,$af71] [freq=low, count=4%]
 	move.b	(0x03,a2),d5                    	| [$af3d: ld   h,(ix+$03)] [freq=low, count=3%]
 	move.b	(0x05,a2),d6                    	| [$af40: ld   l,(ix+$05)] [freq=low, count=3%]
-	GET_ADDRESS	0xe600,a3                  	| [$af43: ld   iy,$e600] [freq=low, count=3%]
+	GET_ADDRESS	walking_soldier_list_e600,a3                  	| [$af43: ld   iy,$e600] [freq=low, count=3%]
 	move.b	#0x08,d1                        	| [$af47: ld   b,$08] [freq=low, count=3%]
 l_af49:
 	move.b	(a3),d0                    	| [$af49: ld   a,(iy+$00)] [freq=low, count=3%]

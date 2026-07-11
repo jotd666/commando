@@ -67,4 +67,11 @@ player_score_address_e0a6 = 0xe0a6
 player_1_score_ee91 = 0xee91
 player_2_score_ee94 = 0xee94
 unknown_structure_list_e800 = 0xe800
-
+unknown_structure_list_ff48 = 0xff48
+unknown_enemy_structure_list_ff44 = 0xff44
+walking_soldier_list_e600 = 0xe600
+launch_grenade_request_e116 = 0xe116
+player_grenade_structure_e140 = 0xe140
+other_objects_structure_list_e500 = 0xe500
+player_x_e103 = 0xe103
+player_y_e105 = 0xe105

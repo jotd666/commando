@@ -212,45 +212,45 @@
 
 
 
-rom_hi_score_table_018f    = $018f   
-vulgus_hi_score_018f       = $018f
-son_son_hi_score_019c      = $019c
-higemaru_hi_score_01a9     = $01a9
-capcom_hi_score_01b6       = $01b6
-exed_exes_hi_score_01c3    = $01c3
-comando_hi_score_01d0      = $01d0
-empty_hi_score_01dd        = $01dd
+rom_hi_score_table_018f    = vulgus_hi_score_018f   
+vulgus_hi_score_018f       = vulgus_hi_score_018f
+son_son_hi_score_019c      = son_son_hi_score_019c
+higemaru_hi_score_01a9     = higemaru_hi_score_01a9
+capcom_hi_score_01b6       = capcom_hi_score_01b6
+exed_exes_hi_score_01c3    = exed_exes_hi_score_01c3
+comando_hi_score_01d0      = comando_hi_score_01d0
+empty_hi_score_01dd        = empty_hi_score_01dd
 
-hi_score_table_ee00  = $ee00
-hi_score_1st_ee00    = $ee00
-hi_score_2nd_ee0d    = $ee0d
-hi_score_3rd_ee1a    = $ee1a
-hi_score_4th_ee27    = $ee27
-hi_score_5th_ee34    = $ee34
-hi_score_6th_ee41    = $ee41
-hi_score_7th_ee4e    = $ee4e
-produced_event_pointer_ed80 = $ed80
-global_y_lsb_eda2 = $eda2
-nb_lives_eda0 = $eda0
-player_score_address_e0a6 = $e0a6
-player_1_score_ee91 = $ee91
-player_2_score_ee94 = $ee94
+hi_score_table_ee00  = hi_score_1st_ee00
+hi_score_1st_ee00    = hi_score_1st_ee00
+hi_score_2nd_ee0d    = hi_score_2nd_ee0d
+hi_score_3rd_ee1a    = hi_score_3rd_ee1a
+hi_score_4th_ee27    = hi_score_4th_ee27
+hi_score_5th_ee34    = hi_score_5th_ee34
+hi_score_6th_ee41    = hi_score_6th_ee41
+hi_score_7th_ee4e    = hi_score_7th_ee4e
+produced_event_pointer_ed80 = produced_event_pointer_ed80
+global_y_lsb_eda2 = global_y_lsb_eda2
+nb_lives_eda0 = nb_lives_eda0
+player_score_address_e0a6 = player_score_address_e0a6
+player_1_score_ee91 = player_1_score_ee91
+player_2_score_ee94 = player_2_score_ee94
 
-timing_variable_e002 = $e002
-port_state_c000_in0_e003 = $e003
-sound_and_screen_orientation_c804 = $c804
-dma_trigger_c806 = $c806
+timing_variable_e002 = timing_variable_e002
+port_state_c000_in0_e003 = port_state_c000_in0_e003
+sound_and_screen_orientation_c804 = sound_and_screen_orientation_c804
+dma_trigger_c806 = dma_trigger_c806
 ; the main vertical scrolling registers
-background_scroll_y_lsb_c808 = $c808
-background_scroll_y_msb_c809 = $c809
+background_scroll_y_lsb_c808 = background_scroll_y_lsb_c808
+background_scroll_y_msb_c809 = background_scroll_y_msb_c809
 ; rarely used (except in end of stage)
-background_scroll_x_lsb_c80a = $c80a
-background_scroll_x_msb_c80b = $c80b
-global_y_msb_copy_e05b = $e05b
-global_y_lsb_copy_e05c = $e05c
+background_scroll_x_lsb_c80a = background_scroll_x_lsb_c80a
+background_scroll_x_msb_c80b = background_scroll_x_msb_c80b
+global_y_msb_copy_e05b = global_y_msb_copy_e05b
+global_y_lsb_copy_e05c = global_y_lsb_copy_e05c
 ; 5: end of level
-game_state_e001 = $E001
-heli_ride_countdown_e0b5 = $e0b5
+game_state_e001 = game_state_e001
+heli_ride_countdown_e0b5 = heli_ride_countdown_e0b5
 
 ; PORT_STATE_C001_IN1_e004 holds the state of IN1 after a bit flip (2's complement) - see $0328
 ; Bit 0: player moving RIGHT
@@ -260,58 +260,58 @@ heli_ride_countdown_e0b5 = $e0b5
 ; Bit 4: player SHOOT
 ; Bit 5: player GRENADE
 
-dsw1_c003 = $c003
-dsw2_c004 = $c004
+dsw1_c003 = dsw1_c003
+dsw2_c004 = dsw2_c004
 
-port_state_c001_in1_e004 = $e004
-port_state_c002_in2_e005 = $e005
-port_state_dsw1_e006     = $e006
-port_state_dsw2_e007     = $e007
-sound_command_e03a = $e03a
+port_state_c001_in1_e004 = port_state_c001_in1_e004
+port_state_c002_in2_e005 = port_state_c002_in2_e005
+port_state_dsw1_e006     = port_state_dsw1_e006
+port_state_dsw2_e007     = port_state_dsw2_e007
+sound_command_e03a = sound_command_e03a
 
 ; These names are temporary until I work out what they are for.
-port_state_c001_bit0_bits_e008 = $e008
-port_state_c001_bit1_bits_e009 = $e009
-port_state_c001_bit2_bits_e00a = $e00a
-port_state_c001_bit3_bits_e00b = $e00b
-port_state_c001_bit4_bits_e00c = $e00c
-port_state_c001_bit5_bits_e00d = $e00d
+port_state_c001_bit0_bits_e008 = port_state_c001_bit0_bits_e008
+port_state_c001_bit1_bits_e009 = port_state_c001_bit1_bits_e009
+port_state_c001_bit2_bits_e00a = port_state_c001_bit2_bits_e00a
+port_state_c001_bit3_bits_e00b = port_state_c001_bit3_bits_e00b
+port_state_c001_bit4_bits_e00c = port_state_c001_bit4_bits_e00c
+port_state_c001_bit5_bits_e00d = port_state_c001_bit5_bits_e00d
 
-first_bonus_ten_thousands_e026 = $e026
+first_bonus_ten_thousands_e026 = first_bonus_ten_thousands_e026
 
-sound_c800 = $c800
+sound_c800 = sound_c800
 
-fg_tiles_address_d000 = $d000
-fg_tiles_color_address_d400 = $d400
-bg_tiles_address_d800 = $d800
-bg_tiles_color_address_dc00 = $dc00
-sound_queue_pointer_ed88 = $ed88
-consumed_event_pointer_ed82 = $ed82
+fg_tiles_address_d000 = fg_tiles_address_d000
+fg_tiles_color_address_d400 = fg_tiles_color_address_d400
+bg_tiles_address_d800 = bg_tiles_address_d800
+bg_tiles_color_address_dc00 = bg_tiles_color_address_dc00
+sound_queue_pointer_ed88 = sound_queue_pointer_ed88
+consumed_event_pointer_ed82 = consumed_event_pointer_ed82
 
-player_state_e100 = $e100
+player_state_e100 = player_state_e100
 
 ; set to 1 if dip switches report an upright cabinet 
-is_cabinet_upright_e025 = $e025
+is_cabinet_upright_e025 = is_cabinet_upright_e025
  ; set to 2 if dip switches report upright cabinet with one stick (see $012D)                  
-is_single_stick_setup_e029   = $e029
+is_single_stick_setup_e029   = is_single_stick_setup_e029
     ; set to 16 if dip switches report demo sounds should be OFF (see $0133)
-is_demo_sounds_on_e02a = $e02a
+is_demo_sounds_on_e02a = is_demo_sounds_on_e02a
  ; set to 8 if Difficult difficulty in dip switches, 0 = Normal (see $0139)      
-is_difficult_e02c   = $e02c
+is_difficult_e02c   = is_difficult_e02c
  ; number of credits inserted 
-num_credits_e030    = $e030 
+num_credits_e030    = num_credits_e030 
 ; temp name: set to 1 if screen is flipped on vertical axis    
-is_screen_yflipped_e039 = $e039         
+is_screen_yflipped_e039 = is_screen_yflipped_e039         
 
 
-player_bullets_e200 = $e200
+player_bullets_e200 = player_bullets_e200
 
-num_grenades_eda8 = $eda8
+num_grenades_eda8 = num_grenades_eda8
   ; the hi score seen on screen
-hi_score_ee97     = $ee97
-port_1_c001 = $c001
-port_2_c002 = $c002
-system_c000 = $c000
+hi_score_ee97     = hi_score_ee97
+port_1_c001 = port_1_c001
+port_2_c002 = port_2_c002
+system_c000 = system_c000
 ;
 ;struct PLAYER_BULLET
 ;{
@@ -970,7 +970,7 @@ return_0414:
 0514: FD 36 41 00 ld   (iy+$05),$00
 0518: C9          ret
 
-051D: 3A 20 0E    ld   a,($E002)
+051D: 3A 20 0E    ld   a,(timing_variable_e002)
 0520: 47          ld   b,a
 0521: E6 E1       and  $0F
 0523: C0          ret  nz
@@ -997,7 +997,7 @@ return_0414:
 054C: 21 D5 41    ld   hl,$055D
 054F: E7          rst  $20                   ; call RETURN_BYTE_AT_HL_PLUS_A
 0550: 06 60       ld   b,$06
-0552: 11 02 00    ld   de,$0020
+0552: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 0555: 21 2B 5D    ld   hl,$D5A3
 0558: 77          ld   (hl),a
 0559: 19          add  hl,de
@@ -1127,7 +1127,7 @@ next_game_state_05fc:
 	dc.w	$0df7	; $0639
 
 063B: 06 61       ld   b,$07
-063D: 11 02 00    ld   de,$0020
+063D: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 0640: 36 02       ld   (hl),$20		; [video_address]
 0642: 19          add  hl,de
 0643: 10 BF       djnz $0640
@@ -1184,7 +1184,7 @@ next_game_state_05fc:
 06AF: FF          rst  $38   ; queue_event_0038
 06B0: 21 0C CF    ld   hl,$EDC0
 06B3: 11 0E CF    ld   de,$EDE0
-06B6: 01 02 00    ld   bc,$0020
+06B6: 01 02 00    ld   bc,return_byte_at_hl_plus_a_0020
 06B9: ED B0       ldir
 06BB: CD 91 98    call $9819
 06BE: 3E 06       ld   a,$60
@@ -1202,7 +1202,7 @@ next_game_state_05fc:
 06E4: CD 52 61    call $0734
 06E7: CD 2C 80    call $08C2
 06EA: 11 0A CF    ld   de,nb_lives_eda0
-06ED: 01 02 00    ld   bc,$0020
+06ED: 01 02 00    ld   bc,return_byte_at_hl_plus_a_0020
 06F0: ED B0       ldir
 06F2: CD B9 61    call $079B
 06F5: 16 81       ld   d,$09
@@ -1235,7 +1235,7 @@ next_game_state_05fc:
 072E: C2 AC 68    jp   nz,$86CA
 0731: C3 FC 68    jp   $86DE
 
-0734: 21 00 6E    ld   hl,$E600
+0734: 21 00 6E    ld   hl,walking_soldier_list_e600
 0737: 11 01 6E    ld   de,$E601
 073A: 01 FF 00    ld   bc,$00FF
 073D: 36 00       ld   (hl),$00
@@ -1245,12 +1245,12 @@ next_game_state_05fc:
 0747: 01 FF 00    ld   bc,$00FF
 074A: 36 00       ld   (hl),$00
 074C: ED B0       ldir
-074E: 21 00 4F    ld   hl,$E500
+074E: 21 00 4F    ld   hl,other_objects_structure_list_e500
 0751: 11 01 4F    ld   de,$E501
 0754: 01 FF 00    ld   bc,$00FF
 0757: 36 00       ld   (hl),$00
 0759: ED B0       ldir
-075B: 21 00 8E    ld   hl,$E800
+075B: 21 00 8E    ld   hl,unknown_structure_list_e800
 075E: 11 01 8E    ld   de,$E801
 0761: 01 E9 00    ld   bc,$008F
 0764: 36 00       ld   (hl),$00
@@ -1395,7 +1395,7 @@ next_game_state_05fc:
 0875: CD 2C 80    call $08C2
 0878: EB          ex   de,hl
 0879: 21 0A CF    ld   hl,nb_lives_eda0
-087C: 01 02 00    ld   bc,$0020
+087C: 01 02 00    ld   bc,return_byte_at_hl_plus_a_0020
 087F: ED B0       ldir
 0881: 3A B0 0E    ld   a,($E01A)
 0884: A7          and  a
@@ -1438,7 +1438,7 @@ next_game_state_05fc:
 08CF: DD 21 DE 80 ld   ix,$08FC
 08D3: ED 5B 2A CF ld   de,(global_y_lsb_eda2)
 08D7: 01 20 00    ld   bc,$0002
-08DA: 21 00 00    ld   hl,$0000
+08DA: 21 00 00    ld   hl,reset_0000
 08DD: 22 2A CF    ld   (global_y_lsb_eda2),hl
 08E0: DD 66 01    ld   h,(ix+$01)
 08E3: DD 6E 00    ld   l,(ix+$00)
@@ -1849,7 +1849,7 @@ print_text_with_typing_effect_0e60:
 0E75: 12          ld   (de),a	; [video_address]
 0E76: 23          inc  hl
 0E77: 22 3B 0E    ld   ($E0B3),hl
-0E7A: 21 02 00    ld   hl,$0020
+0E7A: 21 02 00    ld   hl,return_byte_at_hl_plus_a_0020
 0E7D: 19          add  hl,de
 0E7E: 22 1B 0E    ld   ($E0B1),hl
 0E81: FE 02       cp   $20
@@ -1868,13 +1868,13 @@ print_text_with_typing_effect_0e60:
 
 0F9E: AF          xor  a
 0F9F: 32 55 0E    ld   ($E055),a
-0FA2: DD 21 00 6E ld   ix,$E600
+0FA2: DD 21 00 6E ld   ix,walking_soldier_list_e600
 0FA6: FD 21 9C FE ld   iy,$FED8
 0FAA: 06 80       ld   b,$08
 0FAC: C5          push bc
 0FAD: DD 7E 00    ld   a,(ix+$00)
 0FB0: A7          and  a
-0FB1: 28 E1       jr   z,$0FC2
+0FB1: 28 E1       jr   z,entry_0fc2
 0FB3: 21 55 0E    ld   hl,$E055
 0FB6: 34          inc  (hl)
 0FB7: 21 2C E1    ld   hl,entry_0fc2		; [push_function]
@@ -1885,7 +1885,7 @@ print_text_with_typing_effect_0e60:
 
 entry_0fc2:
 0FC2: C1          pop  bc
-0FC3: 11 02 00    ld   de,$0020
+0FC3: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 0FC6: DD 19       add  ix,de		; [de=$20]
 0FC8: 11 C0 00    ld   de,$000C
 0FCB: FD 19       add  iy,de		; [de=$c]
@@ -2092,12 +2092,12 @@ entry_0fc2:
 11CD: 5F          ld   e,a
 11CE: DD 66 21    ld   h,(ix+$03)
 11D1: DD 6E 41    ld   l,(ix+$05)
-11D4: 3A 21 0F    ld   a,($E103)
+11D4: 3A 21 0F    ld   a,(player_x_e103)
 11D7: 94          sub  h
 11D8: 82          add  a,d
 11D9: BB          cp   e
 11DA: 30 80       jr   nc,$11E4
-11DC: 3A 41 0F    ld   a,($E105)
+11DC: 3A 41 0F    ld   a,(player_y_e105)
 11DF: 95          sub  l
 11E0: 82          add  a,d
 11E1: BB          cp   e
@@ -2109,7 +2109,7 @@ entry_0fc2:
 11ED: 3A 1E 0E    ld   a,($E0F0)
 11F0: 47          ld   b,a
 11F1: DD 21 0C 2E ld   ix,$E2C0
-11F5: 11 02 00    ld   de,$0020
+11F5: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 11F8: DD 7E 00    ld   a,(ix+$00)
 11FB: A7          and  a
 11FC: 28 10       jr   z,$120E
@@ -2700,6 +2700,8 @@ entry_14c0:
 1864: B8          cp   b
 1865: C0          ret  nz
 1866: C3 11 58    jp   $9411
+
+update_ambushed_static_soldier_1869:
 1869: 21 55 0E    ld   hl,$E055
 186C: 34          inc  (hl)
 186D: CD C9 B2    call $3A8D
@@ -2714,7 +2716,7 @@ entry_14c0:
 1883: CA 6B B2    jp   z,$3AA7
 1886: FE 56       cp   $74
 1888: DA 71 D0    jp   c,$1C17
-188B: CD 0F B1    call $1BE1
+188B: CD 0F B1    call decrement_object_timer_1be1
 188E: DD 7E 80    ld   a,(ix+$08)
 1891: 21 7D 90    ld   hl,$18D7
 1894: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
@@ -2729,11 +2731,11 @@ entry_14c0:
 18A7: DD CB 50 E4 bit  1,(ix+$14)
 18AB: 28 20       jr   z,$18AF
 18AD: 06 80       ld   b,$08
-18AF: 3A 41 0F    ld   a,($E105)
+18AF: 3A 41 0F    ld   a,(player_y_e105)
 18B2: DD 96 41    sub  (ix+$05)
 18B5: FE 80       cp   $08
 18B7: 30 11       jr   nc,$18CA
-18B9: 3A 21 0F    ld   a,($E103)
+18B9: 3A 21 0F    ld   a,(player_x_e103)
 18BC: DD 96 21    sub  (ix+$03)
 18BF: C6 10       add  a,$10
 18C1: FE 04       cp   $40
@@ -2751,7 +2753,7 @@ entry_14c0:
 1925: E6 61       and  $07
 1927: 20 11       jr   nz,$193A
 1929: DD 46 41    ld   b,(ix+$05)
-192C: 3A 41 0F    ld   a,($E105)
+192C: 3A 41 0F    ld   a,(player_y_e105)
 192F: 90          sub  b
 1930: 30 41       jr   nc,$1937
 1932: DD 35 41    dec  (ix+$05)
@@ -2809,11 +2811,11 @@ entry_14c0:
 19A8: 3A 00 0F    ld   a,(player_state_e100)
 19AB: 3C          inc  a
 19AC: C0          ret  nz
-19AD: 3A 41 0F    ld   a,($E105)
+19AD: 3A 41 0F    ld   a,(player_y_e105)
 19B0: DD 96 41    sub  (ix+$05)
 19B3: FE 02       cp   $20
 19B5: D0          ret  nc
-19B6: 3A 21 0F    ld   a,($E103)
+19B6: 3A 21 0F    ld   a,(player_x_e103)
 19B9: DD 96 21    sub  (ix+$03)
 19BC: C6 C0       add  a,$0C
 19BE: FE 83       cp   $29
@@ -2889,10 +2891,10 @@ entry_14c0:
 1A73: C6 C1       add  a,$0D
 1A75: 6F          ld   l,a
 1A76: DD E5       push ix
-1A78: DD 21 00 6E ld   ix,$E600
+1A78: DD 21 00 6E ld   ix,walking_soldier_list_e600
 1A7C: 3A 5E 0E    ld   a,($E0F4)
 1A7F: 47          ld   b,a
-1A80: 11 02 00    ld   de,$0020
+1A80: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 1A83: DD 7E 00    ld   a,(ix+$00)
 1A86: A7          and  a
 1A87: 28 61       jr   z,$1A90
@@ -3017,11 +3019,13 @@ entry_14c0:
 1BCD: CA 6B B2    jp   z,$3AA7
 1BD0: FE 56       cp   $74
 1BD2: 38 25       jr   c,$1C17
-1BD4: CD 0F B1    call $1BE1
+1BD4: CD 0F B1    call decrement_object_timer_1be1
 1BD7: DD 7E 80    ld   a,(ix+$08)
 1BDA: 21 04 D0    ld   hl,$1C40
 1BDD: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 1BDE: C3 9C D0    jp   $1CD8
+
+decrement_object_timer_1be1:
 1BE1: DD 35 51    dec  (ix+$15)
 1BE4: 28 44       jr   z,$1C2A
 1BE6: DD CB 50 64 bit  0,(ix+$14)
@@ -3070,8 +3074,8 @@ entry_14c0:
 1C58: C6 61       add  a,$07
 1C5A: 6F          ld   l,a
 1C5B: DD 4E F1    ld   c,(ix+$1f)
-1C5E: DD 21 00 6E ld   ix,$E600
-1C62: 11 02 00    ld   de,$0020
+1C5E: DD 21 00 6E ld   ix,walking_soldier_list_e600
+1C62: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 1C65: 06 80       ld   b,$08
 1C67: DD 7E 00    ld   a,(ix+$00)
 1C6A: A7          and  a
@@ -3196,7 +3200,7 @@ entry_14c0:
 1D7B: DD 6E 41    ld   l,(ix+$05)
 1D7E: DD E5       push ix
 1D80: DD 21 00 2E ld   ix,player_bullets_e200
-1D84: 11 02 00    ld   de,$0020
+1D84: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 1D87: 06 60       ld   b,$06
 1D89: DD 7E 00    ld   a,(ix+$00)
 1D8C: 3C          inc  a
@@ -3260,8 +3264,8 @@ entry_14c0:
 1E0D: C6 61       add  a,$07
 1E0F: 6F          ld   l,a
 1E10: DD 4E F1    ld   c,(ix+$1f)
-1E13: DD 21 00 6E ld   ix,$E600
-1E17: 11 02 00    ld   de,$0020
+1E13: DD 21 00 6E ld   ix,walking_soldier_list_e600
+1E17: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 1E1A: 06 80       ld   b,$08
 1E1C: DD 7E 00    ld   a,(ix+$00)
 1E1F: A7          and  a
@@ -3459,12 +3463,12 @@ entry_14c0:
 204D: DD 66 21    ld   h,(ix+$03)
 2050: DD 6E 41    ld   l,(ix+$05)
 2053: FD 36 20 00 ld   (iy+$02),$00
-2057: CD C1 38    call $920D
+2057: CD C1 38    call check_if_player_hit_by_grenade_920d
 205A: C9          ret
 205B: DD 36 51 40 ld   (ix+$15),$04
 205F: C9          ret
 2060: DD 36 51 08 ld   (ix+$15),$80
-2064: 3A 41 0F    ld   a,($E105)
+2064: 3A 41 0F    ld   a,(player_y_e105)
 2067: 67          ld   h,a
 2068: 2E 00       ld   l,$00
 206A: DD 56 41    ld   d,(ix+$05)
@@ -3488,7 +3492,7 @@ entry_14c0:
 208E: DD 74 C1    ld   (ix+$0d),h
 2091: DD 75 E0    ld   (ix+$0e),l
 2094: DD 36 60 00 ld   (ix+$06),$00
-2098: 3A 21 0F    ld   a,($E103)
+2098: 3A 21 0F    ld   a,(player_x_e103)
 209B: 67          ld   h,a
 209C: 2E 00       ld   l,$00
 209E: DD 56 21    ld   d,(ix+$03)
@@ -3692,12 +3696,12 @@ cont_22a6:
 22B7: 3A 00 0F    ld   a,(player_state_e100)
 22BA: 3C          inc  a
 22BB: 20 D1       jr   nz,$22DA
-22BD: 3A 21 0F    ld   a,($E103)
+22BD: 3A 21 0F    ld   a,(player_x_e103)
 22C0: DD 96 21    sub  (ix+$03)
 22C3: C6 C0       add  a,$0C
 22C5: FE 91       cp   $19
 22C7: 30 11       jr   nc,$22DA
-22C9: 3A 41 0F    ld   a,($E105)
+22C9: 3A 41 0F    ld   a,(player_y_e105)
 22CC: DD 96 41    sub  (ix+$05)
 22CF: C6 C0       add  a,$0C
 22D1: FE 91       cp   $19
@@ -3722,7 +3726,7 @@ cont_22a6:
 22FF: DD 6E 41    ld   l,(ix+$05)
 2302: DD 36 00 00 ld   (ix+$00),$00
 2306: FD 36 20 00 ld   (iy+$02),$00
-230A: C3 C1 38    jp   $920D
+230A: C3 C1 38    jp   check_if_player_hit_by_grenade_920d
 230D: DD 36 51 14 ld   (ix+$15),$50
 2311: C9          ret
 2312: C9          ret
@@ -3782,9 +3786,9 @@ cont_22a6:
 238F: DD 7E 41    ld   a,(ix+$05)
 2392: C6 80       add  a,$08
 2394: 6F          ld   l,a
-2395: DD 21 00 6E ld   ix,$E600
+2395: DD 21 00 6E ld   ix,walking_soldier_list_e600
 2399: 06 80       ld   b,$08
-239B: 11 02 00    ld   de,$0020
+239B: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 239E: DD 7E 00    ld   a,(ix+$00)
 23A1: A7          and  a
 23A2: 28 41       jr   z,$23A9
@@ -3875,7 +3879,7 @@ continue_240d:
 2451: 20 55       jr   nz,$24A8
 2453: DD 7E 41    ld   a,(ix+$05)
 2456: 47          ld   b,a
-2457: 3A 41 0F    ld   a,($E105)
+2457: 3A 41 0F    ld   a,(player_y_e105)
 245A: B8          cp   b
 245B: 30 82       jr   nc,$2485
 245D: DD 34 50    inc  (ix+$14)
@@ -3983,7 +3987,7 @@ continue_240d:
 2552: DD 66 21    ld   h,(ix+$03)
 2555: DD 6E 41    ld   l,(ix+$05)
 2558: FD 36 20 00 ld   (iy+$02),$00
-255C: C3 C1 38    jp   $920D
+255C: C3 C1 38    jp   check_if_player_hit_by_grenade_920d
 255F: DD 7E 51    ld   a,(ix+$15)
 2562: 0F          rrca
 2563: 0F          rrca
@@ -4021,7 +4025,7 @@ continue_240d:
 25B0: FD 36 20 00 ld   (iy+$02),$00
 25B4: DD 66 21    ld   h,(ix+$03)
 25B7: DD 6E 41    ld   l,(ix+$05)
-25BA: C3 C1 38    jp   $920D
+25BA: C3 C1 38    jp   check_if_player_hit_by_grenade_920d
 25BD: C9          ret
 25BE: 21 55 0E    ld   hl,$E055
 25C1: 34          inc  (hl)
@@ -4185,7 +4189,7 @@ continue_240d:
 2735: 32 4B 0E    ld   ($E0A5),a
 2738: AF          xor  a
 2739: 32 4A 0E    ld   ($E0A4),a
-273C: CD F2 A2    call $2A3E
+273C: CD F2 A2    call update_misc_objects_2a3e
 273F: C9          ret
 2740: 21 EA 17    ld   hl,$71AE
 2743: 22 E9 0E    ld   ($E08F),hl
@@ -4214,9 +4218,9 @@ continue_240d:
 2770: FD 4E 21    ld   c,(iy+$03)
 2773: FD 5E 40    ld   e,(iy+$04)
 2776: FD 56 41    ld   d,(iy+$05)
-2779: DD 21 00 4F ld   ix,$E500
+2779: DD 21 00 4F ld   ix,other_objects_structure_list_e500
 277D: D9          exx
-277E: 11 02 00    ld   de,$0020
+277E: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 2781: 06 80       ld   b,$08
 2783: DD 7E 00    ld   a,(ix+$00)
 2786: A7          and  a
@@ -4300,7 +4304,7 @@ continue_240d:
 282B: D2 33 82    jp   nc,$2833
 282E: DD 36 00 00 ld   (ix+$00),$00
 2832: C9          ret
-2833: 3A 21 0F    ld   a,($E103)
+2833: 3A 21 0F    ld   a,(player_x_e103)
 2836: 47          ld   b,a
 2837: 3A 20 0E    ld   a,(timing_variable_e002)
 283A: E6 F1       and  $1F
@@ -4370,7 +4374,7 @@ continue_240d:
 28DF: E6 08       and  $80
 28E1: D6 04       sub  $40
 28E3: 47          ld   b,a
-28E4: 3A 21 0F    ld   a,($E103)
+28E4: 3A 21 0F    ld   a,(player_x_e103)
 28E7: 80          add  a,b
 28E8: DD 77 21    ld   (ix+$03),a
 28EB: DD 36 20 0C ld   (ix+$02),$C0
@@ -4384,7 +4388,7 @@ continue_240d:
 2918: 11 0C FE    ld   de,$FEC0
 291B: DD 72 A1    ld   (ix+$0b),d
 291E: DD 73 C0    ld   (ix+$0c),e
-2921: 11 00 00    ld   de,$0000
+2921: 11 00 00    ld   de,reset_0000
 2924: DD 36 C1 00 ld   (ix+$0d),$00
 2928: DD 36 E0 00 ld   (ix+$0e),$00
 292C: DD 36 E1 00 ld   (ix+$0f),$00
@@ -4466,7 +4470,8 @@ continue_240d:
 2A0A: CD E7 68    call $866F
 2A0D: C9          ret
 
-2A3E: DD 21 00 4F ld   ix,$E500
+update_misc_objects_2a3e:
+2A3E: DD 21 00 4F ld   ix,other_objects_structure_list_e500
 2A42: 06 80       ld   b,$08
 2A44: C5          push bc
 2A45: DD 7E 00    ld   a,(ix+$00)
@@ -4479,7 +4484,7 @@ continue_240d:
 2A54: FE FF       cp   $FF
 2A56: 38 C0       jr   c,$2A64
 2A58: CD E7 A2    call $2A6F
-2A5B: 11 02 00    ld   de,$0020
+2A5B: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 2A5E: DD 19       add  ix,de
 2A60: C1          pop  bc
 2A61: 10 0F       djnz $2A44
@@ -4538,7 +4543,7 @@ continue_240d:
 	dc.w	$199c	; $2acb
 	dc.w	$19d1	; $2acd
 	dc.w	$2428	; $2acf
-	dc.w	$1869	; $2ad1
+	dc.w	update_ambushed_static_soldier_1869	; $2ad1
 
 2AD3: CD C9 B2    call $3A8D
 2AD6: DD 7E 31    ld   a,(ix+$13)
@@ -4595,7 +4600,7 @@ continue_240d:
 
 2B3A: DD 7E 00    ld   a,(ix+$00)
 2B3D: FE F3       cp   $3F
-2B3F: CC 74 A3    call z,$2B56
+2B3F: CC 74 A3    call z,grenade_hit_static_soldier_2b56
 2B42: DD 35 51    dec  (ix+$15)
 2B45: CA 6B B2    jp   z,$3AA7
 2B48: 21 E7 A3    ld   hl,$2B6F
@@ -4606,6 +4611,8 @@ continue_240d:
 2B50: 5E          ld   e,(hl)
 2B51: 16 00       ld   d,$00
 2B53: C3 9C D0    jp   $1CD8
+
+grenade_hit_static_soldier_2b56:
 2B56: CD 98 68    call $8698
 2B59: DD 36 00 01 ld   (ix+$00),$01
 2B5D: DD 36 51 10 ld   (ix+$15),$10
@@ -4868,7 +4875,7 @@ continue_240d:
 2DB9: CD 96 50    call $1478
 2DBC: DD 36 51 02 ld   (ix+$15),$20
 2DC0: C9          ret
-2DC1: 3A 41 0F    ld   a,($E105)
+2DC1: 3A 41 0F    ld   a,(player_y_e105)
 2DC4: 47          ld   b,a
 2DC5: DD 7E 41    ld   a,(ix+$05)
 2DC8: 90          sub  b
@@ -4907,12 +4914,12 @@ continue_240d:
 2E0D: CD E7 68    call $866F
 2E10: 3E 21       ld   a,$03
 2E12: 18 63       jr   $2E3B
-2E14: 21 00 00    ld   hl,$0000
+2E14: 21 00 00    ld   hl,reset_0000
 2E17: DD 74 A1    ld   (ix+$0b),h
 2E1A: DD 75 C0    ld   (ix+$0c),l
 2E1D: DD 36 51 02 ld   (ix+$15),$20
 2E21: C9          ret
-2E22: 21 00 00    ld   hl,$0000
+2E22: 21 00 00    ld   hl,reset_0000
 2E25: DD 74 A1    ld   (ix+$0b),h
 2E28: DD 75 C0    ld   (ix+$0c),l
 2E2B: DD 36 50 21 ld   (ix+$14),$03
@@ -5097,12 +5104,12 @@ continue_240d:
 30E3: 3A 00 0F    ld   a,(player_state_e100)
 30E6: 3C          inc  a
 30E7: C0          ret  nz
-30E8: 3A 21 0F    ld   a,($E103)
+30E8: 3A 21 0F    ld   a,(player_x_e103)
 30EB: DD 96 21    sub  (ix+$03)
 30EE: C6 10       add  a,$10
 30F0: FE 03       cp   $21
 30F2: D0          ret  nc
-30F3: 3A 41 0F    ld   a,($E105)
+30F3: 3A 41 0F    ld   a,(player_y_e105)
 30F6: DD 96 41    sub  (ix+$05)
 30F9: C6 10       add  a,$10
 30FB: FE 03       cp   $21
@@ -5221,8 +5228,8 @@ continue_240d:
 321A: DD 7E 41    ld   a,(ix+$05)
 321D: C6 40       add  a,$04
 321F: 6F          ld   l,a
-3220: DD 21 00 6E ld   ix,$E600
-3224: 11 02 00    ld   de,$0020
+3220: DD 21 00 6E ld   ix,walking_soldier_list_e600
+3224: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 3227: 3A 5E 0E    ld   a,($E0F4)
 322A: 47          ld   b,a
 322B: DD 7E 00    ld   a,(ix+$00)
@@ -5415,8 +5422,8 @@ entry_33f4:
 3435: DD 7E 41    ld   a,(ix+$05)
 3438: C6 00       add  a,$00
 343A: 6F          ld   l,a
-343B: DD 21 00 6E ld   ix,$E600
-343F: 11 02 00    ld   de,$0020
+343B: DD 21 00 6E ld   ix,walking_soldier_list_e600
+343F: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 3442: 3A 5E 0E    ld   a,($E0F4)
 3445: 47          ld   b,a
 3446: DD 7E 00    ld   a,(ix+$00)
@@ -5473,12 +5480,12 @@ entry_33f4:
 34D6: 3A 00 0F    ld   a,(player_state_e100)
 34D9: 3C          inc  a
 34DA: C0          ret  nz
-34DB: 3A 21 0F    ld   a,($E103)
+34DB: 3A 21 0F    ld   a,(player_x_e103)
 34DE: DD 96 21    sub  (ix+$03)
 34E1: C6 C0       add  a,$0C
 34E3: FE 91       cp   $19
 34E5: D0          ret  nc
-34E6: 3A 41 0F    ld   a,($E105)
+34E6: 3A 41 0F    ld   a,(player_y_e105)
 34E9: DD 96 41    sub  (ix+$05)
 34EC: FE 91       cp   $19
 34EE: D0          ret  nc
@@ -5506,7 +5513,7 @@ entry_33f4:
 351F: C8          ret  z
 3520: FD E5       push iy		; save iy
 3522: FD 21 00 2E ld   iy,player_bullets_e200
-3526: 11 02 00    ld   de,$0020              ; sizeof (PLAYER_BULLET)
+3526: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020              ; sizeof (PLAYER_BULLET)
 3529: 06 60       ld   b,$06
 352B: DD 66 21    ld   h,(ix+$03)
 352E: DD 6E 41    ld   l,(ix+$05)
@@ -5538,7 +5545,7 @@ entry_33f4:
 3564: DD 66 21    ld   h,(ix+$03)
 3567: DD 6E 41    ld   l,(ix+$05)
 356A: CD 6B B2    call $3AA7
-356D: C3 C1 38    jp   $920D
+356D: C3 C1 38    jp   check_if_player_hit_by_grenade_920d
 
 3570: FD 19       add  iy,de
 3572: 10 DB       djnz $3531
@@ -5678,7 +5685,7 @@ entry_33f4:
 36FB: DD 75 C0    ld   (ix+$0c),l
 36FE: C3 5C E9    jp   $8FD4
 3701: CD F8 72    call $369E
-3704: 3A 41 0F    ld   a,($E105)
+3704: 3A 41 0F    ld   a,(player_y_e105)
 3707: 47          ld   b,a
 3708: DD 7E 41    ld   a,(ix+$05)
 370B: 90          sub  b
@@ -6075,7 +6082,7 @@ entry_33f4:
 3BD4: 30 5E       jr   nc,$3BCA
 3BD6: 14          inc  d
 3BD7: 18 1F       jr   $3BCA
-3BD9: 11 02 00    ld   de,$0020
+3BD9: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 3BDC: 36 B5       ld   (hl),$5B
 3BDE: 19          add  hl,de
 3BDF: 10 9E       djnz $3BD9
@@ -6089,7 +6096,7 @@ entry_33f4:
 3D94: 3A 60 0E    ld   a,(port_state_dsw1_e006)
 3D97: 4F          ld   c,a
 3D98: 21 32 3C    ld   hl,$D232
-3D9B: 11 02 00    ld   de,$0020
+3D9B: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 3D9E: 06 80       ld   b,$08
 3DA0: E6 01       and  $01
 3DA2: 77          ld   (hl),a
@@ -6243,7 +6250,7 @@ entry_33f4:
 6C8F: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 6C90: DD CB 01 F6 bit  7,(ix+$01)
 6C94: 28 80       jr   z,$6C9E
-6C96: 21 00 00    ld   hl,$0000
+6C96: 21 00 00    ld   hl,reset_0000
 6C99: A7          and  a
 6C9A: ED 42       sbc  hl,bc
 6C9C: 44          ld   b,h
@@ -6252,7 +6259,7 @@ entry_33f4:
 6CA1: C6 04       add  a,$40
 6CA3: CB 7F       bit  7,a
 6CA5: C8          ret  z
-6CA6: 21 00 00    ld   hl,$0000
+6CA6: 21 00 00    ld   hl,reset_0000
 6CA9: A7          and  a
 6CAA: ED 52       sbc  hl,de
 6CAC: 54          ld   d,h
@@ -6274,25 +6281,25 @@ entry_33f4:
 
 6CC0: 50          ld   d,b
 6CC1: 59          ld   e,c
-6CC2: 01 00 00    ld   bc,$0000
+6CC2: 01 00 00    ld   bc,reset_0000
 6CC5: C9          ret
-6CC6: 11 00 00    ld   de,$0000
+6CC6: 11 00 00    ld   de,reset_0000
 6CC9: C9          ret
-6CCA: 21 00 00    ld   hl,$0000
+6CCA: 21 00 00    ld   hl,reset_0000
 6CCD: A7          and  a
 6CCE: ED 42       sbc  hl,bc
 6CD0: 54          ld   d,h
 6CD1: 5D          ld   e,l
-6CD2: 01 00 00    ld   bc,$0000
+6CD2: 01 00 00    ld   bc,reset_0000
 6CD5: C9          ret
-6CD6: 21 00 00    ld   hl,$0000
+6CD6: 21 00 00    ld   hl,reset_0000
 6CD9: A7          and  a
 6CDA: ED 42       sbc  hl,bc
 6CDC: 44          ld   b,h
 6CDD: 4D          ld   c,l
-6CDE: 11 00 00    ld   de,$0000
+6CDE: 11 00 00    ld   de,reset_0000
 6CE1: C9          ret
-6CE2: 21 21 0F    ld   hl,$E103
+6CE2: 21 21 0F    ld   hl,player_x_e103
 6CE5: 0E 00       ld   c,$00
 6CE7: 7E          ld   a,(hl)
 6CE8: 2C          inc  l
@@ -6422,7 +6429,7 @@ entry_33f4:
 6DE8: 32 D7 0E    ld   ($E07D),a
 6DEB: FD 7E 21    ld   a,(iy+$03)
 6DEE: 32 F7 0E    ld   ($E07F),a
-6DF1: DD 21 00 6E ld   ix,$E600
+6DF1: DD 21 00 6E ld   ix,walking_soldier_list_e600
 6DF5: FD 21 40 FE ld   iy,$FE04
 6DF9: FD 7E 20    ld   a,(iy+$02)
 6DFC: DD 77 21    ld   (ix+$03),a
@@ -6468,14 +6475,14 @@ handle_events_8007:
 	dc.w	$81d1	; $802d
 	dc.w	$825d	; $802f
 	dc.w	$8260	; $8031
-	dc.w	$851c	; $8033
+	dc.w	add_to_score_851c	; $8033
 	dc.w	$9f8b	; $8035
 	dc.w	display_high_scores_81dc	; $8037
 	dc.w	$8607	; $8039
 	dc.w	clear_screen_81a2	; $803b
 	dc.w	$8183	; $803d
-	dc.w	$8130	; $803f
-	dc.w	$af28	; $8041
+	dc.w	player_grenade_launch_8130	; $803f
+	dc.w	moving_soldiers_player_bullet_check_af28	; $8041
 	dc.w	$8076	; $8043
 	dc.w	$8047	; $8045
 
@@ -6580,14 +6587,15 @@ handle_events_8007:
 8102: CB 94       res  2,h
 8104: C9          ret
 
-811D: 11 02 00    ld   de,$0020
+811D: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 8120: 21 03 3C    ld   hl,$D221
 8123: 06 C1       ld   b,$0D
 8125: CD 27 09    call $8163
 8128: 21 02 3C    ld   hl,$D220
 812B: 06 C1       ld   b,$0D
 812D: CD 27 09    call $8163
-8130: CD 35 09    call $8153
+player_grenade_launch_8130:
+8130: CD 35 09    call erase_grenade_digits_8153
 8133: 21 09 1D    ld   hl,$D181
 8136: 16 2A       ld   d,$A2
 8138: 1E C0       ld   e,$0C
@@ -6601,9 +6609,11 @@ handle_events_8007:
 8147: CB 94       res  2,h
 8149: 21 0E 1D    ld   hl,$D1E0
 814C: 3A 8A CF    ld   a,(num_grenades_eda8)             ; read NUM_GRENADES
-814F: CD 87 09    call $8169
+814F: CD 87 09    call write_2_digits_8169
 8152: C9          ret
-8153: 11 02 00    ld   de,$0020
+
+erase_grenade_digits_8153:
+8153: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 8156: 21 09 1D    ld   hl,$D181
 8159: 06 20       ld   b,$02
 815B: CD 27 09    call $8163
@@ -6613,6 +6623,8 @@ handle_events_8007:
 8165: 19          add  hl,de
 8166: 10 BF       djnz $8163
 8168: C9          ret
+
+write_2_digits_8169:
 8169: 47          ld   b,a
 816A: E6 1E       and  $F0
 816C: 28 61       jr   z,$8175
@@ -6628,7 +6640,7 @@ handle_events_8007:
 817B: 71          ld   (hl),c    ; [video_address]
 817C: CB 94       res  2,h
 817E: 3E 02       ld   a,$20
-8180: C3 90 00    jp   $0018
+8180: C3 90 00    jp   add_a_to_hl_0018
 
 8183: 3A 0A CF    ld   a,(nb_lives_eda0)
 8186: 3D          dec  a
@@ -6649,7 +6661,7 @@ handle_events_8007:
 81A1: C9          ret
 
 clear_screen_81a2:
-81A2: 21 00 1C    ld   hl,$D000
+81A2: 21 00 1C    ld   hl,fg_tiles_address_d000
 81A5: 0E 02       ld   c,$20			; 32 columns
 81A7: 06 F0       ld   b,$1E
 81A9: 36 02       ld   (hl),$20		; [unchecked_address]
@@ -6757,7 +6769,7 @@ display_high_scores_81dc:
 8263: A7          and  a
 8264: C0          ret  nz
 8265: 21 CC 28    ld   hl,$82CC
-8268: CD C7 D8    call $9C6D
+8268: CD C7 D8    call print_text_9c6d
 826B: 3A 12 0E    ld   a,(num_credits_e030)
 826E: 21 08 3D    ld   hl,$D380
 8271: 0E 00       ld   c,$00
@@ -6802,6 +6814,7 @@ display_high_scores_81dc:
 ;84FF:  40 94 D0 00 59 4F 55 52 20 45 56 45 52 59 20 44  ;@...YOUR EVERY D
 ;850F:  55 54 59 20 46 49 4E 49 53 48 45 44 40 B2 00 E0  ;UTY FINISHED@...
 
+add_to_score_851c:
 851C: 3A 00 0E    ld   a,($E000)
 851F: 3D          dec  a
 8520: C8          ret  z
@@ -6811,11 +6824,13 @@ display_high_scores_81dc:
 8529: 28 21       jr   z,$852E
 852B: 21 58 EE    ld   hl,player_2_score_ee94
 852E: 22 6A 0E    ld   (player_score_address_e0a6),hl
-8531: CD F2 49    call $853E
+8531: CD F2 49    call add_to_score_853e
 8534: CD B5 49    call update_hiscore_if_lower_855b
 8537: CD 28 49    call $8582
 853A: CD 1C 49    call $85D0
 853D: C9          ret
+
+add_to_score_853e:
 853E: 21 BD 49    ld   hl,$85DB
 8541: 3A 48 CF    ld   a,($ED84)
 8544: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
@@ -6944,7 +6959,7 @@ update_hiscore_if_lower_855b:
 862C: C6 10       add  a,$10
 862E: 10 5F       djnz $8625
 8630: E1          pop  hl		; restore hl
-8631: 11 02 00    ld   de,$0020
+8631: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 8634: 19          add  hl,de
 8635: D1          pop  de
 8636: 14          inc  d
@@ -6966,6 +6981,8 @@ play_null_sound_863d:
 864E: C3 71 69    jp   queue_sound_8717
 8651: 3E 41       ld   a,$05
 8653: C3 71 69    jp   queue_sound_8717
+
+play_grenade_launch_8656:
 8656: 3E 60       ld   a,$06
 8658: C3 71 69    jp   queue_sound_8717
 865B: 3E 61       ld   a,$07
@@ -7294,7 +7311,7 @@ process_sound_queue_8727:
 8958: A7          and  a
 8959: C2 44 69    jp   nz,$8744
 895C: DD 36 31 00 ld   (ix+$13),$00
-8960: 21 00 00    ld   hl,$0000
+8960: 21 00 00    ld   hl,reset_0000
 8963: 22 75 0E    ld   ($E057),hl
 8966: DD 7E 70    ld   a,(ix+$16)
 8969: A7          and  a
@@ -7304,7 +7321,7 @@ process_sound_queue_8727:
 8973: CD ED A9    call $8BCF
 8976: CD 1B C8    call $8CB1
 8979: C9          ret
-897A: 21 00 00    ld   hl,$0000
+897A: 21 00 00    ld   hl,reset_0000
 897D: 22 75 0E    ld   ($E057),hl
 8980: DD 7E 00    ld   a,(ix+$00)
 8983: FE F3       cp   $3F
@@ -7395,7 +7412,7 @@ process_sound_queue_8727:
 8A7A: C9          ret
 
 
-8A90: CD 20 39    call $9302
+8A90: CD 20 39    call init_player_grenade_9302
 8A93: DD 36 31 00 ld   (ix+$13),$00
 8A97: C3 1B C8    jp   $8CB1
 8A9A: DD 35 70    dec  (ix+$16)
@@ -7493,7 +7510,7 @@ process_sound_queue_8727:
 8B9C: DD 6E 81    ld   l,(ix+$09)
 8B9F: 06 80       ld   b,$08
 8BA1: 11 10 00    ld   de,$0010
-8BA4: DD 21 00 8E ld   ix,$E800
+8BA4: DD 21 00 8E ld   ix,unknown_structure_list_e800
 8BA8: DD 7E 00    ld   a,(ix+$00)
 8BAB: 3C          inc  a
 8BAC: 20 90       jr   nz,$8BC6
@@ -7761,7 +7778,7 @@ entry_8bcc:
 8E8F: DD 75 A0    ld   (ix+$0a),l
 8E92: C9          ret
 8E93: CD B8 E8    call $8E9A
-8E96: CD 00 19    call $9100
+8E96: CD 00 19    call grenade_stuff_9100
 8E99: C9          ret
 
 
@@ -7771,8 +7788,8 @@ entry_8bcc:
 
 8E9A: DD 21 00 2E ld   ix,player_bullets_e200
 8E9E: 26 E0       ld   h,$0E
-8EA0: 11 02 00    ld   de,$0020              ; DE = sizeof(PLAYER_BULLET)
-8EA3: FD 21 84 FF ld   iy,$FF48              ; IY = pointer to sprites
+8EA0: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020              ; DE = sizeof(PLAYER_BULLET)
+8EA3: FD 21 84 FF ld   iy,unknown_structure_list_ff48              ; IY = pointer to sprites
 8EA7: 01 40 00    ld   bc,$0004              ; BC = sizeof(BULLET_SPRITE)
 8EAA: D9          exx
 8EAB: DD 7E 00    ld   a,(ix+$00)
@@ -7855,7 +7872,7 @@ entry_8bcc:
 8F83: FD 36 20 00 ld   (iy+$02),$00
 8F87: DD 66 21    ld   h,(ix+$03)
 8F8A: DD 6E 41    ld   l,(ix+$05)
-8F8D: CD C1 38    call $920D
+8F8D: CD C1 38    call check_if_player_hit_by_grenade_920d
 8F90: C3 0C E9    jp   $8FC0
 8F93: DD CB 31 64 bit  0,(ix+$13)
 8F97: 20 BA       jr   nz,$8F53
@@ -7936,7 +7953,7 @@ entry_8bcc:
 9048: DD 6E 41    ld   l,(ix+$05)
 904B: 06 80       ld   b,$08
 904D: 11 10 00    ld   de,$0010
-9050: DD 21 00 8E ld   ix,$E800
+9050: DD 21 00 8E ld   ix,unknown_structure_list_e800
 9054: DD 7E 00    ld   a,(ix+$00)
 9057: 3C          inc  a
 9058: 20 90       jr   nz,$9072
@@ -8040,9 +8057,10 @@ entry_9078:
 90F4: CD 15 68    call $8651
 90F7: C9          ret
 
+grenade_stuff_9100:
 9100: CD 26 38    call $9262
-9103: DD 21 04 0F ld   ix,$E140
-9107: FD 21 44 FF ld   iy,$FF44
+9103: DD 21 04 0F ld   ix,player_grenade_structure_e140
+9107: FD 21 44 FF ld   iy,unknown_enemy_structure_list_ff44
 910B: DD 7E 00    ld   a,(ix+$00)
 910E: A7          and  a
 910F: CA 6D 38    jp   z,$92C7
@@ -8084,7 +8102,7 @@ entry_9078:
 9172: FD 36 20 00 ld   (iy+$02),$00
 9176: DD 66 21    ld   h,(ix+$03)
 9179: DD 6E 41    ld   l,(ix+$05)
-917C: CD C1 38    call $920D
+917C: CD C1 38    call check_if_player_hit_by_grenade_920d
 917F: DD 7E 21    ld   a,(ix+$03)
 9182: 32 D9 0E    ld   ($E09D),a
 9185: 67          ld   h,a
@@ -8094,8 +8112,8 @@ entry_9078:
 918F: 6F          ld   l,a
 9190: FD 21 65 0E ld   iy,$E047
 9194: FD 36 00 00 ld   (iy+$00),$00
-9198: DD 21 00 6E ld   ix,$E600
-919C: 11 02 00    ld   de,$0020
+9198: DD 21 00 6E ld   ix,walking_soldier_list_e600
+919C: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 919F: 06 80       ld   b,$08
 91A1: DD 7E 00    ld   a,(ix+$00)
 91A4: 3C          inc  a
@@ -8114,7 +8132,7 @@ entry_9078:
 91BF: FD 34 00    inc  (iy+$00)
 91C2: DD 19       add  ix,de	; de=$20
 91C4: 10 BD       djnz $91A1
-91C6: DD 21 00 8E ld   ix,$E800
+91C6: DD 21 00 8E ld   ix,unknown_structure_list_e800
 91CA: 11 10 00    ld   de,$0010
 91CD: 06 C0       ld   b,$0C
 91CF: DD 7E 00    ld   a,(ix+$00)
@@ -8149,6 +8167,8 @@ entry_9078:
 920A: 5F          ld   e,a
 920B: FF          rst  $38   ; queue_event_0038
 920C: C9          ret
+
+check_if_player_hit_by_grenade_920d:
 920D: 3E 10       ld   a,$10
 920F: 32 08 0E    ld   ($E080),a
 9212: FD E5       push iy
@@ -8171,12 +8191,12 @@ entry_9078:
 923C: 3A 00 0F    ld   a,(player_state_e100)
 923F: 3C          inc  a
 9240: C2 B5 68    jp   nz,$865B
-9243: 3A 21 0F    ld   a,($E103)
+9243: 3A 21 0F    ld   a,(player_x_e103)
 9246: 94          sub  h
 9247: C6 10       add  a,$10
 9249: FE 03       cp   $21
 924B: D2 B5 68    jp   nc,$865B
-924E: 3A 41 0F    ld   a,($E105)
+924E: 3A 41 0F    ld   a,(player_y_e105)
 9251: 95          sub  l
 9252: C6 10       add  a,$10
 9254: FE 03       cp   $21
@@ -8244,7 +8264,7 @@ entry_9078:
 92E6: C8          ret  z
 92E7: FE 01       cp   $01
 92E9: C0          ret  nz
-92EA: 3A 70 0F    ld   a,($E116)
+92EA: 3A 70 0F    ld   a,(launch_grenade_request_e116)
 92ED: A7          and  a
 92EE: C0          ret  nz
 92EF: 3A 8A CF    ld   a,(num_grenades_eda8)             ; read NUM_GRENADES
@@ -8256,16 +8276,18 @@ entry_9078:
 92F9: 16 A1       ld   d,$0B
 92FB: FF          rst  $38   ; queue_event_0038
 92FC: 3E 80       ld   a,$08
-92FE: 32 70 0F    ld   ($E116),a
+92FE: 32 70 0F    ld   (launch_grenade_request_e116),a
 9301: C9          ret
-9302: DD 21 04 0F ld   ix,$E140
+
+init_player_grenade_9302:
+9302: DD 21 04 0F ld   ix,player_grenade_structure_e140
 9306: DD 35 00    dec  (ix+$00)
 9309: DD 36 51 12 ld   (ix+$15),$30
-930D: 3A 21 0F    ld   a,($E103)
+930D: 3A 21 0F    ld   a,(player_x_e103)
 9310: DD 77 21    ld   (ix+$03),a
-9313: 3A 41 0F    ld   a,($E105)
+9313: 3A 41 0F    ld   a,(player_y_e105)
 9316: DD 77 41    ld   (ix+$05),a
-9319: CD 74 68    call $8656
+9319: CD 74 68    call play_grenade_launch_8656
 931C: C9          ret
 931D: 3A 00 0F    ld   a,(player_state_e100)
 9320: 3C          inc  a
@@ -8304,7 +8326,7 @@ entry_9078:
 935D: 21 D6 0E    ld   hl,$E07C
 9360: 35          dec  (hl)
 9361: C0          ret  nz
-9362: CD E7 39    call $936F
+9362: CD E7 39    call handle_player_bullets_936f
 9365: 21 89 0E    ld   hl,$E089
 9368: 35          dec  (hl)
 9369: 3E 40       ld   a,$04
@@ -8312,8 +8334,9 @@ entry_9078:
 936E: C9          ret
 
 
+handle_player_bullets_936f:
 936F: DD 21 00 2E ld   ix,player_bullets_e200
-9373: 11 02 00    ld   de,$0020
+9373: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 9376: 06 60       ld   b,$06
 9378: DD 7E 00    ld   a,(ix+$00)
 937B: A7          and  a
@@ -8323,9 +8346,9 @@ entry_9078:
 9382: C9          ret
 9383: DD 70 F1    ld   (ix+$1f),b
 9386: DD 35 00    dec  (ix+$00)
-9389: 3A 21 0F    ld   a,($E103)
+9389: 3A 21 0F    ld   a,(player_x_e103)
 938C: 57          ld   d,a
-938D: 3A 41 0F    ld   a,($E105)
+938D: 3A 41 0F    ld   a,(player_y_e105)
 9390: 5F          ld   e,a
 9391: 3A 20 0F    ld   a,($E102)
 9394: DD 77 01    ld   (ix+$01),a
@@ -8391,12 +8414,12 @@ entry_9078:
 9428: 87          add  a,a
 9429: 3C          inc  a
 942A: 5F          ld   e,a
-942B: 3A 21 0F    ld   a,($E103)
+942B: 3A 21 0F    ld   a,(player_x_e103)
 942E: 94          sub  h
 942F: 82          add  a,d
 9430: BB          cp   e
 9431: 30 61       jr   nc,$943A
-9433: 3A 41 0F    ld   a,($E105)
+9433: 3A 41 0F    ld   a,(player_y_e105)
 9436: 95          sub  l
 9437: 82          add  a,d
 9438: BB          cp   e
@@ -8411,7 +8434,7 @@ entry_9078:
 9447: 3A 1E 0E    ld   a,($E0F0)
 944A: 47          ld   b,a
 944B: DD 21 0C 2E ld   ix,$E2C0
-944F: 11 02 00    ld   de,$0020
+944F: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 9452: DD 7E 00    ld   a,(ix+$00)
 9455: A7          and  a
 9456: 28 80       jr   z,$9460
@@ -8504,9 +8527,9 @@ entry_9078:
 9536: EF          rst  $28                   ; call MULTIPLY_A_BY_2_ADD_TO_HL_LOAD_DE_FROM_HL
 9537: EB          ex   de,hl
 9538: D9          exx
-9539: DD 21 00 6E ld   ix,$E600
+9539: DD 21 00 6E ld   ix,walking_soldier_list_e600
 953D: 06 80       ld   b,$08
-953F: 11 02 00    ld   de,$0020
+953F: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 9542: DD 7E 00    ld   a,(ix+$00)
 9545: A7          and  a
 9546: 28 41       jr   z,$954D
@@ -8594,9 +8617,9 @@ entry_9078:
 9608: C9          ret
 9609: 3E 01       ld   a,$01
 960B: 32 BE 0E    ld   ($E0FA),a
-960E: DD 21 00 6E ld   ix,$E600
+960E: DD 21 00 6E ld   ix,walking_soldier_list_e600
 9612: 06 80       ld   b,$08
-9614: 11 02 00    ld   de,$0020
+9614: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 9617: DD 7E 00    ld   a,(ix+$00)
 961A: A7          and  a
 961B: 28 41       jr   z,$9622
@@ -8776,12 +8799,12 @@ entry_9078:
 978E: FD E1       pop  iy
 9790: FD 4E 00    ld   c,(iy+$00)
 9793: FD 23       inc  iy
-9795: DD 21 00 6E ld   ix,$E600
+9795: DD 21 00 6E ld   ix,walking_soldier_list_e600
 9799: 06 80       ld   b,$08
 979B: DD 7E 00    ld   a,(ix+$00)
 979E: A7          and  a
 979F: 28 80       jr   z,$97A9
-97A1: 11 02 00    ld   de,$0020
+97A1: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 97A4: DD 19       add  ix,de
 97A6: 10 3F       djnz $979B
 97A8: C9          ret
@@ -9162,7 +9185,7 @@ entry_97ea:
 9AEB: FE 01       cp   $01
 9AED: C0          ret  nz
 9AEE: DD 21 00 2E ld   ix,player_bullets_e200
-9AF2: FD 21 84 FF ld   iy,$FF48
+9AF2: FD 21 84 FF ld   iy,unknown_structure_list_ff48
 9AF6: 11 40 00    ld   de,$0004
 9AF9: 01 10 00    ld   bc,$0010
 9AFC: 26 40       ld   h,$04
@@ -9175,11 +9198,11 @@ entry_97ea:
 9B09: C8          ret  z
 9B0A: C3 FE B8    jp   $9AFE
 9B0D: DD 36 00 FF ld   (ix+$00),$FF
-9B11: 3A 21 0F    ld   a,($E103)
+9B11: 3A 21 0F    ld   a,(player_x_e103)
 9B14: FD 77 20    ld   (iy+$02),a
 9B17: 3A C1 0F    ld   a,($E10D)
 9B1A: DD 77 40    ld   (ix+$04),a
-9B1D: 3A 41 0F    ld   a,($E105)
+9B1D: 3A 41 0F    ld   a,(player_y_e105)
 9B20: FD 77 21    ld   (iy+$03),a
 9B23: FD 36 00 5B ld   (iy+$00),$B5
 9B27: FD 36 01 00 ld   (iy+$01),$00
@@ -9193,7 +9216,7 @@ entry_97ea:
 9B3E: C9          ret
 
 9B3F: DD 21 00 2E ld   ix,player_bullets_e200
-9B43: FD 21 84 FF ld   iy,$FF48
+9B43: FD 21 84 FF ld   iy,unknown_structure_list_ff48
 9B47: 06 40       ld   b,$04
 9B49: C5          push bc
 9B4A: DD 7E 00    ld   a,(ix+$00)
@@ -9245,7 +9268,7 @@ entry_97ea:
 9BB9: 7C          ld   a,h
 9BBA: 2A A7 0E    ld   hl,($E06B)
 9BBD: 77          ld   (hl),a		; [video_address]
-9BBE: 11 02 00    ld   de,$0020
+9BBE: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 9BC1: 19          add  hl,de
 9BC2: 22 A7 0E    ld   ($E06B),hl
 9BC5: 11 9B 3C    ld   de,$D2B9
@@ -9765,7 +9788,7 @@ check_credit_inserted_9e46:
 9F5E: 20 31       jr   nz,$9F73
 9F60: DD 66 10    ld   h,(ix+$10)
 9F63: DD 6E 11    ld   l,(ix+$11)
-9F66: 11 02 00    ld   de,$0020
+9F66: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 9F69: 19          add  hl,de
 9F6A: DD 75 11    ld   (ix+$11),l
 9F6D: 7C          ld   a,h
@@ -9907,7 +9930,7 @@ A2E2: E6 21       and  $03
 A2E4: 21 50 2B    ld   hl,$A314
 A2E7: DF          rst  $18                   ; call ADD_A_TO_HL
 A2E8: 4E          ld   c,(hl)
-A2E9: DD 21 00 8E ld   ix,$E800
+A2E9: DD 21 00 8E ld   ix,unknown_structure_list_e800
 A2ED: FD 21 CA FE ld   iy,$FEAC
 A2F1: 11 10 00    ld   de,$0010
 A2F4: 06 C0       ld   b,$0C
@@ -9962,7 +9985,7 @@ A34D: FD 66 00    ld   h,(iy+$00)
 A350: FD 46 01    ld   b,(iy+$01)
 A353: D9          exx
 A354: 01 10 00    ld   bc,$0010
-A357: DD 21 00 8E ld   ix,$E800
+A357: DD 21 00 8E ld   ix,unknown_structure_list_e800
 A35B: D9          exx
 A35C: DD 7E 00    ld   a,(ix+$00)
 A35F: A7          and  a
@@ -9990,7 +10013,7 @@ A395: D9          exx
 A396: C3 D4 2B    jp   $A35C
 
 entry_a399:
-A399: DD 21 00 8E ld   ix,$E800
+A399: DD 21 00 8E ld   ix,unknown_structure_list_e800
 A39D: FD 21 12 FE ld   iy,$FE30
 A3A1: 3A 01 0E    ld   a,(game_state_e001)
 A3A4: FE 41       cp   $05
@@ -10007,7 +10030,7 @@ A3BB: A7          and  a
 A3BC: 28 E2       jr   z,entry_a3ec
 A3BE: 3C          inc  a
 A3BF: 20 44       jr   nz,$A405
-A3C1: 11 00 00    ld   de,$0000
+A3C1: 11 00 00    ld   de,reset_0000
 A3C4: 3A 26 0E    ld   a,($E062)
 A3C7: A7          and  a
 A3C8: 28 21       jr   z,$A3CD
@@ -10197,7 +10220,7 @@ A576: 21 EA 17    ld   hl,$71AE
 A579: 22 E9 0E    ld   ($E08F),hl
 A57C: 21 1B EB    ld   hl,$AFB1
 A57F: 22 78 0E    ld   ($E096),hl
-A582: 21 00 00    ld   hl,$0000
+A582: 21 00 00    ld   hl,reset_0000
 A585: 22 2A CF    ld   (global_y_lsb_eda2),hl
 A588: AF          xor  a
 A589: 32 4A CF    ld   ($EDA4),a
@@ -10248,7 +10271,7 @@ A5ED: 28 41       jr   z,$A5F4
 A5EF: DD 09       add  ix,bc
 A5F1: C3 FC 4B    jp   $A5DE
 A5F4: DD 22 78 0E ld   ($E096),ix
-A5F8: 21 00 8E    ld   hl,$E800
+A5F8: 21 00 8E    ld   hl,unknown_structure_list_e800
 A5FB: 11 80 00    ld   de,$0008
 A5FE: 06 42       ld   b,$24
 A600: 36 00       ld   (hl),$00
@@ -10261,7 +10284,7 @@ A60F: DD 75 A1    ld   (ix+$0b),l
 A612: DD 74 10    ld   (ix+$10),h
 A615: DD 75 11    ld   (ix+$11),l
 A618: CD B5 6A    call $A65B
-A61B: 11 00 9C    ld   de,$D800
+A61B: 11 00 9C    ld   de,bg_tiles_address_d800
 A61E: 3A B5 0E    ld   a,(global_y_msb_copy_e05b)
 A621: E6 01       and  $01
 A623: 67          ld   h,a
@@ -10462,7 +10485,7 @@ A78B: DD 77 E0    ld   (ix+$0e),a
 A78E: DD 75 E1    ld   (ix+$0f),l
 A791: C9          ret
 
-A792: 21 00 9C    ld   hl,$D800
+A792: 21 00 9C    ld   hl,bg_tiles_address_d800
 A795: 11 01 9C    ld   de,$D801
 A798: 01 FF 21    ld   bc,$03FF
 A79B: 36 9E       ld   (hl),$F8		; [unchecked_address]
@@ -10551,7 +10574,7 @@ A91A: C3 79 AA    jp   $AA97
 A91D: DD 34 31    inc  (ix+$13)
 A920: 21 8E FF    ld   hl,$FFE8
 A923: CD 01 AB    call $AB01
-A926: 21 90 00    ld   hl,$0018
+A926: 21 90 00    ld   hl,add_a_to_hl_0018
 A929: C3 E1 AB    jp   $AB0F
 A92C: C3 BB AA    jp   $AABB
 A92F: 3A 00 0F    ld   a,(player_state_e100)
@@ -10699,13 +10722,13 @@ AA97: CD 89 68    call $8689
 AA9A: DD 34 31    inc  (ix+$13)
 AA9D: 21 8E FF    ld   hl,$FFE8
 AAA0: CD 01 AB    call $AB01
-AAA3: 21 90 00    ld   hl,$0018
+AAA3: 21 90 00    ld   hl,add_a_to_hl_0018
 AAA6: C3 E1 AB    jp   $AB0F
 AAA9: DD 34 31    inc  (ix+$13)
 AAAC: 21 8E FF    ld   hl,$FFE8
 AAAF: CD 01 AB    call $AB01
 AAB2: CD 54 CB    call $AD54
-AAB5: 21 90 00    ld   hl,$0018
+AAB5: 21 90 00    ld   hl,add_a_to_hl_0018
 AAB8: C3 E1 AB    jp   $AB0F
 AABB: 21 01 00    ld   hl,$0001
 AABE: C3 E1 AB    jp   $AB0F
@@ -10713,14 +10736,14 @@ AAC1: 21 10 00    ld   hl,$0010
 AAC4: C3 E1 AB    jp   $AB0F
 AAC7: CD E8 68    call $868E
 AACA: DD 35 31    dec  (ix+$13)
-AACD: 21 90 00    ld   hl,$0018
+AACD: 21 90 00    ld   hl,add_a_to_hl_0018
 AAD0: CD 01 AB    call $AB01
 AAD3: 21 10 00    ld   hl,$0010
 AAD6: C3 E1 AB    jp   $AB0F
 AAD9: DD 35 31    dec  (ix+$13)
-AADC: 21 90 00    ld   hl,$0018
+AADC: 21 90 00    ld   hl,add_a_to_hl_0018
 AADF: CD 01 AB    call $AB01
-AAE2: 21 00 00    ld   hl,$0000
+AAE2: 21 00 00    ld   hl,reset_0000
 AAE5: DD 74 61    ld   (ix+$07),h
 AAE8: DD 75 80    ld   (ix+$08),l
 AAEB: 21 11 00    ld   hl,$0011
@@ -10980,13 +11003,13 @@ AEA3: 3A 00 0F    ld   a,(player_state_e100)
 AEA6: 3C          inc  a
 AEA7: C0          ret  nz
 AEA8: DD 21 0C 2E ld   ix,$E2C0
-AEAC: 3A 21 0F    ld   a,($E103)
+AEAC: 3A 21 0F    ld   a,(player_x_e103)
 AEAF: 67          ld   h,a
-AEB0: 3A 41 0F    ld   a,($E105)
+AEB0: 3A 41 0F    ld   a,(player_y_e105)
 AEB3: 6F          ld   l,a
 AEB4: 06 80       ld   b,$08
 AEB6: D9          exx
-AEB7: 11 02 00    ld   de,$0020
+AEB7: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 AEBA: D9          exx
 AEBB: 16 60       ld   d,$06
 AEBD: 1E C1       ld   e,$0D
@@ -11015,14 +11038,14 @@ AEE4: C9          ret
 AEE5: 3A 00 0F    ld   a,(player_state_e100)
 AEE8: 3C          inc  a
 AEE9: C0          ret  nz
-AEEA: DD 21 00 6E ld   ix,$E600
-AEEE: 3A 21 0F    ld   a,($E103)
+AEEA: DD 21 00 6E ld   ix,walking_soldier_list_e600
+AEEE: 3A 21 0F    ld   a,(player_x_e103)
 AEF1: 67          ld   h,a
-AEF2: 3A 41 0F    ld   a,($E105)
+AEF2: 3A 41 0F    ld   a,(player_y_e105)
 AEF5: 6F          ld   l,a
 AEF6: 06 80       ld   b,$08
 AEF8: D9          exx
-AEF9: 11 02 00    ld   de,$0020
+AEF9: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 AEFC: D9          exx
 AEFD: 16 60       ld   d,$06
 AEFF: 1E C1       ld   e,$0D
@@ -11048,10 +11071,12 @@ AF20: 10 FD       djnz $AF01
 AF22: C9          ret
 AF23: 16 C0       ld   d,$0C
 AF25: C3 92 00    jp   queue_event_0038
+
+moving_soldiers_player_bullet_check_af28:
 AF28: DD 21 00 2E ld   ix,player_bullets_e200
 AF2C: 0E 60       ld   c,$06
 AF2E: D9          exx
-AF2F: 01 02 00    ld   bc,$0020
+AF2F: 01 02 00    ld   bc,return_byte_at_hl_plus_a_0020
 AF32: D9          exx
 AF33: 16 61       ld   d,$07
 AF35: 1E E1       ld   e,$0F
@@ -11060,7 +11085,7 @@ AF3A: 3C          inc  a
 AF3B: 20 52       jr   nz,$AF71
 AF3D: DD 66 21    ld   h,(ix+$03)
 AF40: DD 6E 41    ld   l,(ix+$05)
-AF43: FD 21 00 6E ld   iy,$E600
+AF43: FD 21 00 6E ld   iy,walking_soldier_list_e600
 AF47: 06 80       ld   b,$08
 AF49: FD 7E 00    ld   a,(iy+$00)
 AF4C: 3C          inc  a
@@ -11089,16 +11114,16 @@ AF75: 0D          dec  c
 AF76: C8          ret  z
 AF77: 18 FA       jr   $AF37
 ; seems unreached
-AF79: 3A 04 0F    ld   a,($E140)
+AF79: 3A 04 0F    ld   a,(player_grenade_structure_e140)
 AF7C: 3C          inc  a
 AF7D: C0          ret  nz
 AF7E: 3A 25 0F    ld   a,($E143)
 AF81: 67          ld   h,a
 AF82: 3A 45 0F    ld   a,($E145)
 AF85: 6F          ld   l,a
-AF86: FD 21 00 6E ld   iy,$E600
+AF86: FD 21 00 6E ld   iy,walking_soldier_list_e600
 AF8A: 06 80       ld   b,$08
-AF8C: 11 02 00    ld   de,$0020
+AF8C: 11 02 00    ld   de,return_byte_at_hl_plus_a_0020
 AF8F: FD 7E 00    ld   a,(iy+$00)
 AF92: 3C          inc  a
 AF93: 20 71       jr   nz,$AFAC
