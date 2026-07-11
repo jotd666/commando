@@ -1,10 +1,9 @@
-- green flash when completing a level
 
-- sound priorities: shots should be low pri
+
 - graphics "wrap" in Y for instance in the end with the level gate
-- end merging problematic profiled code
 
-- add looped sounds (siren, heli) not as loops (repeat siren a few times)
+
+- add looped sounds ( heli) not as loops (repeat siren a few times)
 - add missing heli sound
 - set DSW difficulty lives, start level!!
 - missing tunes:
@@ -15,9 +14,8 @@
   - highscore entry
   - highscore entry end 1st place, other places
   
-- post processing add ix/iy,xx when xx is fixed add tag
+
 - blade issue on the left when lands
-- manual optimization phase to remove PUSH/POP SR/MAKE_xx
 - when scrolling up, bridge sprites have some delay. 
 
 rip sounds:

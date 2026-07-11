@@ -12,6 +12,9 @@ sound_dir = this_dir / ".." / "sounds"
 # put below some exceptions
 sound_settings_dict = {
 0x2B : {"channel":2,"priority":100},   # game over
+0x3 : {"channel":3,"priority":1},   # shot
+0x1B : {"channel":2,"priority":50},   # extra life
+0x15 : {"channel":3,"priority":50},   # siren
 
 }
 
