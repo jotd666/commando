@@ -5,6 +5,7 @@
      (not straight, not in the intermediate angle) and sometimes in the wrong direction
   => needs reverse engineering of static enemy aim behaviour
 
+- shooting sound: debug when shot
 - sound priorities: shots should be low pri
 - graphics "wrap" in Y for instance in the end with the level gate
 - end merging problematic profiled code

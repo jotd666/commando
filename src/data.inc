@@ -66,3 +66,5 @@ system_c000 = 0xc000
 player_score_address_e0a6 = 0xe0a6
 player_1_score_ee91 = 0xee91
 player_2_score_ee94 = 0xee94
+unknown_structure_list_e800 = 0xe800
+
