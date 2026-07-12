@@ -476,23 +476,26 @@ apply_settings:
 0:
 	* set dip switches
 	* (some settings are not modifiable)
-	move.b	#0x20,d0	| demo sounds on
-	tst.b	service_mode_flag
-	jeq		0f
-	bset	#6,d0
-0:
+	moveq	#0,d0
+
+	move.b	start_level+3,d1
+	and.w	#3,d1
+	or.w	d1,d0
+	
+	move.b	start_lives+3,d1
+	lea		lives_table,a0
+	and.w	#3,d1
+	or.b	(a0,d1.w),d0
+	
 	not.b	d0
 	move.b	d0,dip_switches_1
 
-	lea		lives_table,a0
-	move.b	start_lives+3,d1
-	and.w	#3,d1
-	move.b	(a0,d1.w),d0
 
-
+	moveq	#0,d0
+	
 	lea		difficulty_table,a0
 	move.b	difficulty_level+3,d1
-	and.w	#3,d1
+	and.w	#1,d1
 	move.b	(a0,d1.w),d1
 	lsl.b	#4,d1
 	or.b	d1,d0
@@ -761,6 +764,7 @@ demo_game:
 	move.b 	(1,a0),(a0)+
 	.endr
 
+	
 	lea 	(vulgus_hi_score_018f,a6),a0
 	jbsr	osd_read_high_scores
 	
@@ -814,11 +818,14 @@ demo_game:
 	jmp		reset_0000								| pass control to the mpatrol core
 	
 hw_init:
-	st.b	(system_c000,a6)
-	st.b	(port_1_c001,a6)
-	st.b	(port_2_c002,a6)
-	st.b	(dsw1_c003,a6)
-	move.b	#0x1F,(dsw2_c004,a6)
+	move.l	a6,a0
+	add.l 	#0xC000,a0
+	st.b	(system_c000-0xC000,a0)
+	st.b	(port_1_c001-0xC000,a0)
+	st.b	(port_2_c002-0xC000,a0)
+	move.b	dip_switches_1,(dsw1_c003-0xC000,a0)
+	move.b	dip_switches_2,(dsw2_c004-0xC000,a0)
+
 	rts
 	
 * zero all registers
@@ -1785,7 +1792,7 @@ update_one_bob:
 	
 	cmp.w	#0x300,d2
 	jcc		2f			| bank 3: illegal: skip
-	cmp.w	#256+16,d1
+	cmp.w	#256-SPRITE_Y_CORRECTION,d1
 	jcc		2f			| too low: skip
 	
 
@@ -4682,16 +4689,14 @@ normal_hiscorename:
 	
 
 lives_table:
-	.byte	4
-	.byte	5
-	.byte	6
-	.byte	7
+	.byte	0
+	.byte	1<<2
+	.byte	3<<2
+	.byte	3<<2   | invalid
 	
 difficulty_table:
-	.byte	2	| easy
 	.byte	0	| normal
-	.byte	4	| difficult
-	.byte	6	| very difficult
+	.byte	1	| difficult
 	
 refresh_table_str:
 	.long	r25
@@ -4706,7 +4711,7 @@ lives_table_str:
 	.long	three
 	.long	four
 	.long	five
-	.long	seven
+
 	
 up_for_jump_table_str:
 	.long	second_button_str

@@ -1,11 +1,12 @@
 
 
-- graphics "wrap" in Y for instance in the end with the level gate
+- graphics "wrap" in Y for instance in the end with the level gate: probably
+  negative Y to clip
 
 
-- add looped sounds ( heli) not as loops (repeat siren a few times)
+- add looped sounds ( heli) not as loops 
 - add missing heli sound
-- set DSW difficulty lives, start level!!
+
 - missing tunes:
   - last level
   - game over
