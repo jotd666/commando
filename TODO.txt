@@ -1,16 +1,14 @@
 
 
 - graphics "wrap" in Y for instance in the end with the level gate: probably
-  negative Y to clip
-
+  negative Y to clip, very visible in level 4
+- change branch to trigger depending on level for tune
 
 - add looped sounds ( heli) not as loops 
 - add missing heli sound
 
 - missing tunes:
-  - last level
   - game over
-  - level complete
   - game complete
   - highscore entry
   - highscore entry end 1st place, other places

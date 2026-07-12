@@ -51,7 +51,6 @@ def convert():
     0x28,  # hihg?
     0x29,  # ???
     0x2A,
-    0x2D,  # level complete
     0x2C, # bgm2?
     0x14,  #???
     0x16,
@@ -89,10 +88,11 @@ def convert():
     music_dict = {
     "LEVEL_START_TUNE_SND"      :{"index":0x20,"pattern":0,"volume":32},
     "LEVEL_TUNE_SND"      :{"index":0x21,"pattern":3,"volume":32},
-    "LAST_LEVEL_TUNE_SND"      :{"index":0x24,"pattern":3,"volume":32},  # ATM same tune as other levels
+    "LAST_LEVEL_TUNE_SND"      :{"index":0x24,"pattern":0x14,"volume":32},
     "BOSS_TUNE_SND"      :{"index":0x23,"pattern":0xF,"volume":32},
     "KILLED_TUNE_SND"      :{"index":0x2B,"pattern":0xC,"volume":32},
     "LEVEL_RESUME_TUNE_SND"      :{"index":0x22,"pattern":0xD,"volume":32},
+    "LEVEL_COMPLETED_TUNE_SND"      :{"index":0x2D,"pattern":0x11,"volume":32},
     }
 
     sound_dict.update(music_dict)
