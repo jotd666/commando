@@ -1088,7 +1088,13 @@ level3_interrupt:
 	jbsr	 _detect_controller_types_nowait
 
 0:
-
+	move.b	_mt_E8Trigger,d0
+	jeq		0f
+	clr.b	_mt_E8Trigger
+	moveq	#0,d0
+	move.b	main_bgm_index,d0
+	jbsr	osd_sound_start
+0:
 
 	move.l	joypad_1_state(pc),d1
 	moveq	#1,d0
@@ -4225,12 +4231,18 @@ osd_sound_start:
 	and.w	#0xFF,d0
 
 	cmp.b	#LEVEL_TUNE_SND,d0
+	jeq		1f
+	cmp.b	#LAST_LEVEL_TUNE_SND,d0
 	jne		0f
+1:
+	* don't play level BGM if intro music playing
+	* (like GnG the game queues both tunes and the
+	* sound CPU chains them)
 	move.w	tune_index_times_8,d1
 	cmp.w	#LEVEL_RESUME_TUNE_SND*8,d1
-	jeq		10f
+	jeq		15f
 	cmp.w	#LEVEL_START_TUNE_SND*8,d1
-	jeq		10f
+	jeq		15f
 
 0:	
 	moveq	#0,d2
@@ -4285,6 +4297,10 @@ osd_sound_start:
 12:
 	* stop all sounds
 	jbsr	_mt_end
+	jra		10b
+15:
+	* note down queued sound and bail out
+	move.b	d0,main_bgm_index
 	jra		10b
 	
 	* music
@@ -4394,9 +4410,6 @@ get_file_size:
 
 
 
-jump_with_text:
-	.ascii	"Jump with"
-	.byte	0xff
 run_text:
 	.ascii	"START"
 	.byte	0xff
@@ -4640,7 +4653,8 @@ current_color:
 credits_displayed:
 	.byte	0
 
-	
+main_bgm_index:
+	.byte	0
 difficulty_dsw:
 	.byte	0
 

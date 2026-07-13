@@ -1,4 +1,5 @@
-
+- level 4: music doesn't restart when killed
+- game over: end of level music plays, also for highscore
 
 - graphics "wrap" in Y for instance in the end with the level gate: probably
   negative Y to clip, very visible in level 4
