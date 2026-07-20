@@ -281,6 +281,11 @@ with open(source_dir / "conv.s") as f:
         elif address == 0x004a:
             lines[i-1] = remove_error(lines[i-1])
             line = remove_instruction(lines,i)
+        elif address == 0x086F:
+            # trainer
+            line = """\ttst.b\tinfinite_lives_flag
+\tjne\tstill_lives_0872
+"""+line
         elif address == 0x1115:
             line = swap_lines(lines,i,i-1)  # preserve flag, independent operations
         elif address == 0x6d20:

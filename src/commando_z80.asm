@@ -1391,6 +1391,7 @@ next_game_state_05fc:
 086C: 21 0A CF    ld   hl,nb_lives_eda0
 086F: 35          dec  (hl)
 0870: 28 A2       jr   z,$089C
+still_lives_0872:
 0872: CD ED 80    call $08CF
 0875: CD 2C 80    call $08C2
 0878: EB          ex   de,hl

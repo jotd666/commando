@@ -7,7 +7,7 @@ Credits:
 
 - jotd: reverse-engineering, 68000 transcode, graphics conversion
   sound conversion for the Amiga.
-- ??: music
+- IM76: music
 - PascalDe73: icons
 - Capcom: original game
 

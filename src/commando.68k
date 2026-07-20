@@ -1746,10 +1746,13 @@ l_084e:
 	jbsr	play_level_completed_tune_86bb    	| [$0866: call play_level_completed_tune_86bb]
 	jra	l_86e8                             	| [$0869: jp   $86e8]
 l_086c:
+	tst.b	infinite_lives_flag
+	jne		still_lives_0872
 	LOAD_HL	#nb_lives_eda0                 	| [$086c: ld   hl,nb_lives_eda0]
 	MAKE_HL	a0                             	| [$086f: dec  (hl)]
 	subq.b	#1,(a0)                         	| [...]
 	jeq	l_089c                             	| [$0870: jr   z,$089c]
+still_lives_0872:
 	jbsr	l_08cf                            	| [$0872: call $08cf]
 	jbsr	l_08c2                            	| [$0875: call $08c2]
 	exg	d3,d5                              	| [$0878: ex   de,hl]
