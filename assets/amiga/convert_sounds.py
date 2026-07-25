@@ -46,11 +46,7 @@ def convert():
     0x13,0x17,0x19,
 
     0x25,
-    0x26,  # all clear
-    0x27,  # game over
-    0x28,  # hihg?
-    0x29,  # ???
-    0x2A,
+
     0x14,  #???
     0x16,
     0x1B,0x1D,0x1e, 0x1f, 0x35, 0x37, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0xb, 0xc, 0xd,
@@ -92,7 +88,13 @@ def convert():
     "KILLED_TUNE_SND"      :{"index":0x2B,"pattern":0xC,"volume":32},
     "LEVEL_RESUME_TUNE_SND"      :{"index":0x22,"pattern":0xD,"volume":32},
     "LEVEL_RESUME_TUNE_COPY_SND"      :{"index":0x2C,"pattern":0xD,"volume":32},
+    "HIGH_SCORE_SND"      :{"index":0x28,"pattern":0x21,"volume":32},
     "LEVEL_COMPLETED_TUNE_SND"      :{"index":0x2D,"pattern":0x11,"volume":32},
+    "GAME_COMPLETED_TUNE_SND":{"index":0x26, "pattern":0x19,"volume":32},
+    "GAME_OVER_TUNE_SND":{"index":0x27, "pattern":0x20,"volume":32},
+    "FIRST_PLACE_TUNE_SND":{"index":0x29, "pattern":0x30,"volume":32},
+    "SECOND_PLACE_TUNE_SND":{"index":0x2A, "pattern":0x2d,"volume":32},
+
     }
 
     sound_dict.update(music_dict)

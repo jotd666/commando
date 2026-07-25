@@ -1,12 +1,10 @@
-- resume music: not perfect. Would be the best if copied/pasted and 2 separate tracks
+- music kills all sfx
+- music intro doesn't work, direct play BGM
+- resume music: not perfect. reinstate a vbl timer which changes track if level 4
 - add looped sounds ( heli) not as loops 
 - add missing heli sound
+- command line: copy from vulgus
 
-- missing tunes:
-  - game over
-  - game complete
-  - highscore entry
-  - highscore entry end 1st place, other places
   
 
 - blade issue on the left when lands

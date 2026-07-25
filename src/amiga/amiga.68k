@@ -1089,15 +1089,7 @@ level3_interrupt:
 	jbsr	 _detect_controller_types_nowait
 
 0:
-	tst.b	trigger_avoid
-	jeq		0f
-	clr.b	_mt_E8Trigger
-	subq.b	#1,trigger_avoid
-	jne		1f
-0:
-	move.b	_mt_E8Trigger,d0
-	jeq		1f
-	clr.b	_mt_E8Trigger
+
 	clr.w	tune_index_times_8		| force pattern play
 	moveq	#0,d0
 	move.b	main_bgm_index,d0
@@ -1508,7 +1500,6 @@ blit_background:
 	.ifndef	MC68020
 	add.w	d1,d1
 	* add Y offset: Y*NB_BYTES_PER_ROW
-	add.w	(a4,d1.w),d0
 	add.w	(a4,d1.w),d0
 	.else
 	add.w	(a4,d1.w*2),d0
@@ -4333,8 +4324,6 @@ osd_sound_start:
 	
 	* music
 4:
-	* if map music, set flag
-	move.b	#50,trigger_avoid
 
 	* don't play if already playing
 	* (music_tick value is not important for looped tunes
@@ -4680,8 +4669,7 @@ current_color:
 	.byte	2
 credits_displayed:
 	.byte	0
-trigger_avoid:
-	.byte	0
+
 main_bgm_index:
 	.byte	0
 difficulty_dsw:
@@ -4976,7 +4964,7 @@ sprite_group_table:
 	.include	"sound_entries.68k"
 
 _keyexit:
-	.byte	0x45	| ESC by default unless whdload overwrites it
+	.byte	0x59	| F10 by default unless whdload overwrites it
 
 frameskip:
 	.byte	0
