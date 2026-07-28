@@ -4733,7 +4733,9 @@ lives_table:
 difficulty_table:
 	.byte	0	| normal
 	.byte	1	| difficult
-	
+
+	.align	2
+
 refresh_table_str:
 	.long	r25
 	.long	r50
