@@ -346,6 +346,16 @@ _user:
 	* cheat isn't used as long as no cheat key is used
 	or.l	#0x10,cheat_flags
 2:
+	move.l	(A0)+,D0	| 50HZ/S
+	beq.b	2f
+	or.l	#1,misc_options	
+2:
+	move.l	(A0)+,D0	| NOLONGPRESS/S
+	beq.b	2f
+	or.l	#2,misc_options	
+2:
+
+2:
 
 
 
@@ -1079,9 +1089,9 @@ _nmi:
 level3_interrupt:
 	movem.l d0-d7/a0-a6,-(a7)
 	lea		_custom,a5
-	move.w	(intreqr,a5),d0
-	btst	#5,d0
-	jeq		1f
+*	move.w	(intreqr,a5),d0
+*	btst	#5,d0
+*	jeq		1f
 
 	tst.b	detect_controllers
 	jeq	0f
@@ -1089,12 +1099,17 @@ level3_interrupt:
 	jbsr	 _detect_controller_types_nowait
 
 0:
-
-	clr.w	tune_index_times_8		| force pattern play
-	moveq	#0,d0
-	move.b	main_bgm_index,d0
+	move.w	main_bgm_timer,d0
+	jeq		0f
+	subq.w	#1,d0
+	move.w	d0,main_bgm_timer
+	move.w	d0,0x120
+	jne		0f
+	* countdown at zero
+	clr.w	tune_index_times_8		| else it would reset the timer
+	move.w	#LAST_LEVEL_TUNE_SND,d0
 	jbsr	osd_sound_start
-1:
+0:
 
 	move.l	joypad_1_state(pc),d1
 	moveq	#1,d0
@@ -1426,11 +1441,13 @@ add_to_score:
 	movem.l	a6/d0-d3,-(a7)
 	GET_MEMORY_START_IN_A6
 	move.l	a6,a0
+	moveq	#0,d0
 	add.l	#player_score_address_e0a6,a0
 	move.w	(a0),d0
+	jeq		1f
 	rol.w	#8,d0
-	lea		(a6,d0.w),a0	| current player score address
-	
+	move.l	a6,a0
+	add.l	d0,a0   | current player score address
 	moveq	#0,d0
 	abcd 	d0,d0		| clear X
 
@@ -1438,13 +1455,14 @@ add_to_score:
 	move.b	(a0),d1
 	move.b	#0x10,d3		| 10000 points
 	abcd	d3,d0
-	jcc		0f
+	jcc		10f
 	moveq	#0,d3
 	abcd	d3,d1
 
-0:
+10:
 	move.b	d0,(1,a0)
 	move.b	d1,(a0)
+1:
 	movem.l	(a7)+,a6/d0-d3
 	rts
 
@@ -3878,6 +3896,9 @@ log_used_sprites:
 	
 skip_level:
 	movem.l	d0-a6,-(a7)
+	
+	clr.w	tune_index_times_8
+	
 	GET_MEMORY_START_IN_A6
 	lea	(global_y_lsb_eda2,a6),a0
 	move.b	(1,a0),d0
@@ -4069,7 +4090,7 @@ program_args_end:
 	.align	4
 read_args_string:
 	.byte	read_args_string_end-read_args_string
-	.ascii	"CHEATKEYS/S,FIVELIVES/S,FAST/S"
+	.ascii	"INVINCIBLE/S,INFLIVES/S,CHEATKEYS/S,50HZ/S,NOLONGPRESS/S"
 read_args_string_end:
 	.align	2
 
@@ -4228,28 +4249,15 @@ osd_sound_start:
 
 	and.w	#0xFF,d0
 
-	* temp: stop music
-	cmp.b	#0x27,d0
-	jne		0f
-	jbsr	osd_music_stop
-	jra		10f
-0:
-	cmp.b	#0x28,d0
-	jne		0f
-	jbsr	osd_music_stop
-	jra		10f
-0:
 
-
-
-	cmp.b	#LEVEL_RESUME_TUNE_COPY_SND,d0
-	jne		2f
-	* tell to chain to LAST_LEVEL_TUNE_SND
-	move.b	#LAST_LEVEL_TUNE_SND,main_bgm_index
-	jra		0f
-2:
 	cmp.b	#LEVEL_TUNE_SND,d0
 	jeq		1f
+	cmp.w	#LAST_LEVEL_RESUME_TUNE_SND,d0
+	jne		0f
+	* last level sound queued after intro: we start a timer to play
+	* that tune after a while
+	move.w	#170-0x1C,main_bgm_timer	
+0:
 	cmp.b	#LAST_LEVEL_TUNE_SND,d0
 	jne		0f
 1:
@@ -4257,10 +4265,10 @@ osd_sound_start:
 	* (like GnG the game queues both tunes and the
 	* sound CPU chains them)
 	move.w	tune_index_times_8,d1
-	cmp.w	#LEVEL_RESUME_TUNE_SND*8,d1
-	jeq		15f
 	cmp.w	#LEVEL_START_TUNE_SND*8,d1
-	jeq		15f
+	jeq		10f
+	cmp.w	#LEVEL_RESUME_TUNE_SND*8,d1
+	jeq		10f
 
 0:	
 	moveq	#0,d2
@@ -4316,10 +4324,6 @@ osd_sound_start:
 12:
 	* stop all sounds
 	jbsr	_mt_end
-	jra		10b
-15:
-	* note down queued sound and bail out
-	move.b	d0,main_bgm_index
 	jra		10b
 	
 	* music
@@ -4670,8 +4674,6 @@ current_color:
 credits_displayed:
 	.byte	0
 
-main_bgm_index:
-	.byte	0
 difficulty_dsw:
 	.byte	0
 
@@ -4693,6 +4695,8 @@ music_volume:
 	.byte	0
 	.align	2
 
+main_bgm_timer:
+	.word	0
 
 tune_index_times_8:
 	.word	0

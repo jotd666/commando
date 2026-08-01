@@ -11,7 +11,6 @@ sound_dir = this_dir / ".." / "sounds"
 # default channel = 3, default priority = 40
 # put below some exceptions
 sound_settings_dict = {
-0x2B : {"channel":2,"priority":100},   # game over
 0x3 : {"channel":3,"priority":1},   # shot
 0x1B : {"channel":2,"priority":50},   # extra life
 0x15 : {"channel":3,"priority":50},   # siren
@@ -87,7 +86,7 @@ def convert():
     "BOSS_TUNE_SND"      :{"index":0x23,"pattern":0xF,"volume":32},
     "KILLED_TUNE_SND"      :{"index":0x2B,"pattern":0xC,"volume":32},
     "LEVEL_RESUME_TUNE_SND"      :{"index":0x22,"pattern":0xD,"volume":32},
-    "LEVEL_RESUME_TUNE_COPY_SND"      :{"index":0x2C,"pattern":0xD,"volume":32},
+    "LAST_LEVEL_RESUME_TUNE_SND"      :{"index":0x2c,"pattern":0xD,"volume":32},
     "HIGH_SCORE_SND"      :{"index":0x28,"pattern":0x21,"volume":32},
     "LEVEL_COMPLETED_TUNE_SND"      :{"index":0x2D,"pattern":0x11,"volume":32},
     "GAME_COMPLETED_TUNE_SND":{"index":0x26, "pattern":0x19,"volume":32},

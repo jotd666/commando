@@ -1,12 +1,10 @@
-- music kills all sfx
-- music intro doesn't work, direct play BGM
-- resume music: not perfect. reinstate a vbl timer which changes track if level 4
+- tag sprites to mirror to speed game up (maybe 50fps?) or 0x15000 bytes are wasted
+  - soldiers
+  - shooters behind bunkers
+
+
 - add looped sounds ( heli) not as loops 
 - add missing heli sound
-- command line: copy from vulgus
-
-  
-
 - blade issue on the left when lands
 - when scrolling up, bridge sprites have some delay: one theory is
   when game makes up scrolling for sprites it applies a scroll value then it changes this scroll value
