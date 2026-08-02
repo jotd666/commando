@@ -64,7 +64,7 @@ if create_dist:
     arcname.unlink(missing_ok=True)
     cmd = ["lha","-r","a",arcname,"*"]
 
-    subprocess.run(cmd,cwd=outdir.parent,check=True)
+    subprocess.run(cmd,cwd=outdir,check=True)
 
 
 # create floppy
@@ -91,7 +91,7 @@ if create_floppy:
         # create a .zip for the floppy
 
         with zipfile.ZipFile(progdir / f"{gamename.title()}_adf.zip",mode="w",compression=zipfile.ZIP_DEFLATED) as zf:
-            zf.write(adf_name,arcname=adf_name)
+            zf.write(adf_name,arcname=adf_name.name)
 
 if clean_dist:
     subprocess.run(cmd_prefix+["clean"],cwd=progdir/"src",check=True)
