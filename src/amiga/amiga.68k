@@ -61,7 +61,7 @@ GAME_MAX_SCROLL_Y = 0x200
 BG_TILE_WIDTH = 16
 
 
-OPT_SPRITE_MIRRORING = 1
+OPT_SPRITE_MIRRORING = 0
 
 	
 	.ifne		OPT_SPRITE_MIRRORING
@@ -813,7 +813,7 @@ demo_game:
 	* first initialize buffer address
 	.ifne		OPT_SPRITE_MIRRORING
 	move.l	#mirror_buffer,mirror_buffer_ptr
-	*jbsr	mirror_common_sprites
+	jbsr	mirror_common_sprites
 	.endif
 	
 

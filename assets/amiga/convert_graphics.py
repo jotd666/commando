@@ -6,7 +6,7 @@ from shared import *
 
 sprite_names = get_sprite_names()
 
-mirror_sprites = get_mirror_sprites()
+mirror_sprites = set() #get_mirror_sprites()
 
 
 

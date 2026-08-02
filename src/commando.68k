@@ -13681,10 +13681,10 @@ l_a3cd:
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
 	MAKE_H                                 	| [...] update MSB reg
-	move.b	d5,(0x04,a2)                    	| [$a3d4: ld   (ix+$04),h] [freq=low, count=14%]
 	move.b	d6,(0x05,a2)                    	| [$a3d7: ld   (ix+$05),l] [freq=low, count=14%]
-	move.b	d5,d0                           	| [$a3da: ld   a,h] [freq=low, count=14%]
-                                         | [$a3db: and  a]
+	                           	| [$a3da: ld   a,h] [freq=low, count=14%]
+ 	move.b	d5,(0x04,a2)                    	| [$a3d4: ld   (ix+$04),h] [freq=low, count=14%]
+                                        | [$a3db: and  a]
 	jeq	l_a3e9                             	| [$a3dc: jr   z,$a3e9] [freq=low, count=14%]
 	move.b	d6,d0                           	| [$a3de: ld   a,l] [freq=low, count=1%]
 	cmp.b	#0xe0,d0                         	| [$a3df: cp   $e0] [freq=low, count=1%]
@@ -13695,8 +13695,8 @@ l_a3e9:
 	jbsr	l_a498                            	| [$a3e9: call $a498] [freq=low, count=14%]
 entry_a3ec:
 	jbsr	exx                               	| [$a3ec: exx] [freq=low, count=19%]
-	MAKE_DE_NO_AR                          	| [$a3ed: add  ix,de] [freq=low, count=19%]
-	add.l	d4,a2
+	                          	
+	add.w	#0x10,a2                            | [$a3ed: add  ix,de] [freq=low, count=19%]
 	subq.b	#1,d1                           	| [$a3ef: djnz $a3b7] [freq=low, count=19%]
 	jne	l_a3b7                             	| [...]
 	move.b	d2,d0                           	| [$a3f1: ld   a,c] [freq=low, count=3%]
