@@ -408,6 +408,9 @@ _user:
                              | df0:'s yellow drive LED is ON here
     jra   0b	
 .led_off:
+	* waiting a bit more seems to do the trick
+    move.l  #25,d1
+    jsr     _LVODelay(a6)
 .no_floppy:
 
 * no multitask
