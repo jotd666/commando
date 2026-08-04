@@ -27,7 +27,7 @@ cmd_prefix = ["make","-f",os.path.join(progdir,"makefile.am")]
 
 if build_dist:
     for s in ["convert_sounds.py","convert_graphics.py"]:
-        subprocess.check_call(["cmd","/c",s],cwd=os.path.join(progdir,"assets","amiga"))
+        subprocess.check_call(["cmd","/c",s],cwd=assets)
 
 
     subprocess.check_call(cmd_prefix+["clean"],cwd=progdir /"src")
@@ -58,7 +58,7 @@ if create_dist:
         # cranker creates incorrect exe
         #subprocess.run(["cranker_windows.exe","-m","-t","Vulgus port by JOTD, music by no9","-f",progdir/exename,"-o",progdir/f"{exename}.rnc"],check=True)
         # l-packer creates proper exe, but needs slightly more memory, so add21k is needed
-        subprocess.run(["l-packer.exe","-lz4",progdir/exename,flopdir/exename],check=True)
+        subprocess.run(["l-packer.exe",progdir/exename,flopdir/exename],check=True)
 
     arcname = progdir / f"{gamename}_HD.lha"
     arcname.unlink(missing_ok=True)

@@ -395,9 +395,19 @@ _user:
     beq.b   .no_floppy
     * "floppy" file found
     jsr     _LVOClose(a6)
-    * wait 2 seconds for floppy drive to switch off
-    move.l  #100,d1
+0:
+    * wait for floppy drive to switch off
+    move.l  #25,d1
     jsr     _LVODelay(a6)
+    move.b  0xBFD100,d0
+    not.b   d0               | invert: active-low -> 1 = asserted
+    btst    #7,d0            | motor on?
+    beq.s   .led_off         | motor off -> LED off
+    btst    #3,d0            | df0: selected?
+    beq.s   .led_off         | not selected -> LED off
+                             | df0:'s yellow drive LED is ON here
+    jra   0b	
+.led_off:
 .no_floppy:
 
 * no multitask
@@ -5211,7 +5221,7 @@ bobs_screen_buffer_2:
 	.skip	BG_SCREEN_SIZE
 	.skip	BG_NB_BYTES_PER_ROW*48
 	.endif
-
+chipmem_end:
 	.skip	8
 
 

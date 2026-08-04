@@ -2527,10 +2527,10 @@ entry_0fc2:
 l_0fc2:
 	move.w	(a7)+,d2                        	| [$0fc2: pop  bc] [freq=low, count=20%]
 	MAKE_B                                 	| [...]
-	LOAD_DE	#0x0020                        	| [$0fc3: ld   de,$0020] [freq=low, count=20%]
-	add.w	d4,a2                          	| [$0fc6: add  ix,de] [de=$20] [freq=low, count=20%]
-	LOAD_DE	#0x000c                        	| [$0fc8: ld   de,$000c] [freq=low, count=20%]
-	add.w	d4,a3                          	| [$0fc6: add  ix,de] [de=$20] [freq=low, count=20%]
+	                        	| [$0fc3: ld   de,$0020] [freq=low, count=20%]
+	add.w	#0x20,a2                          	| [$0fc6: add  ix,de] [de=$20] [freq=low, count=20%]
+	                        	| [$0fc8: ld   de,$000c] [freq=low, count=20%]
+	add.w	#0xc,a3                          	| [$0fc6: add  ix,de] [de=$20] [freq=low, count=20%]
 	subq.b	#1,d1                           	| [$0fcd: djnz $0fac] [freq=low, count=20%]
 	jne	l_0fac                             	| [...]
 	rts                                    	| [$0fcf: ret] [freq=low, count=4%]
@@ -2545,8 +2545,8 @@ l_0fd0:
 	bclr.b	#4,(0x12,a2)                    	| [$0fe2: res  4,(ix+$12)] [freq=low, count=12%]
 	jbsr	l_1025                            	| [$0fe6: call $1025] [freq=low, count=12%]
 	jbsr	l_1388                            	| [$0fe9: call $1388] [freq=low, count=12%]
-	jbsr	l_1657                            	| [$0fec: call $1657] [freq=low, count=12%]
-	rts                                    	| [$0fef: ret] [freq=low, count=12%]
+	jbra	l_1657                            	| [$0fec: call $1657] [freq=low, count=12%]
+	                                    	| [$0fef: ret] [freq=low, count=12%]
 
 l_0ff0:
 	move.b	(0x11,a2),d0                    	| [$0ff0: ld   a,(ix+$11)] [freq=low, count=0%]
@@ -3080,11 +3080,7 @@ l_13e4:
 	move.b	#0x00,d5                        	| [$13e5: ld   h,$00] [freq=low, count=0%]
 	MAKE_HL_NO_AR                          	| [$13e7: add  hl,hl] [freq=low, count=0%]
 	add.w	d6,d6                            	| [...]
-	MAKE_H                                 	| [...] update MSB reg
-	MAKE_HL_NO_AR                          	| [$13e8: add  hl,hl] [freq=low, count=0%]
 	add.w	d6,d6                            	| [...]
-	MAKE_H                                 	| [...] update MSB reg
-	MAKE_HL_NO_AR                          	| [$13e9: add  hl,hl] [freq=low, count=0%]
 	add.w	d6,d6                            	| [...]
 	MAKE_H                                 	| [...] update MSB reg
 	move.b	d1,d0                           	| [$13ea: ld   a,b] [freq=low, count=0%]
@@ -3499,7 +3495,7 @@ l_1786:
 l_17ad:
 	MAKE_HL	a0                             	| [$17ad: ld   c,(hl)] [freq=low, count=0%]
 	move.b	(a0),d2                         	| [...]
-	MAKE_HL_NO_AR                          	| [$17ae: inc  hl] [freq=low, count=0%]
+	                          	| [$17ae: inc  hl] [freq=low, count=0%]
 	addq.w	#1,d6                           	| [...]
 	MAKE_H
 	move.b	#0x02,(0x1e,a2)                 	| [$17af: ld   (ix+$1e),$02] [freq=low, count=0%]
@@ -3517,13 +3513,13 @@ l_17be:
 	clr.b	(0x0a,a3)                        	| [$17d8: ld   (iy+$0a),$00] [freq=low, count=0%]
 	rts                                    	| [$17dc: ret] [freq=low, count=0%]
 l_17dd:
-	CLR_XC_FLAGS                           	| [$17dd: xor  a] [freq=low, count=0%]
+	                           	| [$17dd: xor  a] [freq=low, count=0%]
 	clr.b	d0                               	| [...]
-	move.b	d0,(a2)                    	| [$17de: ld   (ix+$00),a] [freq=low, count=0%]
-	move.b	d0,(0x03,a2)                    	| [$17e1: ld   (ix+$03),a] [freq=low, count=0%]
-	move.b	d0,(0x02,a3)                    	| [$17e4: ld   (iy+$02),a] [freq=low, count=0%]
-	move.b	d0,(0x06,a3)                    	| [$17e7: ld   (iy+$06),a] [freq=low, count=0%]
-	move.b	d0,(0x0a,a3)                    	| [$17ea: ld   (iy+$0a),a] [freq=low, count=0%]
+	clr.b	(a2)                    	| [$17de: ld   (ix+$00),a] [freq=low, count=0%]
+	clr.b	(0x03,a2)                    	| [$17e1: ld   (ix+$03),a] [freq=low, count=0%]
+	clr.b	(0x02,a3)                    	| [$17e4: ld   (iy+$02),a] [freq=low, count=0%]
+	clr.b	(0x06,a3)                    	| [$17e7: ld   (iy+$06),a] [freq=low, count=0%]
+	clr.b	(0x0a,a3)                    	| [$17ea: ld   (iy+$0a),a] [freq=low, count=0%]
 	rts                                    	| [$17ed: ret] [freq=low, count=0%]
 l_17ee:
 	move.b	#0x20,(a2)                 	| [$17ee: ld   (ix+$00),$20] [freq=low, count=0%]
@@ -3702,7 +3698,7 @@ l_197e:
 	move.b	(0x04,a2),d5                    	| [$1981: ld   h,(ix+$04)]
 	move.b	(0x05,a2),d6                    	| [$1984: ld   l,(ix+$05)]
 	LOAD_DE	#0xfffe                        	| [$1987: ld   de,$fffe]
-	MAKE_DE_NO_AR                          	| [$198a: add  hl,de]
+	                          	| [$198a: add  hl,de]
 	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
 	MAKE_H                                 	| [...] update MSB reg
@@ -6081,10 +6077,10 @@ l_2b9a:
 	MAKE_DE_NO_AR                          	| [$2ba5: inc  de] [freq=low, count=14%]
 	addq.w	#1,d4                           	| [...]
 	MAKE_D
-	add.b	d0,d0                            	| [$2ba6: add  a,a] [freq=low, count=14%]
-	add.b	d0,d0                            	| [$2ba7: add  a,a] [freq=low, count=14%]
-	add.b	d0,d0                            	| [$2ba8: add  a,a] [freq=low, count=14%]
-	add.b	d0,d0                            	| [$2ba9: add  a,a] [freq=low, count=14%]
+	lsl.b	#4,d0                            	| [$2ba6: add  a,a] [freq=low, count=14%]
+	                            	| [$2ba7: add  a,a] [freq=low, count=14%]
+	                            	| [$2ba8: add  a,a] [freq=low, count=14%]
+	                            	| [$2ba9: add  a,a] [freq=low, count=14%]
 	move.b	d0,d6                           	| [$2baa: ld   l,a] [freq=low, count=14%]
 	move.b	#0x00,d5                        	| [$2bab: ld   h,$00] [freq=low, count=14%]
 	rol.b	#1,d0                            	| [$2bad: rlca] [freq=low, count=14%]
@@ -6103,7 +6099,7 @@ l_2b9a:
 	jbsr	exx                               	| [$2bbc: exx] [freq=low, count=14%]
 	MAKE_DE	a0                             	| [$2bbd: ld   a,(de)] [freq=low, count=14%]
 	move.b	(a0),d0                         	| [...]
-	MAKE_DE_NO_AR                          	| [$2bbe: inc  de] [freq=low, count=14%]
+	                          	| [$2bbe: inc  de] [freq=low, count=14%]
 	addq.w	#1,d4                           	| [...]
 	MAKE_D
 	move.b	d0,(a3)                    	| [$2bbf: ld   (iy+$00),a] [freq=low, count=14%]
@@ -8546,11 +8542,11 @@ handle_events_8007:
 	subq.b	#1,d0                           	| [$800d: dec  a] [freq=low, count=2%]
 	move.b	d0,d3                           	| [$800e: ld   d,a] save event value for later [freq=low, count=2%]
 	MAKE_HL	a0                             	| [$800f: ld   (hl),$ff] acknowledge event [freq=low, count=2%]
-	st.b	(a0)                      	| [...] acknowledge event
+	st.b	(a0)+                      	| [...] acknowledge event
 	addq.b	#1,d6                           	| [$8011: inc  l] [freq=low, count=2%]
-	MAKE_HL	a0                             	| [$8012: ld   e,(hl)] get event parameter [freq=low, count=2%]
+	                             	| [$8012: ld   e,(hl)] get event parameter [freq=low, count=2%]
 	move.b	(a0),d4                         	| [...] get event parameter
-	MAKE_HL	a0                             	| [$8013: ld   (hl),$ff] acknowledge param [freq=low, count=2%]
+	                             	| [$8013: ld   (hl),$ff] acknowledge param [freq=low, count=2%]
 	st.b	(a0)                      	| [...] acknowledge param
 	addq.b	#1,d6                           	| [$8015: inc  l] [freq=low, count=2%]
 	move.b	d6,d0                           	| [$8016: ld   a,l] [freq=low, count=2%]
