@@ -9,11 +9,15 @@ sox = "sox"
 sound_dir = this_dir / ".." / "sounds"
 
 # default channel = 3, default priority = 40
-# put below some exceptions
+# put below some exceptions, most of brief shot/explosion sounds
+# are a great fit for channel 2 which contains only the drums
 sound_settings_dict = {
-0x3 : {"channel":3,"priority":1},   # shot
+0x3 : {"channel":2,"priority":1},   # shot
+0x4 : {"channel":2,"priority":2},   # kind of enemy shot
+0x2 : {"channel":2,"priority":10},   # another explosion
+0x7 : {"channel":2,"priority":10},   # grenade explosion
 0x1B : {"channel":2,"priority":50},   # extra life
-0x15 : {"channel":3,"priority":50},   # siren
+0x15 : {"channel":2,"priority":50},   # siren
 
 }
 

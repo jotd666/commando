@@ -1,4 +1,8 @@
 - last level music: good but shots are covering the chord track
+  => setting most shot/explosions sounds on channel 2 is okay
+    (covers up drums otherwise ok) but end of level music would need
+	to move channels
+	
 - complete last level: level end music plays twice then interrupted
   by end of level music
   

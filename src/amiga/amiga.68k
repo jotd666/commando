@@ -4249,7 +4249,6 @@ osd_sound_start:
 
 	and.w	#0xFF,d0
 
-
 	cmp.b	#LEVEL_TUNE_SND,d0
 	jeq		1f
 	cmp.w	#LAST_LEVEL_RESUME_TUNE_SND,d0
