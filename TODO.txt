@@ -1,6 +1,11 @@
+- last level music: good but shots are covering the chord track
+- complete last level: level end music plays twice then interrupted
+  by end of level music
+  
 - tag sprites to mirror to speed game up (maybe 50fps?) or 0x15000 bytes are wasted
   - soldiers
   - shooters behind bunkers
+  => too much chipmem taken
 
 
 - add looped sounds ( heli) not as loops 
