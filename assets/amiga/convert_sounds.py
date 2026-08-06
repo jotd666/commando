@@ -12,10 +12,11 @@ sound_dir = this_dir / ".." / "sounds"
 # put below some exceptions, most of brief shot/explosion sounds
 # are a great fit for channel 2 which contains only the drums
 sound_settings_dict = {
-0x3 : {"channel":2,"priority":1},   # shot
-0x4 : {"channel":2,"priority":2},   # kind of enemy shot
-0x2 : {"channel":2,"priority":10},   # another explosion
-0x7 : {"channel":2,"priority":10},   # grenade explosion
+0x3 : {"priority":1},   # shot
+0x4 : {"priority":2},   # kind of enemy shot
+0x14 : {"priority":50},   #enemy killed, not heard with default pri
+0x2 : {"priority":10},   # another explosion
+0x7 : {"priority":10},   # grenade explosion
 0x1B : {"channel":2,"priority":50},   # extra life
 0x15 : {"channel":2,"priority":50},   # siren
 
@@ -50,7 +51,7 @@ def convert():
 
     0x25,
 
-    0x14,  #???
+
     0x16,
     0x1B,0x1D,0x1e, 0x1f, 0x35, 0x37, 0x39, 0x3a, 0x3b, 0x3c, 0x3d, 0xb, 0xc, 0xd,
     0xFF

@@ -1855,7 +1855,7 @@ print_text_with_typing_effect_0e60:
 0E7E: 22 1B 0E    ld   ($E0B1),hl
 0E81: FE 02       cp   $20
 0E83: C8          ret  z
-0E84: C3 65 68    jp   $8647
+0E84: C3 65 68    jp   play_shot_sound_8647
 
 
 0E88: 23          inc  hl
@@ -6976,6 +6976,7 @@ play_null_sound_863d:
 863F: C3 71 69    jp   queue_sound_8717
 8642: 3E 20       ld   a,$02
 8644: C3 71 69    jp   queue_sound_8717
+play_shot_sound_8647:
 8647: 3E 21       ld   a,$03
 8649: C3 71 69    jp   queue_sound_8717
 864C: 3E 40       ld   a,$04
@@ -8384,7 +8385,7 @@ handle_player_bullets_936f:
 93CF: DD 74 C1    ld   (ix+$0d),h
 93D2: DD 75 E0    ld   (ix+$0e),l
 93D5: DD 36 31 00 ld   (ix+$13),$00
-93D9: C3 65 68    jp   $8647
+93D9: C3 65 68    jp   play_shot_sound_8647
 93DC: C9          ret
 
 

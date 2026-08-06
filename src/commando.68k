@@ -2471,11 +2471,14 @@ print_text_with_typing_effect_0e60:
 	GET_ADDRESS	0xe0b1,a0                  	| [$0e7e: ld   ($e0b1),hl]
 	MAKE_HL_NO_AR                          	| [...]
 	MOVE_W_FROM_REG	d6,a0                         	| [...]
+	.ifndef __amiga__
+	* on amiga, disable typing, we need all 4 channels for end of level tune
 	cmp.b	#0x20,d0                         	| [$0e81: cp   $20]
 	jne	0f                                 	| [$0e83: ret  z]
+	.endif
 	rts                                    	| [...]
 0:
-	jra	l_8647                             	| [$0e84: jp   $8647]
+	jra	play_shot_sound_8647                             	| [$0e84: jp   $8647]
 
 
 l_0e88:
@@ -9331,7 +9334,7 @@ play_null_sound_863d:
 l_8642:
 	move.b	#0x02,d0                        	| [$8642: ld   a,$02] [freq=low, count=0%]
 	jra	queue_sound_8717                   	| [$8644: jp   queue_sound_8717] [freq=low, count=0%]
-l_8647:
+play_shot_sound_8647:
 	move.b	#0x03,d0                        	| [$8647: ld   a,$03] [freq=low, count=0%]
 	jra	queue_sound_8717                   	| [$8649: jp   queue_sound_8717] [freq=low, count=0%]
 l_864c:
@@ -11191,7 +11194,7 @@ l_9383:
 	move.b	d5,(0x0d,a2)                    	| [$93cf: ld   (ix+$0d),h] [freq=low, count=0%]
 	move.b	d6,(0x0e,a2)                    	| [$93d2: ld   (ix+$0e),l] [freq=low, count=0%]
 	clr.b	(0x13,a2)                        	| [$93d5: ld   (ix+$13),$00] [freq=low, count=0%]
-	jra	l_8647                             	| [$93d9: jp   $8647] [freq=low, count=0%]
+	jra	play_shot_sound_8647                             	| [$93d9: jp   $8647] [freq=low, count=0%]
 	rts                                    	| [$93dc: ret]
 
 

@@ -8,13 +8,17 @@
 ; lowest chip possible. CD32 version must fit in $1E0000 bytes
 ; including stack, which is very close. Why wasting precious kbs?
 CHIP_BASE = $200
-
+	IFD DEV_MODE
+EXPMEM = $300000
+CHIPSIZE = $1E0000	
+	ELSE
 	IFD	CD32_SLAVE
 EXPMEM = 0
 CHIPSIZE = $1E0000
 	ELSE
-EXPMEM = $160000
+EXPMEM = $170000
 CHIPSIZE = $1E0000
+	ENDC
 	ENDC
 
 _base	SLAVE_HEADER					; ws_security + ws_id
