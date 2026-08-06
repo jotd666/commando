@@ -1,6 +1,3 @@
-	
-- complete last level: level end music plays twice then interrupted
-  by end of level music
   
 - tag sprites to mirror to speed game up (maybe 50fps?) or 0x15000 bytes are wasted
   - soldiers

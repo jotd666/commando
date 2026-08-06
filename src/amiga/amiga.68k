@@ -1116,12 +1116,20 @@ level3_interrupt:
 	jeq		0f
 	subq.w	#1,d0
 	move.w	d0,main_bgm_timer
-	move.w	d0,0x120
 	jne		0f
 	* countdown at zero
 	clr.w	tune_index_times_8		| else it would reset the timer
 	move.w	#LAST_LEVEL_TUNE_SND,d0
 	jbsr	osd_sound_start
+0:
+
+	move.w	end_level_timer,d0
+	jeq		0f
+	subq.w	#1,d0
+	move.w	d0,end_level_timer
+	jne		0f
+	* stop the end level tune before it starts the second part
+	jbsr	osd_music_stop
 0:
 
 	move.l	joypad_1_state(pc),d1
@@ -2460,7 +2468,8 @@ start_process_1_plane:
 
 	
 bob_previous_positions_1:
-	.fill NB_TARGET_SPRITES*PREVIOUS_SPRITE_SIZE+4 , 1 , -1
+	.long 0		| scroll pos
+	.fill NB_TARGET_SPRITES*PREVIOUS_SPRITE_SIZE , 1 , -1
 	
 bob_previous_drawn_sprites:
 	.long	bob_previous_positions_1
@@ -2470,7 +2479,8 @@ bob_previous_displayed_sprites:
 	.else
 	.long	bob_previous_positions_2	
 bob_previous_positions_2:
-	.fill NB_TARGET_SPRITES*PREVIOUS_SPRITE_SIZE+4 , 1 , -1
+	.long 0
+	.fill NB_TARGET_SPRITES*PREVIOUS_SPRITE_SIZE , 1 , -1
 
 	.endif
 
@@ -2757,7 +2767,6 @@ platform_init:
 		
 	
 
-	
 	
 	jbsr		set_bobs_bitplanes
 	
@@ -4262,6 +4271,16 @@ osd_sound_start:
 
 	and.w	#0xFF,d0
 
+	cmp.b	#LEVEL_COMPLETED_TUNE_SND,d0
+	jne		0f
+	* if last level, set a timer to cut the music in the middle
+	move.w	(global_y_lsb_eda2,a6),d1
+	cmp.w	#0x001F,d1		| last boss defeated
+	jne		0f
+	* last boss: must cut the music
+	move.w	#300-0x80,end_level_timer
+0:
+
 	cmp.b	#LEVEL_TUNE_SND,d0
 	jeq		1f
 	cmp.w	#LAST_LEVEL_RESUME_TUNE_SND,d0
@@ -4707,6 +4726,8 @@ music_volume:
 	.byte	0
 	.align	2
 
+end_level_timer:
+	.word	0
 main_bgm_timer:
 	.word	0
 

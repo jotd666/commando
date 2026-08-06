@@ -14,7 +14,6 @@ sound_dir = this_dir / ".." / "sounds"
 sound_settings_dict = {
 0x3 : {"priority":1},   # shot
 0x4 : {"priority":2},   # kind of enemy shot
-0x14 : {"priority":50},   #enemy killed, not heard with default pri
 0x2 : {"priority":10},   # another explosion
 0x7 : {"priority":10},   # grenade explosion
 0x1B : {"channel":2,"priority":50},   # extra life
@@ -49,7 +48,7 @@ def convert():
     0xE,  # ??? WTF
     0x13,0x17,0x19,
 
-    0x25,
+    0x2D,
 
 
     0x16,
@@ -93,7 +92,7 @@ def convert():
     "LEVEL_RESUME_TUNE_SND"      :{"index":0x22,"pattern":0xD,"volume":32},
     "LAST_LEVEL_RESUME_TUNE_SND"      :{"index":0x2c,"pattern":0xD,"volume":32},
     "HIGH_SCORE_SND"      :{"index":0x28,"pattern":0x21,"volume":32},
-    "LEVEL_COMPLETED_TUNE_SND"      :{"index":0x2D,"pattern":0x11,"volume":32},
+    "LEVEL_COMPLETED_TUNE_SND"      :{"index":0x25,"pattern":0x11,"volume":32},
     "GAME_COMPLETED_TUNE_SND":{"index":0x26, "pattern":0x19,"volume":32},
     "GAME_OVER_TUNE_SND":{"index":0x27, "pattern":0x20,"volume":32},
     "FIRST_PLACE_TUNE_SND":{"index":0x29, "pattern":0x30,"volume":32},
