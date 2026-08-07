@@ -99,7 +99,7 @@ SPRITE_Y_CORRECTION = -BG_TILE_WIDTH+1
 * full display
 NTSC_Y_SHIFT = 12
 
-AGA_X_SHIFT = 0x37
+AGA_X_SHIFT = 0
 
 
 
@@ -2631,8 +2631,8 @@ platform_init:
 
 
  	*         VVHH
-    move.w #0x99+((Y_START+0x10)<<8),d0
-    move.w #0x79+((Y_START+0x10)<<8),d1
+    move.w #0x91+((Y_START+0x10)<<8),d0
+    move.w #0x71+((Y_START+0x10)<<8),d1
 	cmp.l	#NTSC_MONITOR_ID,monitor
 	jne		0f
 	sub.w	#NTSC_Y_SHIFT<<8,d0
@@ -2643,8 +2643,7 @@ platform_init:
 	.ifne	OPT_AGA_MODE
     move.w #BASE_BPLCON4_VALUE,bplcon4(a5)
     move.w #0x0C00+BORDERBLANK<<5,bplcon3(a5)     | no AGA specificities, default ECS
-    add	#AGA_X_SHIFT,d0
-    add	#AGA_X_SHIFT,d1
+
 	.endif
 	
     move.w d0,diwstrt(a5)
@@ -2729,7 +2728,8 @@ platform_init:
 	lea		hw_sprite_pointers,a0
 	lea		HW_SpriteYTable_256,a1
 	moveq	#3,d7
-	moveq	#0x3F,d2	| sprite X start
+	moveq	#3,d7
+	moveq	#0,d2	| sprite X start
 0:
 	move.w	d2,d0
 	move.w	#0x14,d1
@@ -3588,18 +3588,8 @@ set_bobs_bitplanes:
 	move.w	(a2,d0.w),d0		| compute Y offset
 	.endif
 1:	
-	moveq	#0,d2
-	lea		scroll_table,a2
-	.ifdef	MC68020
-	lea		(a2,d2.w*4),a2
-	.else
-	add.w	d2,d2
-	add.w	d2,d2
-	add.w	d2,a2
-	.endif
-	
-	move.w	(a2)+,fine_x_scroll_value
 
+	
 	
     moveq #NB_PLAYFIELD_PLANES-1,d1
  	move.l	#BG_SCREEN_PLANE_SIZE,d2
