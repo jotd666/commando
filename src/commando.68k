@@ -923,14 +923,16 @@ play_sound_and_update_scroll_0396:
 	move.b	(a0),d0                         	| [...]
 	GET_UNCHECKED_ADDRESS	background_scroll_y_lsb_c808,a0	| [$03a7: ld   (background_scroll_y_lsb_c808),a] [unchecked_address] [freq=low, count=4%]
 	move.b	d0,(a0)                         	| [...] [unchecked_address]
-	GET_ADDRESS	0xe03b,a0                  	| [$03aa: ld   a,($e03b)] [freq=low, count=4%]
-	move.b	(a0),d0                         	| [...]
+	                  	| [$03aa: ld   a,($e03b)] [freq=low, count=4%]
+	                         	| [...]
 	 |  [$03ad: ld   (sound_and_screen_orientation_c804),a]
-	 |  [$03b0: ld   (dma_trigger_c806),a]
+	 * unlike MAME, we have to freeze the sprite state here else we have delays between tiles and sprites
+	 * Claude A.I. pointed that out that's really amazing
+	jra	osd_trigger_sprite_dma	 |  [$03b0: ld   (dma_trigger_c806),a]
                                          | [$03b3: nop]
                                          | [$03b4: nop]
                                          | [$03b5: nop]
-	rts                                    	| [$03b6: ret] [freq=low, count=4%]
+	                                    	| [$03b6: ret] [freq=low, count=4%]
 
 l_03b7:
 	GET_ADDRESS	0xfe04,a2                  	| [$03b7: ld   ix,$fe04]
@@ -2504,10 +2506,9 @@ l_0e88:
 	rts                                    	| [$0e94: ret]
 
 l_0f9e:
-	CLR_XC_FLAGS                           	| [$0f9e: xor  a] [freq=low, count=4%]
-	clr.b	d0                               	| [...]
+	                          	| [$0f9e: xor  a] [freq=low, count=4%]
 	GET_ADDRESS	0xe055,a0                  	| [$0f9f: ld   ($e055),a] [freq=low, count=4%]
-	move.b	d0,(a0)                         	| [...]
+	clr.b	(a0)                         	| [...]
 	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$0fa2: ld   ix,$e600] [freq=low, count=4%]
 	GET_ADDRESS	0xfed8,a3                  	| [$0fa6: ld   iy,$fed8] [freq=low, count=4%]
 	move.b	#0x08,d1                        	| [$0faa: ld   b,$08] [freq=low, count=4%]
@@ -6075,17 +6076,16 @@ l_2b9a:
 	and.b	#0xf0,d0                         	| [$2b9c: and  $f0] [freq=low, count=14%]
 	add.b	(0x03,a2),d0                     	| [$2b9e: add  a,(ix+$03)] [freq=low, count=14%]
 	move.b	d0,(0x02,a3)                    	| [$2ba1: ld   (iy+$02),a] [freq=low, count=14%]
-	MAKE_DE	a0                             	| [$2ba4: ld   a,(de)] [freq=low, count=14%]
+												| [$2ba4: ld   a,(de)] [freq=low, count=14%]
 	move.b	(a0),d0                         	| [...]
-	MAKE_DE_NO_AR                          	| [$2ba5: inc  de] [freq=low, count=14%]
-	addq.w	#1,d4                           	| [...]
+	addq.w	#1,d4                           	| [$2ba5: inc  de] [freq=low, count=14%]
 	MAKE_D
 	lsl.b	#4,d0                            	| [$2ba6: add  a,a] [freq=low, count=14%]
 	                            	| [$2ba7: add  a,a] [freq=low, count=14%]
 	                            	| [$2ba8: add  a,a] [freq=low, count=14%]
 	                            	| [$2ba9: add  a,a] [freq=low, count=14%]
 	move.b	d0,d6                           	| [$2baa: ld   l,a] [freq=low, count=14%]
-	move.b	#0x00,d5                        	| [$2bab: ld   h,$00] [freq=low, count=14%]
+	moveq	#0x00,d5                        	| [$2bab: ld   h,$00] [freq=low, count=14%]
 	rol.b	#1,d0                            	| [$2bad: rlca] [freq=low, count=14%]
 	SET_X_FROM_C
 	roxl.b	#1,d5                           	| [$2bae: rl   h] [freq=low, count=14%]
@@ -6108,11 +6108,7 @@ l_2b9a:
 	move.b	d0,(a3)                    	| [$2bbf: ld   (iy+$00),a] [freq=low, count=14%]
 	jbsr	exx                               	| [$2bc2: exx] [freq=low, count=14%]
 	MAKE_DE_NO_AR                          	| [$2bc3: add  iy,de] [freq=low, count=14%]
-	move.l	a3,d7                           	| [...]  [inspect_for_manual_optimization]
-	sub.l	a6,d7                            	| [...]
-	add.w	d4,d7                            	| [...]
-	add.l	a6,d7                            	| [...]
-	move.l	d7,a3                           	| [...]
+	add.w	d4,a3                           	| [...]
 	subq.b	#1,d1                           	| [$2bc5: djnz $2b9a] [freq=low, count=14%]
 	jne	l_2b9a                             	| [...]
 	jbsr	exx                               	| [$2bc7: exx] [freq=low, count=7%]
@@ -10673,9 +10669,7 @@ l_907b:
 	move.b	#0x00,d5                        	| [$90af: ld   h,$00] [freq=low, count=6%]
 	MAKE_HL_NO_AR                          	| [$90b1: add  hl,hl] [freq=low, count=6%]
 	add.w	d6,d6                            	| [...]
-	MAKE_H                                 	| [...] update MSB reg
 	MAKE_DE_NO_AR                          	| [$90b2: add  hl,de] [freq=low, count=6%]
-	MAKE_HL_NO_AR                          	| [...]
 	add.w	d4,d6                            	| [...]
 	MAKE_H                                 	| [...] update MSB reg
 	move.b	d2,d0                           	| [$90b3: ld   a,c] [freq=low, count=6%]
@@ -13703,15 +13697,15 @@ entry_a3ec:
 	jne	0f                                 	| [$a3f3: ret  z] [freq=low, count=3%]
 	rts                                    	| [...]
 0:
+	moveq	#0,d1
 	move.b	d0,d1                           	| [$a3f4: ld   b,a] [freq=low, count=3%]
+	subq	#1,d1
 	LOAD_DE	#0x0008                        	| [$a3f5: ld   de,$0008] [freq=low, count=3%]
 l_a3f8:
 	clr.b	(0x02,a3)                        	| [$a3f8: ld   (iy+$02),$00] [freq=low, count=7%]
-	clr.b	(0x06,a3)                        	| [$a3fc: ld   (iy+$06),$00] [freq=low, count=7%]
-	                          	| [$a400: add  iy,de] [freq=low, count=7%]
-	add.l	d4,a3
-	subq.b	#1,d1                           	| [$a402: djnz $a3f8] [freq=low, count=7%]
-	jne	l_a3f8                             	| [...]
+	clr.b	(0x06,a3)                        	| [$a3fc: ld   (iy+$06),$00] [freq=low, count=7%]            	
+	add.w	d4,a3								| [$a400: add  iy,de] [freq=low, count=7%]
+	dbf		d1,l_a3f8                           	| [$a402: djnz $a3f8] [freq=low, count=7%]
 	rts                                    	| [$a404: ret] [freq=low, count=3%]
 l_a405:
 	 |  [$a405: ld   hl,entry_a3ec] [push_function]

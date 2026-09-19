@@ -4,13 +4,9 @@
   - shooters behind bunkers
   => too much chipmem taken
 
-
-- add looped sounds ( heli) not as loops 
+- add looped sounds (heli) not as loops 
 - add missing heli sound
 - blade issue on the left when lands
-- when scrolling up, bridge sprites have some delay: one theory is
-  when game makes up scrolling for sprites it applies a scroll value then it changes this scroll value
-  we should apply the prev scroll value?
 
 rip sounds:
 

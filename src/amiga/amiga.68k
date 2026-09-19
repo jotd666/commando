@@ -260,7 +260,7 @@ LONG_FIRE_TIMER_VALUE = 30
 	.global osd_blitz		| for debug
 	
 	.global	osd_video_byte_dirty
-	
+	.global osd_trigger_sprite_dma
 
 	*.global osd_read_high_scores
 	.global osd_write_high_scores
@@ -1784,7 +1784,7 @@ really_update_sprites:
 	GET_MEMORY_START_IN_A6
 	lea		(SPRITE_ADDRESS+SPRITE_BUFFER_SIZE-CURRENT_SPRITE_SIZE,a6),a0
 	*lea		mockup+SPRITE_BUFFER_SIZE-CURRENT_SPRITE_SIZE,a0
-
+	lea		buffered_spriteram+SPRITE_BUFFER_SIZE-CURRENT_SPRITE_SIZE,a0
 
     lea _custom,A5
 	move.l	bob_previous_drawn_sprites(pc),a6
@@ -2872,8 +2872,21 @@ osd_disable_interrupts:
 	rts
 	
 
+* Claude A.I. suggested that I freeze the sprite buffer to avoid tile/sprite delays
+* ... and it worked!
 
-	
+osd_trigger_sprite_dma:
+	movem.l	d0/a0/a1,-(a7)
+	lea		(SPRITE_ADDRESS,a6),a0
+	lea		buffered_spriteram,a1
+	moveq	#SPRITE_BUFFER_SIZE/16-1,d0
+0:
+	.rept	4
+	move.l	(a0)+,(a1)+
+	.endr
+	dbf		d0,0b
+	movem.l	(a7)+,d0/a0/a1
+	rts	
 	
 
 	
@@ -2886,7 +2899,6 @@ osd_disable_interrupts:
 osd_video_byte_dirty:
 	OSD_ENTER
 	movem.l	d0-d7/a0-a3/a5,-(a7)
-	move.b	(a0),d0
 	move.l	a0,d7		| save address
 	sub.l	a6,d7
 	jmi		osd_w_videoram_out
@@ -3577,7 +3589,7 @@ set_bobs_bitplanes:
 	
 	* set bitplanes
 	moveq	#0,d0
-	move.l	bob_previous_drawn_sprites,a2
+	move.l	bob_previous_displayed_sprites,a2
 	move.w	(2,a2),d0		| game scroll Y when bobs were drawn
 
 	lea		mulBG_NB_BYTES_PER_ROW_table,a2
@@ -5040,7 +5052,8 @@ osd_debug_active:
 	.endif
 
 	.section	.bsspublic
-
+buffered_spriteram:
+	.skip SPRITE_BUFFER_SIZE
 mirror_buffer_ptr:
 	.long	0
 mirror_buffer_context_ptr:
