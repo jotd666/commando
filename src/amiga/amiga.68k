@@ -59,7 +59,7 @@ ROW_SIZE = 0x10
 GAME_MAX_SCROLL_X = 0x200
 GAME_MAX_SCROLL_Y = 0x200
 BG_TILE_WIDTH = 16
-
+BG_TILE_HEIGHT = 16
 
 OPT_SPRITE_MIRRORING = 0
 
@@ -2956,10 +2956,6 @@ bg_tile:
 	lea		(BG_SCREEN_COLOR_ADDRESS,a6),a0
 	move.b	(a0,d7.w),d1
 
-
-	* here we have to compute x_offset, this is the game displaying a random
-	* tile on screen
-
 	jbsr	update_bg_tile
 
 	jra		osd_w_videoram_out
@@ -3081,7 +3077,7 @@ update_bg_tile:
 	lsr.w	#8,d0
 	cmp.w	#0x10,d0
 	jcs		0f
-	* don't display right part ATM (used in level "well done" screen)
+	* don't display right part (used in level "well done" screen)
 	rts
 0:
 	add.w	d0,d0		| 16 pixels per tile
@@ -3090,11 +3086,6 @@ update_bg_tile:
 	scs		d6			| repeat tile draw if Y tile  < 0x10
 	
 	* updating bitplanes
-	.if	BG_SCREEN_PLANE_SIZE>0x7FFF
-	move.l	#BG_SCREEN_PLANE_SIZE,d5
-	.else
-	move.w	#BG_SCREEN_PLANE_SIZE,d5
-	.endif
 	
 	move.l		playfield_drawn_screen_ptr,a1
 	.ifeq	OPT_ENABLE_DOUBLE_BUFFERING
@@ -3204,19 +3195,30 @@ update_bg_tile:
 	jmp		(a0)
 
 standard_tile16:
+	.if	BG_SCREEN_PLANE_SIZE>0x7FFF
+	move.l	#BG_SCREEN_PLANE_SIZE-BG_NB_BYTES_PER_ROW*BG_TILE_HEIGHT,d5
+	.else
+	move.w	#BG_SCREEN_PLANE_SIZE-BG_NB_BYTES_PER_ROW*BG_TILE_HEIGHT,d5
+	.endif
 
 	* just copy
-
+	move.w	#BG_NB_BYTES_PER_ROW,d2
 4:
 	move.l	(a2)+,d0		| next plane
 	jeq		5f
 	move.l	d0,a0
-	.set	offset,0
-	.rept	16
+	move.w	#BG_TILE_HEIGHT-1,d3
+6:
 	move.w	(a0)+,d0
-	COPY_TILE16_PLANE_ROW
-	.set	offset,offset+BG_NB_BYTES_PER_ROW
-	.endr
+	move.w	d0,(a1)
+	add.w	d2,a1
+	move.w	d0,(a3)
+	add.w	d2,a3
+	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
+	move.w	d0,(a4)
+	add.w	d2,a4
+	.endif
+	dbf		d3,6b
 41:
 	TILE16_NEXT_PLANE
 	dbf		d4,4b
@@ -3224,33 +3226,76 @@ standard_tile16:
 100:
 	rts
 5:
-	CLEAR_TILE16_PLANE
+	jbsr	clear_tile_plane_loop
 	jra		41b
 
 
-flipped_tile16:	
+flipped_tile16:
+	.if	BG_SCREEN_PLANE_SIZE>0x7FFF
+	move.l	#BG_SCREEN_PLANE_SIZE,d5
+	.else
+	move.w	#BG_SCREEN_PLANE_SIZE,d5
+	.endif
+	move.w	#BG_NB_BYTES_PER_ROW,d2
+	move.w	#BG_TILE_HEIGHT*BG_NB_BYTES_PER_ROW,d1
 4:
 	move.l	(a2)+,d0		| next plane
 	jeq		5f
 	move.l	d0,a0
-	.set	offset,BG_TILE_HEIGHT*BG_NB_BYTES_PER_ROW
-	.rept	BG_TILE_HEIGHT
-	.set	offset,offset-BG_NB_BYTES_PER_ROW
+	
+	move.w	#BG_TILE_HEIGHT-1,d3
+	* pre-add 16*row offset
+	add.w	d1,a1
+	add.w	d1,a3
+	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
+	add.w	d1,a4
+	.endif
+6:
 	move.w	(a0)+,d0
-	COPY_TILE16_PLANE_ROW
-	.endr
+	sub.w	d2,a1
+	move.w	d0,(a1)
+	sub.w	d2,a3
+	move.w	d0,(a3)
+	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
+	sub.w	d2,a4
+	move.w	d0,(a4)
+	.endif
+	dbf		d3,6b
 41:
+	* add plane size, pointers are at start of planes
 	TILE16_NEXT_PLANE
 	dbf		d4,4b
-	
 0:
 	rts
 5:
-	CLEAR_TILE16_PLANE
-	jra		41b
-
+	jbsr	clear_tile_plane_loop
+	sub.w	d1,d5
+	TILE16_NEXT_PLANE
+	add.w	d1,d5
+	dbf		d4,4b
+	rts
+	
+clear_tile_plane_loop:
+	move.w	#BG_TILE_HEIGHT-1,d3
+6:
+	clr.w	(a1)
+	add.w	d2,a1
+	clr.w	(a3)  | restore buffer
+	add.w	d2,a3
+	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
+	clr.w	(a4)	| second buffer
+	add.w	d2,a4
+	.endif
+	dbf		d3,6b
+	rts
 	
 mirror_tile16:
+	.if	BG_SCREEN_PLANE_SIZE>0x7FFF
+	move.l	#BG_SCREEN_PLANE_SIZE-BG_NB_BYTES_PER_ROW*BG_TILE_HEIGHT,d5
+	.else
+	move.w	#BG_SCREEN_PLANE_SIZE-BG_NB_BYTES_PER_ROW*BG_TILE_HEIGHT,d5
+	.endif
+	move.w	#BG_NB_BYTES_PER_ROW,d2
 	move.l	a5,-(a7)
 	lea		mirror_table,a5
 	.ifdef	MC68020
@@ -3260,8 +3305,8 @@ mirror_tile16:
 	move.l	(a2)+,d0		| next plane
 	jeq		5f
 	move.l	d0,a0
-	.set	offset,0
-	.rept	BG_TILE_HEIGHT
+	move.w	#BG_TILE_HEIGHT-1,d3
+6:
 	.ifdef	MC68020
 	move.w	(a0)+,d1
 	move.w	(a5,d1.l*2),d0	| mirror
@@ -3271,10 +3316,15 @@ mirror_tile16:
 	add.l	d1,d1
 	move.w	(a5,d1.l),d0	| mirror
 	.endif
-	COPY_TILE16_PLANE_ROW
-
-	.set	offset,offset+BG_NB_BYTES_PER_ROW
-	.endr
+	move.w	d0,(a1)
+	add.w	d2,a1
+	move.w	d0,(a3)
+	add.w	d2,a3
+	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
+	move.w	d0,(a4)
+	add.w	d2,a4
+	.endif
+	dbf		d3,6b
 41:
 	TILE16_NEXT_PLANE
 	dbf		d4,4b
@@ -3282,10 +3332,16 @@ mirror_tile16:
 	rts
 
 5:
-	CLEAR_TILE16_PLANE
+	jbsr	clear_tile_plane_loop
 	jra		41b
 	
 mirror_flipped_tile16:
+	.if	BG_SCREEN_PLANE_SIZE>0x7FFF
+	move.l	#BG_SCREEN_PLANE_SIZE,d5
+	.else
+	move.w	#BG_SCREEN_PLANE_SIZE,d5
+	.endif
+	move.w	#BG_NB_BYTES_PER_ROW,d2
 	move.l	a5,-(a7)
 	lea		mirror_table,a5
 	.ifdef	MC68020
@@ -3316,14 +3372,20 @@ mirror_flipped_tile16:
 	rts
 
 5:
-	CLEAR_TILE16_PLANE
-	jra		41b
+	move.w	#BG_TILE_HEIGHT*BG_NB_BYTES_PER_ROW,d1
+	sub.w	d1,d5
+	jbsr	clear_tile_plane_loop
+	TILE16_NEXT_PLANE
+	add.w	d1,d5
+	dbf		d4,4b
+	move.l	(a7)+,a5
+	rts
 
 	* clear tile
 
 11:
 111:
-	CLEAR_TILE16_PLANE
+	jbsr	clear_tile_plane_loop
 	TILE16_NEXT_PLANE
 	dbf		d4,111b
 2:
