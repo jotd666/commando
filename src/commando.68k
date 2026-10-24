@@ -8440,82 +8440,6 @@ l_6d6f:
 	LOAD_HL	#0x6d79                        	| [$6d74: ld   hl,$6d79] [freq=low, count=0%]
 	jbsr	l_0020                            	| [$6d77: rst  $20] call RETURN_BYTE_AT_HL_PLUS_A [freq=low, count=0%]
 	rts                                    	| [$6d78: ret] [freq=low, count=0%]
-	MAKE_BC	a0                             	| [$6d79: ld   (bc),a]
-	move.b	d0,(a0)                         	| [...]
-	move.b	#0xe0,d1                        	| [$6d7a: ld   b,$e0]
-	MAKE_BC	a0                             	| [$6d7c: ld   a,(bc)]
-	move.b	(a0),d0                         	| [...]
-	GET_ADDRESS	0xfe04,a3                  	| [$6d7d: ld   iy,$fe04]
-	GET_ADDRESS	port_state_c001_bit3_bits_e00b,a0	| [$6d81: ld   a,(port_state_c001_bit3_bits_e00b)]
-	move.b	(a0),d0                         	| [...]
-	and.b	#0x01,d0                         	| [$6d84: and  $01]
-	jeq	l_6d8b                             	| [$6d86: jr   z,$6d8b]
-	addq.b	#1,(0x03,a3)                    	| [$6d88: inc  (iy+$03)]
-l_6d8b:
-	GET_ADDRESS	port_state_c001_bit2_bits_e00a,a0	| [$6d8b: ld   a,(port_state_c001_bit2_bits_e00a)]
-	move.b	(a0),d0                         	| [...]
-	and.b	#0x01,d0                         	| [$6d8e: and  $01]
-	jeq	l_6d95                             	| [$6d90: jr   z,$6d95]
-	subq.b	#1,(0x03,a3)                    	| [$6d92: dec  (iy+$03)]
-l_6d95:
-	GET_ADDRESS	port_state_c001_bit1_bits_e009,a0	| [$6d95: ld   a,(port_state_c001_bit1_bits_e009)]
-	move.b	(a0),d0                         	| [...]
-	and.b	#0x01,d0                         	| [$6d98: and  $01]
-	jeq	l_6d9f                             	| [$6d9a: jr   z,$6d9f]
-	subq.b	#1,(0x02,a3)                    	| [$6d9c: dec  (iy+$02)]
-l_6d9f:
-	GET_ADDRESS	port_state_c001_bit0_bits_e008,a0	| [$6d9f: ld   a,(port_state_c001_bit0_bits_e008)]
-	move.b	(a0),d0                         	| [...]
-	and.b	#0x01,d0                         	| [$6da2: and  $01]
-	jeq	l_6da9                             	| [$6da4: jr   z,$6da9]
-	addq.b	#1,(0x02,a3)                    	| [$6da6: inc  (iy+$02)]
-l_6da9:
-	clr.b	(0x01,a3)                        	| [$6da9: ld   (iy+$01),$00]
-	move.b	#0xba,(a3)                 	| [$6dad: ld   (iy+$00),$ba]
-	GET_ADDRESS	0xfe08,a3                  	| [$6db1: ld   iy,$fe08]
-	GET_ADDRESS	0xe013,a0                  	| [$6db5: ld   a,($e013)]
-	move.b	(a0),d0                         	| [...]
-	and.b	#0x01,d0                         	| [$6db8: and  $01]
-	jeq	l_6dbf                             	| [$6dba: jr   z,$6dbf]
-	addq.b	#1,(0x03,a3)                    	| [$6dbc: inc  (iy+$03)]
-l_6dbf:
-	GET_ADDRESS	0xe012,a0                  	| [$6dbf: ld   a,($e012)]
-	move.b	(a0),d0                         	| [...]
-	and.b	#0x01,d0                         	| [$6dc2: and  $01]
-	jeq	l_6dc9                             	| [$6dc4: jr   z,$6dc9]
-	subq.b	#1,(0x03,a3)                    	| [$6dc6: dec  (iy+$03)]
-l_6dc9:
-	GET_ADDRESS	0xe011,a0                  	| [$6dc9: ld   a,($e011)]
-	move.b	(a0),d0                         	| [...]
-	and.b	#0x01,d0                         	| [$6dcc: and  $01]
-	jeq	l_6dd3                             	| [$6dce: jr   z,$6dd3]
-	subq.b	#1,(0x02,a3)                    	| [$6dd0: dec  (iy+$02)]
-l_6dd3:
-	GET_ADDRESS	0xe010,a0                  	| [$6dd3: ld   a,($e010)]
-	move.b	(a0),d0                         	| [...]
-	and.b	#0x01,d0                         	| [$6dd6: and  $01]
-	jeq	l_6ddd                             	| [$6dd8: jr   z,$6ddd]
-	addq.b	#1,(0x02,a3)                    	| [$6dda: inc  (iy+$02)]
-l_6ddd:
-	clr.b	(0x01,a3)                        	| [$6ddd: ld   (iy+$01),$00]
-	move.b	#0xb8,(a3)                 	| [$6de1: ld   (iy+$00),$b8]
-	move.b	(0x02,a3),d0                    	| [$6de5: ld   a,(iy+$02)]
-	GET_ADDRESS	0xe07d,a0                  	| [$6de8: ld   ($e07d),a]
-	move.b	d0,(a0)                         	| [...]
-	move.b	(0x03,a3),d0                    	| [$6deb: ld   a,(iy+$03)]
-	GET_ADDRESS	0xe07f,a0                  	| [$6dee: ld   ($e07f),a]
-	move.b	d0,(a0)                         	| [...]
-	GET_ADDRESS	walking_soldier_list_e600,a2                  	| [$6df1: ld   ix,$e600]
-	GET_ADDRESS	0xfe04,a3                  	| [$6df5: ld   iy,$fe04]
-	move.b	(0x02,a3),d0                    	| [$6df9: ld   a,(iy+$02)]
-	move.b	d0,(0x03,a2)                    	| [$6dfc: ld   (ix+$03),a]
-	move.b	(0x03,a3),d0                    	| [$6dff: ld   a,(iy+$03)]
-	move.b	d0,(0x05,a2)                    	| [$6e02: ld   (ix+$05),a]
-	LOAD_HL	#0xe07d                        	| [$6e05: ld   hl,$e07d]
-	jbsr	l_6ce5                            	| [$6e08: call $6ce5]
-	LOAD_HL	#0xd05c                        	| [$6e0b: ld   hl,$d05c]
-	jra	l_9c9c                             	| [$6e0e: jp   $9c9c]
-	rts                                    	| [$6e11: ret]
 
 
 mainloop_8000:
@@ -8551,7 +8475,7 @@ handle_events_8007:
 	move.b	d6,d0                           	| [$8016: ld   a,l] [freq=low, count=2%]
 	cmp.b	#0x40,d0                         	| [$8017: cp   $40] [freq=low, count=2%]
 	jcs	l_801d                             	| [$8019: jr   c,$801d] [freq=low, count=2%]
-	move.b	#0x00,d6                        	| [$801b: ld   l,$00] wrap event pointer [freq=low, count=0%]
+	moveq	#0x00,d6                        	| [$801b: ld   l,$00] wrap event pointer [freq=low, count=0%]
 l_801d:
 	GET_ADDRESS	consumed_event_pointer_ed82,a0	| [$801d: ld   (consumed_event_pointer_ed82),hl] [freq=low, count=2%]
 	MAKE_HL_NO_AR                          	| [...]
@@ -14273,9 +14197,9 @@ l_a769:
 	bset.b	#2,d3                           	| [$a76d: set  2,d] [freq=low, count=0%]
 	MAKE_DE_UNCHECKED	a0                             	| [$a76f: ld   (de),a] [video_address] [freq=low, count=0%]
 	move.b	d0,(a0)                         	| [...] [video_address]
-	VIDEO_BYTE_DIRTY | [...]
 	cmp.w	#0xE000,d4
 	jcc	0f
+	* mark as dirty only if video ram
 	VIDEO_BYTE_DIRTY
 0:
 	bclr.b	#2,d3                           	| [$a770: res  2,d] [freq=low, count=0%]
