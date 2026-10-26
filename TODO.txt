@@ -1,4 +1,5 @@
-  
+  feed_scrolling_tiles_a759
+  create a column_dirty method 
 - tag sprites to mirror to speed game up (maybe 50fps?) or 0x15000 bytes are wasted
   - soldiers
   - shooters behind bunkers

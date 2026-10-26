@@ -466,9 +466,8 @@ startup_004a:
 	LOAD_DE	#0xd001                        	| [$0070: ld   de,$d001]
 	MAKE_HL_UNCHECKED	a0                             	| [$0073: ld   (hl),$20] [video_address]
 	move.b	#0x20,(a0)                      	| [...] [video_address]
-	VIDEO_BYTE_DIRTY | [...]
 	LOAD_BC	#0x03ff                        	| [$0075: ld   bc,$03ff]
-	jbsr	ldir_video                              	| [$0078: ldir_video] [video_address]
+	jbsr	ldir_unchecked                         	| [$0078: ldir_video] [video_address]
 
 * clear colour RAM
 	LOAD_HL	#fg_tiles_color_address_d400   	| [$007a: ld   hl,fg_tiles_color_address_d400]
@@ -485,8 +484,7 @@ startup_004a:
 	LOAD_BC	#0x03ff                        	| [$008d: ld   bc,$03ff]
 	MAKE_HL_UNCHECKED	a0                             	| [$0090: ld   (hl),$f8] [video_address]
 	move.b	#0xf8,(a0)                      	| [...] [video_address]
-	VIDEO_BYTE_DIRTY | [...]
-	jbsr	ldir_video                              	| [$0092: ldir_video] [video_address]
+	jbsr	ldir_unchecked                              	| [$0092: ldir_video] [video_address]
 
 * clear background colour RAM
 	LOAD_HL	#bg_tiles_color_address_dc00   	| [$0094: ld   hl,bg_tiles_color_address_dc00]
@@ -14183,34 +14181,32 @@ feed_scrolling_tiles_a759:
 	move.b	(0x0e,a2),d3                    	| [$a761: ld   d,(ix+$0e)] [freq=low, count=0%]
 	move.b	(0x0f,a2),d4                    	| [$a764: ld   e,(ix+$0f)] dest in screen RAM (D8xx) [freq=low, count=0%]
 l_a767:
-	move.b	#0x10,d1                        	| [$a767: ld   b,$10] do it 16 times, cover one whole row [freq=low, count=0%]
-l_a769:
-	MAKE_HL_UNCHECKED	a0                             	| [$a769: ld   a,(hl)] [unchecked_address] [freq=low, count=0%]
-	move.b	(a0),d0                         	| [...] [unchecked_address]
+	move.w	#0x10-1,d1                        	| [$a767: ld   b,$10] do it 16 times, cover one whole row [freq=low, count=0%]
+	MAKE_HL_UNCHECKED	a1                             	| [$a769: ld   a,(hl)] [unchecked_address] [freq=low, count=0%]
 	MAKE_DE_UNCHECKED	a0                             	| [$a76a: ld   (de),a] [unchecked_address] background tiles! [freq=low, count=0%]
-	move.b	d0,(a0)                         	| [...] [unchecked_address] background tiles!
-	MAKE_HL_NO_AR                          	| [$a76b: inc  hl] [freq=low, count=0%]
-	addq.w	#1,d6                           	| [...]
-	MAKE_H
-	MAKE_HL_UNCHECKED	a0                             	| [$a76c: ld   a,(hl)] [unchecked_address] [freq=low, count=0%]
-	move.b	(a0),d0                         	| [...] [unchecked_address]
-	bset.b	#2,d3                           	| [$a76d: set  2,d] [freq=low, count=0%]
-	MAKE_DE_UNCHECKED	a0                             	| [$a76f: ld   (de),a] [video_address] [freq=low, count=0%]
-	move.b	d0,(a0)                         	| [...] [video_address]
-	cmp.w	#0xE000,d4
-	jcc	0f
+l_a769:
+	move.b	(a1)+,(a0)                         	| [...] [unchecked_address]
+	                         	| [...] [unchecked_address] background tiles!
+	                          	| [$a76b: inc  hl] [freq=low, count=0%]
+                             	| [$a76c: ld   a,(hl)] [unchecked_address] [freq=low, count=0%]
+	move.b	(a1)+,(0x400,a0)                         	| [...] [unchecked_address]
+	                           	| [$a76d: set  2,d] [freq=low, count=0%]
+	                     	| [$a76f: ld   (de),a] [video_address] [freq=low, count=0%]
+	                         	| [...] [video_address]
+	* column tile feed for scrolling
+
 	* mark as dirty only if video ram
 	VIDEO_BYTE_DIRTY
-0:
-	bclr.b	#2,d3                           	| [$a770: res  2,d] [freq=low, count=0%]
-	MAKE_HL_NO_AR                          	| [$a772: inc  hl] [freq=low, count=0%]
-	addq.w	#1,d6                           	| [...]
+	                           	| [$a770: res  2,d] [freq=low, count=0%]
+	                          	| [$a772: inc  hl] [freq=low, count=0%]
+	                          	| [$a773: inc  de] to the right [freq=low, count=0%]
+	addq	#1,a0
+	dbf	d1,l_a769                           	| [$a774: djnz $a769] [freq=low, count=0%]
+	* resync registers
+	add.w	#0x20,d6
+	add.w	#0x10,d4
 	MAKE_H
-	MAKE_DE_NO_AR                          	| [$a773: inc  de] to the right [freq=low, count=0%]
-	addq.w	#1,d4                           	| [...] to the right
 	MAKE_D
-	subq.b	#1,d1                           	| [$a774: djnz $a769] [freq=low, count=0%]
-	jne	l_a769                             	| [...]
 	exg	d3,d5                              	| [$a776: ex   de,hl] [freq=low, count=0%]
 	exg	d4,d6                              	| [...]
 	move.b	#0x10,d0                        	| [$a777: ld   a,$10] [freq=low, count=0%]
