@@ -1952,18 +1952,17 @@ osd_video_byte_dirty:
 10:
 	* background
 	and.w	#0x3FF,d7
+	jbsr	queue_bg_tile			| always: records the last index written to the slot
 	tst.b	osd_bg_tiles_immediate
-	jeq		12f
-	* full screen paint: draw now, but not while the
-	* blitter uses the buffers
-0:
-	tst.b	c_busy
-	jne		0b
-	jra		11f
-12:
-	jbsr	queue_bg_tile
+	jne		12f
 	tst.w	d0
 	jeq		99f					| queued: drawn by the VBL interrupt
+	jra		11f					| queue full: draw now
+12:
+	* full screen paint: draw now (the queued copy will redraw the same tile),
+	* but not while the blitter uses the buffers
+	tst.b	c_busy
+	jne		12b
 11:
 	lea		(BG_SCREEN_TILE_ADDRESS,a6),a0
 	move.b	(a0,d7.w),d0
@@ -1989,20 +1988,29 @@ osd_video_byte_dirty:
 
 * < D7: tile index (0-0x3FF)
 * > D0: 0 if queued (or already pending), non-zero if caller must draw it
-* trashes: D0,A0
+* trashes: D0-D1,A0
 queue_bg_tile:
+	* indexes i and i^0x10 share the same screen tile (X is 4 bits, see
+	* cache_bg_tiles_address): queue the screen slot, and draw the index
+	* written last, like immediate drawing would ("last write wins")
+	move.w	d7,d1
+	and.w	#0x3EF,d1
+	lea		bg_tile_last_index,a0
+	add.w	d1,d1
+	move.w	d7,(a0,d1.w)
+	lsr.w	#1,d1
 	lea		bg_tile_pending_flags,a0
-	tst.b	(a0,d7.w)
+	tst.b	(a0,d1.w)
 	jne		1f
 	move.w	bg_tile_queue_head,d0
 	sub.w	bg_tile_queue_tail,d0
 	and.w	#BG_TILE_QUEUE_MASK,d0
 	cmp.w	#BG_TILE_QUEUE_MASK-4,d0
 	jcc		2f					| (almost) full: can't happen, draw now
-	st.b	(a0,d7.w)
+	st.b	(a0,d1.w)
 	move.w	bg_tile_queue_head,d0
 	lea		bg_tile_queue,a0
-	move.w	d7,(a0,d0.w)
+	move.w	d1,(a0,d0.w)			| screen slot
 	addq.w	#2,d0
 	and.w	#BG_TILE_QUEUE_MASK,d0
 	move.w	d0,bg_tile_queue_head	| publish (one word write)
@@ -2097,14 +2105,16 @@ drain_bg_tile_queue:
 99:
 	rts
 
-* < D0: tile index, A2+D2: queue entry, A6: memory base
+* < D0: screen slot, A2+D2: queue entry, A6: memory base
 * decrements D1 & D3
 draw_queued_bg_tile:
 	move.w	#-1,(a2,d2.w)
 	movem.l	d1-d7/a2-a3,-(a7)
-	move.w	d0,d7
 	lea		bg_tile_pending_flags,a0
-	clr.b	(a0,d7.w)
+	clr.b	(a0,d0.w)
+	lea		bg_tile_last_index,a0
+	add.w	d0,d0
+	move.w	(a0,d0.w),d7			| RAM index written last to that slot
 	lea		(BG_SCREEN_TILE_ADDRESS,a6),a0
 	move.b	(a0,d7.w),d0
 	lea		(BG_SCREEN_COLOR_ADDRESS,a6),a0
@@ -4518,6 +4528,8 @@ bg_tile_queue:
 	.skip	BG_TILE_QUEUE_SIZE*2
 bg_tile_pending_flags:
 	.skip	0x400
+bg_tile_last_index:
+	.skip	0x400*2
 
 	.section	.datachip
 
