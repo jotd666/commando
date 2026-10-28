@@ -3,10 +3,11 @@
 *
 * (c) JOTD 2026
 *
-OPT_BLIT_CHAIN_MODE = 1		| enable blitter chaining
-OPT_VBLIT_MIRROR_MODE = 1		| we need to mirror sprites on the fly, just before blitting them if needed
-OPT_VBLIT_SCROLL_MODE = 1		| we need to store scrolling values else BOBs can shake
-OPT_BLIT_WAIT_DEBUG = 0
+* graphics part rewritten (interleaved screens, job-based blitter
+* interrupt chain, mirror cache, deferred background tiles)
+*
+
+
 
 start:
 	move.l	a7,old_stack
@@ -22,7 +23,6 @@ start:
 	.include "lvo/graphics_lvos.i"
 
 	.include "commando.inc"
-	.include "blitter_macros.inc"
 	.include "sounds.inc"
 	.include "data.inc"
 	.include "utility_macros.inc"
@@ -42,7 +42,6 @@ NB_PLAYFIELD_PLANES = 6
 
 
 * proportional to the number of bitplanes
-BLITTER_LIST_SIZE = 12000*NB_PLAYFIELD_PLANES
 COPPER_NOP = 0x1FE
 
 START_X = 0
@@ -188,6 +187,85 @@ NB_HOST_SPRITES = 8
 
 NB_TARGET_SPRITES = 96
 
+
+******************************************************************
+* renderer (2026-10 rewrite)
+*
+* - screens are INTERLEAVED (one line = 6 plane lines of 32 bytes)
+*   so erasing a bob is a single blit (restore buffer => screen)
+* - drawing a bob is 6 cookie-cut blits (sprite planes aren't interleaved
+*   in the assets and there's no chip RAM left to convert them)
+* - blits are issued by the blitter interrupt from compact per-bob jobs,
+*   while the CPU runs the game (no blitter waits anywhere)
+* - mirrored sprites come from a cache of mirrored planes (no in-place
+*   flipping, so soldiers facing both ways cost nothing after 1st use)
+* - background tiles written by the game are queued and drawn by the
+*   VBL interrupt when the blitter is idle, nearest-to-screen first
+******************************************************************
+
+BG_ROW_STRIDE = BG_NB_BYTES_PER_ROW*NB_PLAYFIELD_PLANES	| 192 bytes: one interleaved line
+BUFFER_MARGIN_LINES = 48					| bobs can go below the 768 lines
+BG_BUFFER_LINES = BG_NB_LINES+BUFFER_MARGIN_LINES
+BG_BUFFER_SIZE = BG_ROW_STRIDE*BG_BUFFER_LINES
+WRAP_COPY_OFFSET = BG_ROW_STRIDE*512			| rows 0-15 are drawn twice (display wraps)
+
+* bob header (from convert_graphics.py)
+BOB_HEIGHT = 0
+BOB_WIDTH = 2			| bytes, includes the 16-bit shift column (not stored)
+BOB_YOFF = 4
+BOB_PLANES = 8			| 6 plane pointers (0: empty plane)
+BOB_MASK = BOB_PLANES+NB_PLAYFIELD_PLANES*4
+
+* blitter job: one per bob, expanded into 6 blits by the blitter interrupt
+JOB_DEST = 0			| .l plane 0 destination (bottom line if Y-flipped)
+JOB_MASK = 4			| .l mask (A)
+JOB_PLANES = 8			| 6 .l planes (B), 0 = empty plane (B disabled)
+JOB_CON0 = JOB_PLANES+NB_PLAYFIELD_PLANES*4
+JOB_CON1 = JOB_CON0+2
+JOB_ABMOD = JOB_CON0+4
+JOB_CDMOD = JOB_CON0+6
+JOB_ALWM = JOB_CON0+8
+JOB_SIZE = JOB_CON0+10
+JOB_CODE = JOB_CON0+12	| object code (for static objects)
+JOB_SIZEOF = JOB_CON0+16
+MAX_JOBS = NB_TARGET_SPRITES
+
+* erase entry: one per drawn bob, per buffer, consumed the next time this buffer is drawn
+ER_OFFSET = 0			| .l offset in buffer (same in restore buffer)
+ER_SIZE = 4				| .w bltsize, 0 = skip (static object)
+ER_MOD = 6				| .w A & D modulo
+ER_CODE = 8				| .w object code
+ER_SIZEOF = 10
+
+* per-buffer state
+BUF_BASE = 0			| .l
+BUF_SCROLL = 4			| .l game_scroll_x/game_scroll_y when last drawn
+BUF_ERASE_CUR = 8		| .l erase list to process next time
+BUF_ERASE_NEXT = 12		| .l erase list being filled
+BUF_ERASE_COUNT = 16	| .w
+BUF_SIZEOF = 20
+
+* mirrored planes cache
+MIRROR_POOL_SIZE = 0xA000
+MIRROR_POOL_FLUSH = MIRROR_POOL_SIZE/2	| flushed at frame start above that
+MIRROR_MAX_SLOTS = MIRROR_POOL_SIZE/32
+
+* deferred background tiles
+BG_TILE_QUEUE_SIZE = 0x800			| entries, power of 2, > 0x400
+BG_TILE_QUEUE_MASK = BG_TILE_QUEUE_SIZE*2-1
+BG_TILES_PER_FRAME = 4				| tiles drawn per VBL when none is close to the screen
+BG_TILES_MAX_PER_FRAME = 16			| hard cap per VBL
+BG_TILE_URGENT_MARGIN = 32			| lines around the visible window
+
+	.macro	MUL_TABLE_L value,len
+mulL\value\()_table:
+	.set    mulv,0
+	.rept	\len
+	.long	mulv
+	.set	mulv,mulv+\value
+	.endr
+	.endm
+
 SPRITE_X = 2
 SPRITE_Y = 3
 SPRITE_CODE = 0
@@ -261,6 +339,8 @@ LONG_FIRE_TIMER_VALUE = 30
 	.global	osd_video_byte_dirty
 	.global osd_trigger_sprite_dma
 
+	.global osd_bg_tiles_immediate  | flag not function
+	
 	*.global osd_read_high_scores
 	.global osd_write_high_scores
 	.global	load_highscores
@@ -742,7 +822,6 @@ call_bcpl:
 
 
 
-
 demo_game:
 		move		#0x4000,_custom+intena						| disable interrupts
 		move		#0x7FFF,_custom+intreq						| ack all interrupts
@@ -867,157 +946,11 @@ cpu_init:
 	move.l	a2,a3
 	rts
 	
-	.ifne	OPT_SPRITE_MIRRORING
-mirror_common_sprites:
-	lea		shared_bob_table,a0
-	move.w	#0x3FF,d7
-0:
-	move.l	(a0)+,d0
-	jeq		100f
-	* sprite here, get clut table
-	move.l	d0,a1
-	move.w	#SPRITE_NB_CLUTS-1,d6
-1:
-	move.l	(a1)+,d1
-	jeq		2f
-	* clut exists
-	move.l	d1,a3
-	lea		((NB_PLAYFIELD_PLANES+1)*4+8,a3),a2
-	cmp.w	#-2,(a2)
-	jeq		2f
-	* we must generate mirrored data
-	jbsr	compute_mirror_bitplanes
-2:
-	dbf		d6,1b
-100:
-	dbf		d7,0b
-	* set top address as base for contextual mirror data
-	move.l	mirror_buffer_ptr,mirror_buffer_context_ptr
-	rts
-	
-* < A2: bitplane pointer list to fill
-* < A3: original bitplane pointers (with headers)
-	
-compute_mirror_bitplanes:
-	movem.l	d0-a6,-(a7)
-	* mirror exists: must first copy the bitplane data above
-	* a3 points on dimensions
-	* compute memory needed to clone the bitmap
-	move.l	mirror_buffer_ptr,a0
-	move.w	(a3)+,d4		| height
-	move.w	d4,d6 			| save height in d6
-	move.w	(a3)+,d5		| width in bytes + 2
-	addq	#4,a3			| skip rest to point on source bitplanes
-	subq	#2,d5			| adjust to real data width
-	mulu	d5,d4			| size of bitplane data
-	addq	#2,d5		    | make up
-	move.w	#NB_PLAYFIELD_PLANES-1+1,d3  | mask!!
-	mulu	d4,d3			| size of data to allocate
-
-	* first copy data so we can use in-place mirror routines (a bit wasteful but
-	* not a big issue as this happens at level start)
-	
-	move.w	#NB_PLAYFIELD_PLANES-1+1,d3  | mask!!
-100:
-	move.l	(a3)+,d1
-	jne		101f
-	* null source bitmap
-	clr.l	(a2)+
-	jra		2f		| next bitplane
-101:
-	move.l	d1,a1		| get bitplane data
-	move.l	a0,(a2)+		| store it
-	move.w	d4,d0
-	lsr.w	#1,d0
-	subq	#1,d0
-	* copy data
-1:
-	move.w	(a1)+,(a0)+
-	dbf		d0,1b
-	* check (too late) if the buffer overflowed. It will overflow on restore buffer so no risk of crashing
-	* just detect it and stop
-	.ifndef	RELEASE
-	cmp.l	#mirror_buffer_end,a0
-	jcs		0f
-	BREAKPOINT	"mirror buffer too small"
-	illegal
-0:
-	.endif
-2:
-	dbf		d3,100b
-	move.l	a0,mirror_buffer_ptr	| update for next time
-	* reset pointer, start mirroring
-	lea		((-NB_PLAYFIELD_PLANES-1)*4,a2),a0
-	move.w	#NB_PLAYFIELD_PLANES-1+1,d3  | mask!!
-	lea		mirror_table,a1
-	lea		mirror_function_table,a3
-	.ifndef	MC68020
-	move.w	d5,d0       | number of byte values (4: 16 bits + shifting)
-	add.w	d0,d0
-	move.l	(a3,d0.w),a3
-	.else
-	move.l	(a3,d5.w*2),a3		| compute mirror function once and for all
-	.endif
-0:
-	move.w	d6,d1		| height
-	subq	#1,d1		| minus one for dbf
-	move.l	(a0)+,d0	| bitplane data
-	jeq		1f
-	move.l	d0,a2
-	jsr		(a3)		| perform in-place mirror
-1:
-	dbf		d3,0b
-
-	movem.l	(a7)+,d0-a6
-	rts
-	.else
-compute_mirror_bitplanes:
-	rts
-	.endif
-
-
-
 	.ifndef	RELEASE
 dump_and_quit:	
 	jbsr	osd_dump_logs
 	illegal
 	.endif
-
-* hardware can scroll horizontally but game doesn't use it
-* well it uses it just for end level screen, not the fine adjust
-* but just MSB (page change)
-* in order to save memory and avoid handling horizontal scrolling,
-* I chose to just clear the screen when that happens
-* < D0: 0 or 1
-osd_set_x_page:
-	tst.b	D0 
-	jeq		1f
-	* page 1: we need to clear current tiles
-	movem.l	d0/a0/a1/a2/a5,-(a7)
-
-
-	
-	move.l	playfield_drawn_screen_ptr,a0
-	move.l	playfield_displayed_screen_ptr,a1
-	lea		background_restore_buffer,a2
-	move.w	#(BG_SCREEN_PLANE_SIZE*NB_PLAYFIELD_PLANES)/16-1,d0
-	* avoid conflict with sprite background restore that may be still running
-	
-	* make sure blitter has restored the backgrounds
-	lea	_custom,a5
-	WAIT_BLIT
-0:
-	.rept	4
-	clr.l	(a0)+
-	clr.l	(a1)+
-	clr.l	(a2)+
-	.endr
-	dbf		d0,0b
-	movem.l	(a7)+,d0/a0/a1/a2/a5
-1:
-	rts
-
-	
 force_fg_tiles_redraw:
 	lea		(fg_tiles_address_d000,a6),a0
 	move.w	#0x3FF,d1	
@@ -1098,15 +1031,40 @@ _nmi:
 	move.w	#0x7FFF,_custom+intreq
 	rts
 	
+
+*****************************************************************
+* interrupts
+*****************************************************************
+
+* level 3: blitter (bob chain) and vertical blank (inputs, timers)
+* the blitter part is kept short: it runs ~600 times per second
 level3_interrupt:
+	movem.l	d0-d1/a0-a1/a5,-(a7)
+	lea		_custom,a5
+	move.w	(intreqr,a5),d0
+	btst	#6,d0
+	jeq		10f
+	* blit finished: issue the next one
+	move.w	#0x40,(intreq,a5)
+	move.w	#0x40,(intreq,a5)		| twice (040/pistorm bug)
+	tst.b	c_busy
+	jeq		9f						| stray request: ignore
+	jbsr	next_blit
+	tst.w	d0
+	jne		9f
+	sf.b	c_busy					| nothing left for now (starved or finished)
+9:
+	movem.l	(a7)+,d0-d1/a0-a1/a5
+	rte
+10:
+	btst	#5,d0
+	movem.l	(a7)+,d0-d1/a0-a1/a5	| movem to registers leaves the flags alone
+	jne		level3_vbl
+	rte
+
+level3_vbl:
 	movem.l d0-d7/a0-a6,-(a7)
 	lea		_custom,a5
-	.ifne	OPT_BLIT_CHAIN_MODE
-	move.w	(intreqr,a5),d0
-	btst	#5,d0
-	jeq		1f
-	.endif
-	
 	tst.b	detect_controllers
 	jeq	0f
 	clr.b	detect_controllers
@@ -1159,72 +1117,44 @@ level3_interrupt:
 	* ack vbl twice (040/pistorm bug)
 	move.w	#0x20,(intreq,a5)
 	move.w	#0x20,(intreq,a5)	
-	jra	3f
-1:
-	.ifndef	RELEASE
-	btst	#6,d0
-	jne		2f
-	BREAKPOINT	"unexpected level 3 interrupt"
-2:
-	.endif
-	* has to be blitter operation completed: handle next blit
-	* ack blitter int twice (040/pistorm bug)
-	move.w	#0x40,(intreq,a5)
-	move.w	#0x40,(intreq,a5)	
-
-	
-	PROCESS_ONE_BLIT
-
-3:
     movem.l (a7)+,d0-d7/a0-a6
     rte
 
-
+* level 1: software interrupt triggered by the copper
+* - bottom of the screen: VBL (game irq + rendering)
+* - middle of the screen, 1 out of 5: extra game irq (60Hz game on 50Hz display)
 level1_interrupt:
  	.ifndef	RELEASE
 	move.l	(2,a7),interrupted_code_pc
 	.endif
-	* disable osd context switch
-	* we MUST NOT change d5 or change stack from an osd call from an interrupt
 	addq.b	#1,osd_entry_count
     movem.l d0-d7/a0-a6,-(a7)
 	lea		_custom,a5
-	move.w	(intreqr,a5),d0		| leave this, we need it for later on
-	* we're going to ack copper & software level 1 interrupt now
-	* do it twice (040/pistorm bug)
+	move.w	(intreqr,a5),d0		| needed below
 	.rept	2
-	move.w	#0x14,(intreq,a5)
+	move.w	#0x14,(intreq,a5)	| ack copper & soft (twice: 040/pistorm bug)
 	.endr
 
 	tst.b	pause_flag
-	jne	23f
+	jne		99f
 
-
-	* declare that we're in interrupt mode so osd_disable_interrupts/osd_enable_interrupts
-	* is level 1 interrupt set? that would mean that mid-screen interrupt
-	* is the source of the interrupt
 	btst	#4,d0
-	beq.b	2f
-	* mid-screen copper interrupt, must occur once every 5 times
-	* to simulate ~60 Hz on 50 Hz display
+	jeq		2f
+	* mid-screen
 	move.b	mid_screen_interrupt_count,d0
 	addq.b	#1,d0
 	cmp.b	#5,d0
-	bne.b	1f
+	jne		1f
 	jbsr	call_nmi
 	clr.b	d0
 1:
 	move.b	d0,mid_screen_interrupt_count
-	jra		3f	| no need to update sprites we're in the middle of a frame
+	jra		99f
 2:
-
-
+	* vertical blank (bottom of screen)
 	jbsr	call_nmi
 
 	GET_MEMORY_START_IN_A6
-	
-	
-	moveq	#0,d0
 	move.w	(background_scroll_x_lsb_c80a,a6),d0
 	ror.w	#8,d0		| hardware is in little endian
 	move.w	D0,game_scroll_x
@@ -1235,139 +1165,18 @@ level1_interrupt:
 	neg.w	d0
 	add.w	#0x1FF,d0
 	move.w	D0,game_scroll_y
-	
-	* ok now D5 can be used freely
 
-	tst.b	frameskip
-	jeq		0f
-	eor.b	#1,flip_flop
-	jeq		23f
-0:
-	* wait for blits to complete (via soft flag that last blitter command
-	* sets when reaching the end of the list) and reset list pointers
-	NEW_BLITLIST
-	
-	* In sync blitter, the ball is drawn, then buffers are switched
-	* and current scroll makes up for ball moving in the opposite direction perfectly.
-	*
-	* In async blitter (OPT_BLIT_CHAIN_MODE==1), we use the scroll value stored in the blitter command list
-	
-	* show the newly drawn buffer THEN switch the buffers
-	* problem: frames and scroll values aren't in sync, this is visible when
-	* the ball crosses the screen, this is because we're now displaying what's been drawn
-	* at the previous frame. 
+	addq.w	#1,r_vbl_count
+	addq.w	#1,r_vbls_since_build
+	jbsr	render_vbl
 
-	
-	.if		OPT_BLIT_CHAIN_MODE==1
-	jbsr	set_bobs_bitplanes
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	jbsr		switch_screen_buffers
-	.endif
-
-	lea		_custom,a5
-	* start the chain reaction
-	tst.b	size_command_issued
-	jne		0f
-	* size command not issued: set blitter scrolling immediately
-	* no risks of bob shifting, there are no bobs on screen
-	*move.l	scroll_x_hi,blitter_scroll_x
-	move.w	game_scroll_y,blitter_scroll_y
-	jra		1f
-0:
-	.endif
-	FORCE_PROCESS_BLITS
-1:
-	* fill the blitter command list while blitter interrupt 
-	* is processing the other blitter command list
-	* first fix the scrolling, so when it is set at the next frame, it is still coherent
-	* with the shifting that we put on BOBs to follow it (original game doesn't need that
-	* it has a separate layer for sprites, we just have crap dual playfield we cannot use here)
-
-	WRITE_BLITTER_SCROLL_VALUES		game_scroll_y
-	jbsr		really_update_sprites
-	* terminate the blitter command list
-	COMMIT_BLITLIST
-
-	.if		OPT_BLIT_CHAIN_MODE==0
-	
-	jbsr	really_update_sprites
-
-
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	jbsr		switch_screen_buffers
-	.endif
-	.endif
-	
-	.ifndef	RELEASE
-	tst.b	osd_debug_active
-	jeq		0f
-	.set	row,2
-	GET_MEMORY_START_IN_A6
-	move.b	#2,current_color
-	WRITE_TEXT	scrollx_text,0
-	WRITE_TEXT	scrolly_text,0
-	WRITE_TEXT	hscrollx_text,0
-	WRITE_TEXT	last_x_offset_text,0
-	move.b	#4,current_color
-	WRITE_TEXT	debug_1_text,0
-	WRITE_TEXT	debug_2_text,0
-	WRITE_TEXT	debug_3_text,0
-
-	.set		row,2
-	move.b	#3,current_color
-	WRITE_HEX	game_scroll_x
-	WRITE_HEX	game_scroll_y
-	lea		display_slots,a2
-	tst.b	(a2)
-	jeq		10f
-	move.w	(2,a2),d0
-	move.w	(a6,d0.w),d0
-	WRITE_HEX	d0
-	.set	row,row-1	
-10:
-	.set	row,row+1	
-	addq	#4,a2
-	tst.b	(a2)
-	jeq		10f
-	move.w	(2,a2),d0
-	move.w	(a6,d0.w),d0
-	WRITE_HEX	d0
-	.set	row,row-1		
-10:
-	.set	row,row+1	
-	addq	#4,a2
-	tst.b	(a2)
-	jeq		10f
-	move.w	(2,a2),d0
-	move.w	(a6,d0.w),d0
-	WRITE_HEX	d0
-	.set	row,row-1		
-10:
-	
-	
-0:
-	.endif
-	
-	
-	lea	_custom,a5
-	move.w	(intreqr,a5),d0
-	btst	#2,d0
-	jeq		23f
-	* interrupt arrived during this interrupt: this is taking too long
-	* so skip the refresh
-	move.b	#1,flip_flop
-23:
-	.ifeq	OPT_BLIT_CHAIN_MODE
-	jbsr	set_bobs_bitplanes	
-	.endif
 	.ifne	OPT_ENABLE_LOGGING
 	jbsr	log_used_fg_tiles
 	jbsr	log_used_bg_tiles
 	jbsr	log_used_sprites
 	.endif
-3:
+99:
     movem.l (a7)+,d0-d7/a0-a6
-	* enable osd context switch
     subq.b	#1,osd_entry_count
  	.ifndef	RELEASE
 	move.l	d0,-(a7)
@@ -1379,9 +1188,169 @@ level1_interrupt:
 	move.l	(a7)+,d0
 	.endif
     rte
-	
-	
-	
+
+* game events run with these off (see mainloop_8000). The blitter
+* interrupt stays enabled: bobs keep being drawn while the game thinks
+osd_enable_interrupts:
+	move.w	#0xC06C,_custom+intena		| soft, ports, vblank, blitter
+	rts
+osd_disable_interrupts:
+	move.w	#0x0024,_custom+intena		| soft & vblank only
+	rts
+
+*****************************************************************
+* frame scheduling
+*
+* state machine, run at each VBL:
+* - a frame is "complete" when its job list is closed (c_list_done)
+*   and the blitter chain has processed everything (c_busy clear)
+* - a complete frame is shown at the first VBL after completion
+* - a new frame is started when the previous one is complete, enough
+*   VBLs have elapsed (1: 50Hz, 2: 25Hz) and the buffer we're about to
+*   draw into is no longer on screen. If the chain is late, the frame
+*   is simply started at the next VBL: nothing ever waits for the blitter
+*****************************************************************
+
+* < A5: custom
+render_vbl:
+	tst.b	c_list_done
+	jeq		99f
+	tst.b	c_busy
+	jne		99f
+	* last frame complete
+	tst.b	r_shown
+	jne		1f
+	jbsr	show_built_buffer
+	move.w	r_vbl_count,r_shown_vbl
+	st.b	r_shown
+1:
+	* blitter idle: CPU can safely draw queued background tiles
+	jbsr	drain_bg_tile_queue
+	lea		_custom,a5
+	move.w	r_vbls_since_build,d0
+	cmp.w	r_min_interval,d0
+	jcs		99f
+	* the buffer we're going to draw into is the one displayed until now
+	move.w	r_shown_vbl,d0
+	cmp.w	r_vbl_count,d0
+	jne		2f				| swapped at an earlier VBL: copper uses the new one
+	* swapped just now: OK only if the copper hasn't fetched this frame's
+	* bitplane pointers yet (we're in the vertical blank)
+	move.l	(vposr,a5),d0
+	lsr.l	#8,d0
+	and.w	#0x1FF,d0
+	cmp.w	r_late_start,d0
+	jcs		2f
+	cmp.w	r_late_end,d0
+	jcs		99f				| too late: start at next VBL
+2:
+	jbsr	start_new_frame
+99:
+	rts
+
+* points the copper to the last completed buffer, with the scrolling
+* value that was used to draw its bobs
+show_built_buffer:
+	lea		r_buffers,a0
+	tst.w	r_built
+	jeq		0f
+	lea		(BUF_SIZEOF,a0),a0
+0:
+	move.l	(BUF_BASE,a0),d0
+	moveq	#0,d1
+	move.w	(BUF_SCROLL+2,a0),d1		| scroll Y
+	add.w	d1,d1
+	add.w	d1,d1
+	lea		mulLBG_ROW_STRIDE_table,a1
+	add.l	(a1,d1.l),d0
+	lea		bobs_bitplanes+2,a1
+	moveq	#NB_PLAYFIELD_PLANES-1,d1
+1:
+	swap	d0
+	move.w	d0,(a1)
+	swap	d0
+	move.w	d0,(4,a1)
+	addq.w	#8,a1
+	add.l	#BG_NB_BYTES_PER_ROW,d0		| interleaved: next plane is the next 32 bytes
+	dbf		d1,1b
+	rts
+
+* < A5: custom. Blitter is idle
+start_new_frame:
+	clr.w	r_vbls_since_build
+	sf.b	c_list_done
+	sf.b	r_shown
+	* draw into the other buffer
+	eor.w	#1,r_built
+	lea		r_buffers,a4
+	jeq		0f
+	lea		(BUF_SIZEOF,a4),a4
+0:
+	* mirror cache: flush when half full. Safe now: nothing references it
+	move.l	r_mpool_ptr,d0
+	sub.l	#mirror_pool,d0
+	cmp.l	#MIRROR_POOL_FLUSH,d0
+	jcs		1f
+	move.l	#mirror_pool,r_mpool_ptr
+	clr.w	r_mslot_count
+1:
+	* chain state
+	move.l	(BUF_BASE,a4),c_dest_base
+	jbsr	mark_static_erases
+	move.l	(BUF_ERASE_CUR,a4),a0
+	move.l	a0,c_erase_ptr
+	move.w	(BUF_ERASE_COUNT,a4),d0
+	mulu	#ER_SIZEOF,d0
+	add.l	d0,a0
+	move.l	a0,c_erase_end
+	lea		r_jobs,a0
+	move.l	a0,c_job_ptr
+	move.l	a0,c_job_end
+	clr.w	c_plane
+	* blitter setup for the erase phase (jobs set their own registers)
+	move.l	#0x09F00000,(bltcon0,a5)	| A->D copy
+	move.l	#-1,(bltafwm,a5)
+	* start erasing the bobs drawn in this buffer last time...
+	jbsr	kick_chain
+	* ...while we build the new jobs (each new job restarts the blitter if it ran out of work)
+	move.l	(BUF_ERASE_NEXT,a4),r_erase_wptr
+	clr.w	r_erase_count
+	jbsr	build_bob_jobs
+	* what we've drawn is what we'll erase next time
+	move.l	(BUF_ERASE_CUR,a4),d0
+	move.l	(BUF_ERASE_NEXT,a4),(BUF_ERASE_CUR,a4)
+	move.l	d0,(BUF_ERASE_NEXT,a4)
+	move.w	r_erase_count,(BUF_ERASE_COUNT,a4)
+	move.l	game_scroll_x,(BUF_SCROLL,a4)	| x & y
+	st.b	c_list_done
+	rts
+
+* static objects (palm trees...) drawn at the same place on a screen
+* that didn't scroll don't need to be erased (they're redrawn anyway)
+* < A4: buffer
+mark_static_erases:
+	move.l	(BUF_SCROLL,a4),d0
+	cmp.l	game_scroll_x,d0
+	jne		99f
+	GET_MEMORY_START_IN_A6
+	move.b	(global_y_msb_copy_e05b,a6),d0
+	or.b	(global_y_lsb_copy_e05c,a6),d0
+	jeq		99f				| master Y is 0 (heli arriving): no optimization
+	lea		object_type_table,a1
+	move.l	(BUF_ERASE_CUR,a4),a0
+	move.w	(BUF_ERASE_COUNT,a4),d1
+	jra		2f
+1:
+	move.w	(ER_CODE,a0),d0
+	tst.b	(a1,d0.w)
+	jeq		3f
+	clr.w	(ER_SIZE,a0)
+3:
+	lea		(ER_SIZEOF,a0),a0
+2:
+	dbf		d1,1b
+99:
+	rts
 osd_blitz:
 	blitz
 	rts
@@ -1520,1027 +1489,6 @@ is_game_playing:
 1:
 	movem.l	(a7)+,d0/a6
 	rts
-
-	
-* what: blits data on bg plane, no horizontal shifting (erase)
-* args:
-* < A0: pristine background
-* < A1: dest buffer
-* < D0: X (rounded to smaller 8-multiple)
-* < D1: Y
-* < D2: width in bytes
-* < D4: height
-
-* trashes: D0-D1
-
-blit_background:
-	movem.l	d2-d6/a0-a5,-(a7)
-	lea		_custom,a5
-	* adjust offset X: X//8
-	lsr.w	#3,d0
-	lea		mulBG_NB_BYTES_PER_ROW_table(pc),a4
-	.ifndef	MC68020
-	add.w	d1,d1
-	* add Y offset: Y*NB_BYTES_PER_ROW
-	add.w	(a4,d1.w),d0
-	.else
-	add.w	(a4,d1.w*2),d0
-	.endif
-	* same offset for source and destination
-	add.w	d0,a1
-	add.w	d0,a0
-
-    move.l  #0x09f00000,d3    | A->D copy, ascending mode	
-	move.w	#BG_NB_BYTES_PER_ROW,d1		| blit modulo
-	move.l	#BG_SCREEN_PLANE_SIZE,d0	| pre-load
-
-    sub.w   d2,d1       | blit modulo
- 	move.w	d4,d6		| save height
-	subq	#1,d6       | for cpu restore mode
-    lsl.w   #6,d4
-	lea		copy_function_table,a4
-	add.w	(a4,d2.w),a4	| pick proper erase func (4,6,8 width are the only cases here)
-    lsr.w   #1,d2		| blit width
-    add.w   d2,d4       | blit height
-	
-    * always the same settings
-
-    * now just wait for blitter ready to write all registers
-	WAIT_BLIT
-    
-    * blitter registers set
-
-	WRITE_BLITTER_REG_LONG	d3,bltcon0	| sets con0 and con1
-
-	WRITE_BLITTER_REG_WORD	d1,bltamod	|A modulo
-	WRITE_BLITTER_REG_WORD	d1,bltdmod	|D modulo
-							
-	WRITE_BLITTER_REG_LONG	a0,bltapt	|source graphic top left corner
-	WRITE_BLITTER_REG_LONG	a1,bltdpt	|destination top (bottom) left corner
-	WRITE_BLITTER_REG_SIZE	d4	|rectangle size, starts blit
-	
-	* all bitplanes [but not the last one that we'll clear, not here, commented out!]
-	
-	.rept	NB_PLAYFIELD_PLANES-1
-	.if	BG_SCREEN_PLANE_SIZE>0x7FFF
-	add.l	d0,a0
-	add.l	d0,a1
-	.else
-	add.w	d0,a0
-	add.w	d0,a1
-	.endif
-	.ifeq	OPT_BLIT_CHAIN_MODE
-	btst	#6,(dmaconr,a5)
-	jeq		0f
-	* if blitter is running, we'll use cpu copy instead. We cannot do it if we
-	* attempt to use blitter interrupts of course
-	jbsr 	(a4)
-	jra		1f
-0:
-	.endif
-	* other bitplanes
-	WRITE_BLITTER_REG_LONG	a0,bltapt	|source graphic top left corner
-	WRITE_BLITTER_REG_LONG	a1,bltdpt	|destination top (bottom) left corner
-	WRITE_BLITTER_REG_SIZE	d4	|rectangle size, starts blit
-1:
-	.endr
-	
-*	* last bitplane: just clear: just add to dest
-*	.if	BG_SCREEN_PLANE_SIZE>0x7FFF
-*	add.l	d0,a1
-*	.else
-*	add.w	d0,a1
-*	.endif
-*	
-*	* reuse d1 for bltcon0
-*	moveq	#1,d1
-*	ror.l	#8,d1     | AKA move.l  #0x01000000,d1   | minterm useD & rect clear (0xA) 
-*
-*   * now just wait for blitter ready to write all registers
-*	WAIT_BLIT
-*    * last bitplane: clear
-*	WRITE_BLITTER_REG_LONG	d1,bltcon0	
-*	WRITE_BLITTER_REG_LONG	a1,bltdpt	|destination top left corner
-*	WRITE_BLITTER_REG_SIZE	d4	|rectangle size, starts blit
-	movem.l	(a7)+,d2-d6/a0-a5
-	rts
-
-
-copy_function_table:
-	.word	copy_none-copy_function_table
-	.word	copy_16-copy_function_table		| not reached here
-	.word	copy_32-copy_function_table
-	.word	copy_48-copy_function_table
-	.word	copy_64-copy_function_table
-	.word	copy_80-copy_function_table
-	* probably never reached, just in case!
-	.word	copy_none-copy_function_table
-	.word	copy_none-copy_function_table
-
-	.macro	CPU_COPY_PRE
-	move.w	d6,d5
-	move.l	a1,a3
-	move.l	a0,a2
-0:
-	.endm
-	.macro	CPU_COPY_POST
-	add.w	d1,a2   | next row using modulus
-	add.w	d1,a3
-	dbf		d6,0b
-	move.w	d5,d6
-	rts	
-	.endm
-	
-
-* should not be called
-copy_none:
-	.ifndef	RELEASE
-	ILLEGAL
-	.endif
-	rts
-	
-copy_16:
-	CPU_COPY_PRE
-	move.w	(a2)+,(a3)+	
-	CPU_COPY_POST
-	
-copy_32:
-	CPU_COPY_PRE
-	move.l	(a2)+,(a3)+	
-	CPU_COPY_POST
-
-copy_48:
-	CPU_COPY_PRE
-	move.l	(a2)+,(a3)+	
-	move.w	(a2)+,(a3)+	
-	CPU_COPY_POST
-
-copy_64:
-	CPU_COPY_PRE
-	move.l	(a2)+,(a3)+	
-	move.l	(a2)+,(a3)+	
-	CPU_COPY_POST
-
-copy_80:
-	CPU_COPY_PRE
-	move.l	(a2)+,(a3)+	
-	move.l	(a2)+,(a3)+	
-	move.w	(a2)+,(a3)+	
-	CPU_COPY_POST
-
-
-
-*	for (int offs = m_spriteram->bytes() - 4; offs >= 0; offs -= 4)
-*	{
-*		// bit 1 of attr is not used
-*		int const attr = buffered_spriteram[offs + 1];
-*		int const bank = (attr & 0xc0) >> 6;
-*		int const code = buffered_spriteram[offs] + 256 * bank;
-*		int const color = (attr & 0x30) >> 4;
-*		int flipx = attr & 0x04;
-*		int flipy = attr & 0x08;
-*		int sx = buffered_spriteram[offs + 3] - ((attr & 0x01) << 8);
-*		int sy = buffered_spriteram[offs + 2];
-*
-*		if (flip_screen())
-*		{
-*			sx = 240 - sx;
-*			sy = 240 - sy;
-*			flipx = !flipx;
-*			flipy = !flipy;
-*		}
-*
-*		if (bank < 3)
-*			m_gfxdecode->gfx(2)->transpen(bitmap, cliprect, code, color, flipx, flipy, sx + 128, sy + 6, 15);
-*	}
-
-really_update_sprites:
-	
-	***********************
-	* erase previous BOBs *
-	***********************
-	
-	GET_MEMORY_START_IN_A6
-	.ifdef	MC68020
-	move.w	global_y_msb_copy_e05b(a6),d0
-	.else
-	move.b	global_y_msb_copy_e05b(a6),d0
-	lsl.w	#8,d0
-	move.b	global_y_lsb_copy_e05c(a6),d0
-	.endif
-	
-	
-	move.l	bob_previous_drawn_sprites(pc),a4
-	move.l	(a4)+,d6		| value of scroll X/Y at the time of the draw
-	cmp.l	game_scroll_x,d6
-	seq		d6				| flag set: scrolling hasn't been updated since last draw
-
-	tst.w	d0
-	jne		0f
-	moveq	#0,d6			| if master Y is 0 (heli arriving) don't optimize palm trees
-0:
-	lea		_custom,a5
-
-
-	* clear previous positions
-	lea	background_restore_buffer,a0
-	move.l	playfield_drawn_screen_ptr(pc),a1
-	lea		object_type_table,a2
-	move.w	#NB_TARGET_SPRITES-1,d7
-
-	WAIT_BLIT
-	WRITE_BLITTER_REG_WORD	#-1,bltalwm		| needed for blit_background
-1:
-	move.w	(a4),d0
-	bmi.b	11f		| x=0: inactive
-	move.w	(2,a4),d1
-	cmp.w	#BG_NB_LINES,d1
-	jcc		11f				| too low: discard
-	and.w	#0xFFF0,d0		| align on 16 lower bound
-	* clear area where the sprite was
-	move.l	#-1,(a4)+			| ack deletion by setting -1 in X & Y
-	move.w	(a4)+,d4			| height
-	move.w	(a4)+,d2		| width
-	move.w	(a4)+,d3		| object code
-	tst.b	d6
-	jeq		10f				| scrolling active, don't try anything stupid
-	* same scroll values now and when the object was drawn. If the object is static
-	* we can safely skip the background restore, which is super nice to do specially
-	* for palm trees
-	tst.b	(a2,d3.w)
-	jne		101f			| static object in a static screen: don't erase
-10:
-	jbsr		blit_background
-101:
-	dbf		d7,1b	
-	bra.b	12f
-11:
-	add.w	#PREVIOUS_SPRITE_SIZE,a4
-	dbf		d7,1b
-12:	
-
-
-	*********************
-	* draw current BOBs *
-	*********************
-	
-	GET_MEMORY_START_IN_A6
-	lea		buffered_spriteram+SPRITE_BUFFER_SIZE-CURRENT_SPRITE_SIZE,a0
-
-    lea _custom,A5
-	move.l	bob_previous_drawn_sprites(pc),a6
-	move.l	game_scroll_x,(a6)+	| note down scrolling values at the current time
-	
-	lea		shared_bob_table,a4
-	
-	moveq	#NB_TARGET_SPRITES-1,d7
-1:
-	jbsr	update_one_bob
-	subq.w	#CURRENT_SPRITE_SIZE,a0
-	dbf		d7,1b
-
-	rts
-	
-
-	* update version that avoids some mirroring, but changes priorities
-	* e.g. for palm trees, would need a table so it can be applied only to soldiers
-	* and trucks, not heli, palm trees
-	.ifdef  DISABLED_AVOID_MIRROR
-	clr.b	d6
-2:
-	moveq	#NB_TARGET_SPRITES-1,d7
-	lea		buffered_spriteram+SPRITE_BUFFER_SIZE-CURRENT_SPRITE_SIZE,a0
-1:
-	move.b	(TARGET_SPRITE_ATTRIBUTES,a0),d3
-	btst	#MIRROR_BIT,d3
-	sne		d1
-	cmp.b	d1,d6
-	jeq		0f
-	move.w	d6,-(a7)
-	jbsr	update_one_bob
-	move.w	(a7)+,d6
-0:
-	subq.w	#CURRENT_SPRITE_SIZE,a0
-	dbf		d7,1b
-	not.b	d6
-	jne		2b
-	rts
-        .endif
-	
-mockup:
-
-
-compute_sprite_xy_code:
-	moveq	#0,d0
-	moveq	#0,d1
-
-	move.b	(TARGET_SPRITE_X,a0),d1	| aka Y
-	move.b	(TARGET_SPRITE_Y,a0),d0	| aka X
-
-	
-	* tile_code = buffered_spriteram[offs] + ((attributes << 2) & 0x300)
-	moveq	#0,d2
-	move.b	(TARGET_SPRITE_ATTRIBUTES,a0),d2
-	btst	#0,d2
-	jeq		0f
-	sub.w	#0x100,d1
-0:
-	and.b	#0xC0,d2
-	lsl.w	#2,d2
-	move.b	(TARGET_SPRITE_CODE,a0),d2
-	
-	neg.w	d1
-	add.w	#0x100,d1
-
-	rts
-	
-update_one_bob:
-	move.l	A0,-(a7)
-	* Y/X = 0x0 (raw): nothing displayed, X=0 is enough
-	tst.b	(TARGET_SPRITE_Y,a0)  | X follows Y
-	jeq		2f
-0:
-	move.l	a0,a2		| save for later
-	jbsr	compute_sprite_xy_code
-	
-	cmp.w	#0x300,d2
-	jcc		2f			| bank 3: illegal: skip
-	cmp.w	#256-SPRITE_Y_CORRECTION,d1
-	jcc		2f			| too low: skip
-	
-
-	* handle custom amiga horizontal grouping (saves a lot of blitter masking)
-	* the table holds several info bits
-	* - if 0, this is a normal sprite, no horizontal grouping
-	* - if >0, this is a grouped sprite, it also has bit 0 set (to differentiate
-	* as sprite 0 is grouped) and is encoded on 1..15 bits (*2)
-	*   it repeats the sprite number in the table, only display if not mirrored
-	* - if >0 but bit 14 set, never draw
-	* - if <0, this is the other half part of the sprite, only display if mirrored
-	* it also has bit 0 set
-	* that's why we negate the value if mirror (saves a lot of combinations) and test if positive in all cases
-	*
-	* so for instance, boss sprite 0x2C0 is grouped with 0x2C1, 0x2C2, 0x2C3 (boss has 4 tiles)
-	* at offset 0x2C0*2 the table contains the following 16-bit words
-	* .word   0x0581,0x4000,0x4000,0xfa81
-	* 0x581 divided by 2 = 0x2C0 and 0xfa81 without bit 0 divided by 2 = 0x2C0 as well
-	*
-	* only sprite 0x2C0 is registered in the base, and is displayed mirrored when game
-	* tries to display sprite 0x2C3 mirrored
-	* 
-	*
-	move.b	(TARGET_SPRITE_ATTRIBUTES,a0),d3
-	.ifndef	RELEASE
-	move.w	d2,0x130
-	move.w	d3,0x134
-	.endif
-	
-	.if		OPT_MIRROR_TEST==1
-	bset	#MIRROR_BIT,d3
-	move.b	d3,(TARGET_SPRITE_ATTRIBUTES,a0)
-	.endif
-	
-	lea		sprite_group_table(pc),a3
-	move.w	d2,d6				| save code
-	add.w	d2,d2				| code times 2
-	move.w	(a3,d2.w),d4
-	jeq		10f			| nothing to do, normal tile
-	* double/triple/quadruple, whatever
-	btst	#14,d4
-	jne		2f		| bit 14 set: center tile, never draw
-	bclr	#0,d4	| remove bit 0 now
-	asr.w	#1,d4	| divide by 2, signed
-	btst	#MIRROR_BIT,d3
-	jeq		101f
-	* mirror: "negate" the code by flipping bit 10
-	bchg	#10,d4
-101:
-	btst	#10,d4
-	jne		2f		| no need to draw this part, the other part will do it
-	move.w	d4,d2	| get the real sprite code to draw
-	add.w	d2,d2	| code times 2
-10:
-	add.w	d2,d2				| code times 4 now
-
-	move.l	(a4,d2.w),d4		| get pointer from shared bob table
-	jne		200f
-
-	* in dev mode, break if we try to display a non-existing bob
-
-	moveq	#0,d2
-	move.b	(TARGET_SPRITE_ATTRIBUTES,a0),d2
-	and.b	#0XC0,d2
-	lsl.w	#2,d2
-	move.b	(TARGET_SPRITE_CODE,a0),d2
-	move.b	(TARGET_SPRITE_ATTRIBUTES,a0),d3
-	COLOR0_FLASH	0xF00
-	*BREAKPOINT	"unregistered sprite clut (D2=code, D3=attribute)"
-	jra		2f
-
-200:
-	* now select proper clut
-	move.l	d4,a0
-	moveq	#0,d2
-	move.b	d3,d2
-	lsr.b	#4,d2
-	and.b	#0x3,d2
-	.ifdef MC68020
-	move.l	(a0,d2.w*4),d4
-	.else
-	add.w	d2,d2
-	add.w	d2,d2
-	move.l	(a0,d2.w),d4
-	.endif
-	jeq		2f		| invalid clut: can happen in transition phases
-	move.l	d4,a0
-
-	move.w	(a0)+,d4		| height
-	move.w	(a0)+,d5		| width
-	add.w	(a0)+,d1		| add offset to Y
-	* A0 points on the first bitplane of the bob
-	addq 	#2,a0
-
-* now we have to check if mirror must be performed, either by doing this in-place
-* or by selecting already mirrored data
-	lea		((NB_PLAYFIELD_PLANES+1)*4,a0),a1		| load mirrored data pointers
-	tst.w	(a1)
-	jmi		101f		| invalid pointers: we must do in-place
-	btst	#MIRROR_BIT,d3
-	jeq		102f
-	* to mirror, just change pointer list
-	move.l	a1,a0
-	* and skip mirroring bit
-	jra		103f
-101:
-	btst	#MIRROR_BIT,d3
-102:
-	sne		d3		| convert attribute to boolean 0/ff for mirror_sprite_planes
-	jbsr	mirror_sprite_planes
-103:	
-	* BOBs must follow screen scroll
-	add.w	game_scroll_y,d1
-	
-	* D0 and D1 are already set
-	move.l	(NB_PLAYFIELD_PLANES*4,a0),d2
-	beq.b	2f		| mask is zero: blank tile => skip
-	
-	move.l		playfield_drawn_screen_ptr(pc),a1
-	
-	move.l	d2,a3
-
-	.ifne	SPRITE_X_CORRECTION
-	add.w	#SPRITE_X_CORRECTION,d0
-	.endif
-	* now 2 cases: if Y is negative, we have to clip, else normal
-	.ifne	SPRITE_Y_CORRECTION
-	add.w	#SPRITE_Y_CORRECTION,d1
-	.else
-	tst		d1
-	.endif
-	jpl		8f
-	* negative
-	* convert that to clip
-	add.w	d1,d4		| reduce height
-	jeq		2f
-	jmi		2f			| too high => skip
-	neg		d1			| make it positive again
-	* now multiply d1 by number of bytes per bob source row
-	* we only have 2 cases here: 4 and 6 (technically big boss 
-	* could qualify but it doesn't happen)
-	add.w	d1,d1		| times 2
-	cmp.w	#6,d5
-	jne		7f
-	add.w	d1,d1		| times 4 (double width)
-7:
-	move.w	d5,d2			| width in bytes, 4 for 16 pixels+shift
-	move.w	d1,d5		| set Y offset
-	moveq	#0,d1		| and coord = 0
-
-	
-	* store attributes for clipped sprite erase (unless blocked)
-	move.w	d0,(a6)+			| store current sprite attributes to previous ones
-	clr.w	(a6)+			    | store current sprite attributes to previous ones
-	move.w	d4,(a6)+			| store height
-	move.w	d2,(a6)+			| store width in bytes
-	move.w	d6,(a6)+			| object code
-	jra		9f
-
-8:
-
-	*cmp.w	#BG_NB_LINES,d1
-	*jcc		2f		| avoid out of screen
-
-	* note down that this bob will have to be erased
-	* store attributes for non-clipped sprite erase
-
-
-
-	* store attributes for clipped sprite erase (unless blocked)
-	move.w	d0,(a6)+			| store current sprite attributes to previous ones
-	move.w	d1,(a6)+			| store current sprite attributes to previous ones
-	move.w	d4,(a6)+			| store height
-	move.w	d5,(a6)+			| store width in bytes
-	move.w	d6,(a6)+			| object code
-
-	move.w	d5,d2			| width in bytes, 4 for 16 pixels+shift
-	moveq	#0,d5			| Y-offset
-
-9:
-	move.b	(TARGET_SPRITE_ATTRIBUTES,a2),d3
-	btst	#FLIP_BIT,d3  | X but portrait
-	jeq		101f
-	* flip
-	neg.w	d4
-101:
-
-	moveq	#NB_PLAYFIELD_PLANES,d3
-
-	jbsr	blit_planes_any_internal_cookie_cut
-2:
-	move.l	(a7)+,a0
-	rts
-
-
-* < A0: plane list
-* < D3: required orientation
-* < D4: height
-* < D5: width (bytes) including 16 bit shift
-* trashes: only unused registers :) A3
-
-mirror_sprite_planes:
-	movem.l	d0-d2/d6/a0/a2,-(a7)
-	.ifndef	RELEASE
-	move.l	a0,0x138
-	.endif
-	
-	* bitplanes aren't pre-computed: check bitplanes current orientation and swap
-	* if required. This is slow but saves memory
-	.if		OPT_BLIT_CHAIN_MODE==0
-	lea		mirror_table,a1
-	.endif
-	moveq	#NB_PLAYFIELD_PLANES+1-1,d6
-	lea		mirror_function_table(pc),a3
-	.ifndef	MC68020
-	move.w	d5,d0       | number of byte values (ex: 4: 16 bits + shifting)
-	add.w	d0,d0
-	move.l	(a3,d0.w),a3
-	.else
-	move.l	(a3,d5.w*2),a3		| compute mirror function once and for all
-	.endif
-	* here a bitplane & its mirror can be blit just one after another
-	* adding a wait blit ensures that there's no gfx glitch
-	WAIT_BLIT
-0:
-	move.l	(a0)+,d1		| current plane data
-	jeq		1f				| no data: skip
-	.ifndef	RELEASE
-	jpl		2f
-	BREAKPOINT	"negative plane data pointer, code in 0x130, clut in 0x134, entered list in 0x138"
-	jra		3f				| exit to be able to debug more
-2:
-	.endif
-	move.l	d1,a2
-	cmp.b	(-2,a2),d3		| 2 bytes before: mirror flag
-	jeq		1f
-	* not the proper orientation: change it
-	move.b	d3,(-2,a2)
-	* perform or queue the mirroring
-	WRITE_BLITTER_VIRTUAL_MIRROR	d4,a3,a2
-
-	* next bitplane
-1:
-	dbf		d6,0b
-3:
-	movem.l	(a7)+,d0-d2/d6/a0/a2
-	rts
-	
-
-* < A1: mirror table
-* < A2: bitmap
-* < D1+1: height
-* destroys d0-d2, a2
-
-mirror_16_bit_wide:
-	.ifdef	MC68020
-	moveq	#0,d2
-	.endif
-10:
-	.ifndef	MC68020
-	* we have to do that each time as we must add offsets as long (table is 128k long)
-	moveq	#0,d2
-	.endif
-	move.w	(a2)+,d2
-	jeq		14f					| zero: optim
-	.ifndef	MC68020
-	add.l	d2,d2
-	move.w	(a1,d2.l),(-2,a2)   | use .l as d2.w may be > 0x7FFF
-	.else
-	move.w	(a1,d2.l*2),(-2,a2)
-	.endif
-14:
-	dbf		d1,10b		| next
-	rts
-
-mirror_32_bit_wide:
-	.ifdef	MC68020
-	moveq	#0,d0
-	.endif
-10:
-	.ifndef	MC68020
-	* we have to do that each time as we must add offsets as long (table is 128k long)
-	moveq	#0,d0
-	.endif
-	move.l	(a2)+,d2
-	jeq		14f		| if line is blank, no need to mirror
-	move.w	d2,d0
-	clr.w	d2
-	swap	d2
-	.ifndef	MC68020
-	add.l	d2,d2
-	add.l	d0,d0
-	move.w	(a1,d2.l),-(a2)		| get mirror value
-	move.w	(a1,d0.l),-(a2)		| get mirror value
-	.else
-	move.w	(a1,d2.l*2),-(a2)		| get mirror value
-	move.w	(a1,d0.l*2),-(a2)		| get mirror value
-	.endif
-	addq	#4,a2					| skip row
-14:
-	dbf		d1,10b
-	rts
-
-
-mirror_48_bit_wide:
-	.ifdef	MC68020
-	moveq	#0,d0
-	moveq	#0,d2
-	.endif
-10:
-	.ifndef	MC68020
-	* we have to do that each time as we must add offsets as long (table is 128k long)
-	moveq	#0,d0
-	moveq	#0,d2
-	.endif
-	move.w	(a2),d2
-	move.w	(4,a2),d0
-	* edges
-	.ifndef	MC68020
-	add.l	d2,d2
-	add.l	d0,d0
-	move.w	(a1,d2.l),(4,a2)		| get mirror value
-	move.w	(a1,d0.l),(a2)+		| get mirror value
-	.else
-	move.w	(a1,d2.l*2),(4,a2)		| get mirror value
-	move.w	(a1,d0.l*2),(a2)+		| get mirror value
-	.endif
-	* center
-	.ifndef	MC68020
-	* we have to do that each time as we must add offsets as long (table is 128k long)
-	moveq	#0,d2
-	.endif
-	move.w	(a2),d2
-	.ifndef	MC68020
-	add.l	d2,d2
-	move.w	(a1,d2.l),(a2)
-	.else
-	move.w	(a1,d2.l*2),(a2)
-	.endif
-	addq	#4,a2					| skip row
-	dbf		d1,10b
-	rts
-
-
-mirror_64_bit_wide:
-	.ifdef	MC68020
-	moveq	#0,d0
-	moveq	#0,d2
-	.endif
-10:
-	.ifndef	MC68020
-	moveq	#0,d0
-	moveq	#0,d2
-	.endif
-	
-	move.w	(a2),d2
-	move.w	(6,a2),d0
-	* swap edges
-	.ifndef	MC68020
-	add.l	d2,d2
-	add.l	d0,d0
-	move.w	(a1,d2.l),(6,a2)		| get mirror value
-	move.w	(a1,d0.l),(a2)+		| get mirror value
-	* swap center words
-	moveq	#0,d0
-	moveq	#0,d2
-	move.w	(a2)+,d2
-	move.w	(a2),d0
-	add.l	d2,d2
-	add.l	d0,d0
-	move.w	(a1,d2.l),(a2)
-	move.w	(a1,d0.l),-(a2)
-	.else
-	* 68020+ is handy here as scaling doesn't corrupt MSW
-	move.w	(a1,d2.l*2),(6,a2)		| get mirror value
-	move.w	(a1,d0.l*2),(a2)+		| get mirror value
-	* swap center words
-	move.w	(a2)+,d2
-	move.w	(a2),d0
-	move.w	(a1,d2.l*2),(a2)
-	move.w	(a1,d0.l*2),-(a2)
-	.endif
-	addq	#6,a2					| skip row
-	dbf		d1,10b
-	rts
-
-	
-mirror_function_table:
-	.long	nope
-	.long	nope
-	.long	mirror_16_bit_wide
-	.long	mirror_32_bit_wide
-	.long	mirror_48_bit_wide
-	.long	mirror_64_bit_wide
-	.long	nope		| just in case, but there are no such objects
-	.long	nope
-
-nope:
-	rts
-	
-	
-* < D0,D1: x,y
-* < A1: foreground plane pointer (often first plane!)
-* < D2: width in bytes (inc. 2 extra for shifting)
-* < D3: nb planes to clear
-* < D4: blit height
-
-
-* trashes D0-D6/A2
-clear_planes_any_blitter_internal:
-    * pre-compute the maximum of shit here
-	move.w	d1,d6
-    beq.b   1f    | optim
-	* check if y start + height > Y_MAX
-	* (ignores case where y = 0, no risk)
-	add.w	d4,d6
-	sub.w	#Y_MAX,d6
-	bmi.b	0f
-	* y start + height > Y_MAX: clip height
-	sub.w	d6,d4
-	beq.b	10f
-	bpl.b	0f
-10:
-	* null or negative height after clipping: out
-	rts
-0:
-    lea mulBG_NB_BYTES_PER_ROW_table(pc),a2
-    add.w   d1,d1
-    move.w  (a2,d1.w),d1
-1:
-    and.w   #0x1F0,d0
-    beq.b   2f				| zero X optimization
-    lsr.w   #3,d0
-    add.w   d0,d1
-2:   
-    add.w   d1,a1       | plane position (always even)
-
-	* reuse d1 for bltcon0
-	moveq	#1,d1
-	ror.l	#8,d1     | AKA move.l  #0x01000000,d1   | minterm useD & rect clear (0xA) 
-
-	move.w #BG_NB_BYTES_PER_ROW,d0
-	bclr	#0,d2		| make sure D2 is even (else strange things occur!)
-    sub.w   d2,d0       | blit width
-
-	move.w	d4,d6		| save height
-    lsl.w   #6,d4
-    lsr.w   #1,d2
-    add.w   d2,d4       | blit height+width
-	moveq	#-1,d2
-    * now just wait for blitter ready to write all registers
-	WAIT_BLIT
-    
-	WRITE_BLITTER_REG_LONG	d2,bltafwm
-	WRITE_BLITTER_REG_LONG	d1,bltcon0	
-	WRITE_BLITTER_REG_WORD	d0,bltdmod	|D modulo
-	
-	subq	#1,d3
-	jeq		4f
-3:
-	WAIT_BLIT
-	WRITE_BLITTER_REG_LONG	a1,bltdpt	|destination top left corner
-	WRITE_BLITTER_REG_SIZE	d4	|rectangle size, starts blit
-32:
-	.if	BG_SCREEN_PLANE_SIZE>0x7FFF
-	add.l	#BG_SCREEN_PLANE_SIZE,a1
-	.else
-	add.w	#BG_SCREEN_PLANE_SIZE,a1
-	.endif
-	dbf		d3,3b
-4:
-	rts
-	
-	
-	
-* < A5: custom
-* < D0.W,D1.W: x,y
-* < A0: source (pointer on array of planes)
-* < A1: destination fg plane, also background to mix with cookie cut fg plane
-* < A3: source mask for cookie cut
-* < D2: width in bytes (inc. 2 extra for shifting)
-* < D3: number of planes
-* < D4: height. If negative, source is copied with negative modulo (flip)
-* < D5: y offset for source planes
-* < D7: blit mask (not considered, optim, -1 all through the game)
-* blit mask set
-* returns: start of destination in A1 (computed from old A1+X,Y)
-* trashes: a1
-blit_planes_any_internal_cookie_cut:
-    movem.l d0-d7/a4,-(a7)
-    * pre-compute the maximum of shit here
-	tst.w	d4
-	bpl.b	1f
-	sub.w	d4,d1	| pre-add height to d1
-	subq.w	#1,d1	| minus one
-1:	
-	tst	d1
-    beq.b   5f    | optim
-	
-4:	
-    lea		mulBG_NB_BYTES_PER_ROW_table(pc),a4
-	.ifndef	MC68020
-	add.w	d1,d1
-    move.w  (a4,d1.w),d1	| y times 40
-	.else
-    move.w  (a4,d1.w*2),d1	| y times 40
-	.endif
-5:
-	lea		cookie_cut_blit_table(pc),a4
-	
-    move.w  d0,d6
-    lsr.w   #3,d0			| X displacement in bytes
-	*bclr	#0,d0			| no need, it will be even
-    and.w   #0xF,d6
-	.ifndef	MC68020
-	add.w	d6,d6
-	add.w	d6,d6
-	move.l	(a4,d6.w),d7
-	lea		cookie_cut_mask_blit_table(pc),a4
-	move.l	(a4,d6.w),d6
-	.else
-	move.l	(a4,d6.w*4),d7
-	lea		cookie_cut_mask_blit_table(pc),a4
-	move.l	(a4,d6.w*4),d6
-	.endif
-3:   
-    add.w   d0,d1
-4:
-    * make offset even. Blitter will ignore odd address
-    * but a 68000 CPU doesn't and since we RETURN A1...
-    *bclr    #0,d1
-    add.w   d1,a1       | plane position (D1 < 0x7FFF, 288*40=0x2D00)
-	move.w	#BG_NB_BYTES_PER_ROW,d0
-	tst.w	d4
-	bpl.b	5f
-	neg.w	d0
-	neg.w	d4    | make d4 positive again
-5:
-    sub.w   d2,d0       | blit width
-    lsl.w   #6,d4
-    lsr.w   #1,d2
-    add.w   d2,d4       | blit height
-    * always the same settings (ATM)
-	moveq	#-2,d2
-	add.w	d5,a3			| apply y offset to mask too (y offset looks wrong)
-	
-    * now just wait for blitter ready to write all registers
-	WAIT_BLIT
-    
-    * blitter registers set
-
-	WRITE_BLITTER_REG_WORD	d2,bltamod		|A modulo=bytes to skip between lines
-	WRITE_BLITTER_REG_WORD	d2,bltbmod		|B modulo=bytes to skip between lines
-	moveq	#0,d2
-	WRITE_BLITTER_REG_WORD	d2,bltalwm	    | so the -2 modulo trick works
-	
-	WRITE_BLITTER_REG_WORD	d0,bltcmod	|C modulo
-	WRITE_BLITTER_REG_WORD	d0,bltdmod	|D modulo
-					
-	subq	#1,d3
-	jeq	7f
-	subq	#1,d3
-6:
-	WRITE_BLITTER_REG_LONG	a3,bltapt	|source graphic top left corner (mask)
-	jbsr	start_process_1_plane
-	
-	WRITE_BLITTER_REG_LONG	a1,bltcpt	|pristine background top (bottom) left corner
-	WRITE_BLITTER_REG_LONG	a1,bltdpt	|destination top (bottom) left corner
-	WRITE_BLITTER_REG_SIZE	d4	|rectangle size, starts blit
-	.if	BG_SCREEN_PLANE_SIZE > 0x7FFF
-	add.l	#BG_SCREEN_PLANE_SIZE,a1
-	.else
-	add.w	#BG_SCREEN_PLANE_SIZE,a1
-	.endif
-	WAIT_BLIT
-	dbf		d3,6b
-7:
-	WRITE_BLITTER_REG_LONG	a3,bltapt	|source graphic top left corner (mask)
-	jbsr	start_process_1_plane
-	WRITE_BLITTER_REG_LONG	a1,bltcpt	|pristine background top (bottom) left corner
-	WRITE_BLITTER_REG_LONG	a1,bltdpt	|destination top (bottom) left corner
-	WRITE_BLITTER_REG_SIZE	d4	|rectangle size, starts blit
-10:
-    movem.l (a7)+,d0-d7/a4
-    rts
-	
-start_process_1_plane:
-	move.l (a0)+,d0
-	beq.b	60f
-	move.l	d0,a4
-	add.w	d5,a4		| add Y offset
-	jra		61f
-60:
-	* source is 0: just apply mask (less bandwidth lost) and change bltcon
-	WRITE_BLITTER_REG_LONG	d6,bltcon0	| sets con0 and con1: C-A->D cookie cut, B fixed
-	WRITE_BLITTER_REG_WORD	d2,bltbdat	|B word is zero
-	rts
-61:
-	* non-zero: set data source & bltcon
-	WRITE_BLITTER_REG_LONG	d7,bltcon0	| sets con0 and con1: C-A+B->D cookie cut full
-	WRITE_BLITTER_REG_LONG	a4,bltbpt	|source graphic top left corner
-	rts
-
-	.macro	GEN_MINTERM_TABLE	name,value
-\name\()_table:
-	.set	shift,0
-	.rept	16
-	.long	(shift<<28)+(shift<<12)+(\value<<16)
-	.set	shift,shift+1
-	.endr
-	.endm
-	
-	.macro	GEN_MINTERM_TABLE_2	name,value
-\name\()_table:
-	.set	shift,0
-	.rept	16
-	.long	(shift<<28)+(\value<<16)
-	.set	shift,shift+1
-	.endr
-	.endm
-	
-	GEN_MINTERM_TABLE	cookie_cut_blit,0x0FCA
-	GEN_MINTERM_TABLE_2	cookie_cut_mask_blit,0x0BCA
-
-
-
-
-	
-bob_previous_positions_1:
-	.long 0		| scroll pos
-	.fill NB_TARGET_SPRITES*PREVIOUS_SPRITE_SIZE , 1 , -1
-	
-bob_previous_drawn_sprites:
-	.long	bob_previous_positions_1
-bob_previous_displayed_sprites:
-	.ifeq	OPT_ENABLE_DOUBLE_BUFFERING
-	.long	bob_previous_positions_1
-	.else
-	.long	bob_previous_positions_2	
-bob_previous_positions_2:
-	.long 0
-	.fill NB_TARGET_SPRITES*PREVIOUS_SPRITE_SIZE , 1 , -1
-
-	.endif
-
-	
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-switch_screen_buffers:
-
-	* let's switch screen buffers, background (chars)
-	* toggle fg planes (double buffering)
-	* also toggle previous sprite positions
-	lea		playfield_drawn_screen_ptr(pc),a0
-	lea		bob_previous_positions_1(pc),a2
-	lea		bob_previous_positions_2(pc),a3
-	move.l	playfield_screen_data_1,a1
-	move.l	playfield_screen_data_2,a5
-	* also switch previous state memory
-	cmp.l	(a0),a1
-	bne.b	2f
-	* screen data 1 is displayed screen
-	* set it to drawn screen
-	exg		a1,a5
-	exg		a2,a3
-2:
-	move.l	a1,(a0)
-	move.l	a5,playfield_displayed_screen_ptr
-	move.l	a3,bob_previous_displayed_sprites
-	move.l	a2,bob_previous_drawn_sprites
-
-	jbra		set_bobs_bitplanes
-	
-	.endif
-	
-	
 store_system:
 	tst.l	_resload
 	beq.b	0f
@@ -2625,8 +1573,6 @@ restore_system:
 
 	moveq	#0,d0
 	rts
-
-	
 platform_init:
 	bsr		store_system
 	
@@ -2634,6 +1580,7 @@ platform_init:
 	lea		_custom,a5
 	move.w	#0x7FFF,dmacon(a5)
 	move.w	#0x7FFF,intena(a5)
+	move.w	#0x7FFF,intreq(a5)
 	* set blitter parameters
 	move.l	#-1,bltafwm(a5)
 	
@@ -2677,7 +1624,8 @@ platform_init:
     move.w d1,diwstop(a5)
     move.w #0x0038,ddfstrt(a5)
 
-	move	#BG_NB_BYTES_PER_ROW-40,d0
+	* interleaved: modulo skips the other planes' lines
+	move	#BG_ROW_STRIDE-40,d0
 
 	.ifne	OPT_AGA_MODE
     move.w #0x00C0,ddfstop(a5)		| C0 for fmode=3
@@ -2703,23 +1651,24 @@ platform_init:
 	add.w	#HW_SPRITE_BUFFER_SIZE,a0
 	dbf		d0,0b
 	
-	lea		bobs_screen_buffer_1,a0
-	addq	#2,a0	| leave 16 bits hidden for left side clipping
+	* screen buffers (interleaved), 8-byte aligned for fmode=3
+	* with at least 2 bytes before the start (left clipping)
+	lea		screen_buffer_1,a0
+	addq	#2,a0
 	jbsr	align_for_fmode
-	move.l	a0,playfield_screen_data_1
-	move.l	a0,playfield_drawn_screen_ptr
-	move.l	a0,playfield_displayed_screen_ptr
-	
+	move.l	a0,r_buf0
+	lea		screen_buffer_2,a0
+	addq	#2,a0
+	jbsr	align_for_fmode
+	move.l	a0,r_buf1
+	lea		restore_buffer,a0
+	addq	#2,a0
+	jbsr	align_for_fmode
+	move.l	a0,r_restore
+	move.l	a0,c_restore_base
+
 	st		music_track_start_number
 
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	lea		bobs_screen_buffer_2,a0
-	addq	#2,a0	| leave 16 bits hidden for left side clipping
-	jbsr	align_for_fmode
-	move.l	a0,playfield_screen_data_2
-	move.l	a0,playfield_displayed_screen_ptr
-	.endif
-		
 	* init color table handling the bank switch issue
 	lea		copperlist_colors,a0
 	lea		color_copper_pointers,a1
@@ -2795,7 +1744,7 @@ platform_init:
 	
 
 	
-	jbsr		set_bobs_bitplanes
+	jbsr		init_renderer
 	
 	
 	lea		_custom,a5
@@ -2854,7 +1803,44 @@ platform_init:
 	
 	
     rts
-	
+
+init_renderer:
+	lea		r_buffers,a0
+	move.l	r_buf0,(BUF_BASE,a0)
+	clr.l	(BUF_SCROLL,a0)
+	move.l	#erase_list_0a,(BUF_ERASE_CUR,a0)
+	move.l	#erase_list_0b,(BUF_ERASE_NEXT,a0)
+	clr.w	(BUF_ERASE_COUNT,a0)
+	lea		(BUF_SIZEOF,a0),a0
+	move.l	r_buf1,(BUF_BASE,a0)
+	clr.l	(BUF_SCROLL,a0)
+	move.l	#erase_list_1a,(BUF_ERASE_CUR,a0)
+	move.l	#erase_list_1b,(BUF_ERASE_NEXT,a0)
+	clr.w	(BUF_ERASE_COUNT,a0)
+	* "buffer 0 has been built and shown": first frame goes to buffer 1
+	clr.w	r_built
+	st.b	r_shown
+	st.b	c_list_done
+	sf.b	c_busy
+	move.l	#mirror_pool,r_mpool_ptr
+	clr.w	r_mslot_count
+	* 25Hz by default (frameskip set by apply_settings)
+	move.w	#1,r_min_interval
+	tst.b	frameskip
+	jeq		0f
+	move.w	#2,r_min_interval
+0:
+	* lines where the copper has already loaded the bitplane pointers
+	* of the current frame (copper waits for line 0x20 / 0x0C in NTSC)
+	move.w	#0x1C,r_late_start
+	move.w	#0x12C,r_late_end
+	tst.b	ntsc_flag
+	jeq		1f
+	move.w	#0x08,r_late_start
+	move.w	#0x200,r_late_end
+1:
+	jbsr	show_built_buffer
+	rts
 * < A0: palette
 * < A1: copperlist
 * < D0: number of colors to load	
@@ -2875,25 +1861,6 @@ load_palette:
 2:
 	rts
 
-	
-	
-
-* 60Hz VBLANK interrupt (also keyboard)
-* only called at bootup, not from interrupts (at least!!)
-osd_enable_interrupts:
-	.if		OPT_BLIT_CHAIN_MODE==1
-	* enable blitter, vblank & software level 1
-	move.w	#0xC06C,_custom+intena
-	.else
-	* enable vblank & software level 1 only
-	move.w	#0xC02C,_custom+intena
-	.endif
-	rts
-osd_disable_interrupts:
-	move.w	#0x0024,_custom+intena
-	rts
-	
-
 * Claude A.I. suggested that I freeze the sprite buffer to avoid tile/sprite delays
 * ... and it worked!
 
@@ -2909,98 +1876,267 @@ osd_trigger_sprite_dma:
 	dbf		d0,0b
 	movem.l	(a7)+,d0/a0/a1
 	rts	
-	
 
-	
+*****************************************************************
+* video RAM writes
+*****************************************************************
+
+* hardware can scroll horizontally but game doesn't use it
+* (only the MSB at the end of a level): just clear the screen
+* called from a game event (blitter interrupt still running)
+* < D0: 0 or 1
+osd_set_x_page:
+	tst.b	D0
+	jeq		1f
+	movem.l	d0/a0-a3,-(a7)
+	jbsr	flush_bg_tile_queue
+	* let the blitter finish what it's doing in the buffers
+0:
+	tst.b	c_busy
+	jne		0b
+	move.l	r_buf0,a0
+	move.l	r_buf1,a1
+	move.l	r_restore,a2
+	move.l	#BG_BUFFER_SIZE/16-1,d0
+0:
+	.rept	4
+	clr.l	(a0)+
+	clr.l	(a1)+
+	clr.l	(a2)+
+	.endr
+	subq.l	#1,d0
+	jpl		0b
+	* nothing left to erase
+	lea		r_buffers,a3
+	clr.w	(BUF_ERASE_COUNT,a3)
+	clr.w	(BUF_SIZEOF+BUF_ERASE_COUNT,a3)
+	movem.l	(a7)+,d0/a0-a3
+1:
+	rts
+
 * a0=screen address (preserved)
 * a6=ram base
-* should preserve all registers
-
-* D000: foreground/HUD (D400: attributes)
-* D800: background
+* preserves all registers
+* D000: foreground/HUD (D400: attributes), hardware sprites
+* D800: background (DC00: attributes), queued
 osd_video_byte_dirty:
-	OSD_ENTER
-	movem.l	d0-d7/a0-a3/a5,-(a7)
-	move.l	a0,d7		| save address
+	movem.l	d0-d7/a0-a5,-(a7)
+	move.l	a0,d7
 	sub.l	a6,d7
-	jmi		osd_w_videoram_out
-
-	* we now suppose that we're in 2000-3000
-	* check that in debug mode
+	jmi		99f
 	.ifndef		RELEASE
 	cmp.w	#FG_SCREEN_TILE_ADDRESS+0x1000,d7
 	jcs		0f
-1:
 	BREAKPOINT	"write videoram out of range (D7)"
-	bra.b	osd_w_videoram_out	
+	jra		99f
 0:
 	.endif
-	
 	sub.w	#FG_SCREEN_TILE_ADDRESS,d7
 	.ifndef	RELEASE
 	jpl		0f
 	add.w	#FG_SCREEN_TILE_ADDRESS,d7
 	BREAKPOINT	"write videoram out of range (D7)"
-	jra		osd_w_videoram_out
+	jra		99f
 0:
 	.endif
-	
 	cmp.w	#BG_SCREEN_TILE_ADDRESS-FG_SCREEN_TILE_ADDRESS,d7
-	jcc		bg_tile
-	
+	jcc		10f
+	* foreground (HUD)
 	and.w	#0x3FF,d7
-
 	lea		(FG_SCREEN_TILE_ADDRESS,a6),a0
 	move.b	(a0,d7.w),d0
 	lea		(FG_SCREEN_COLOR_ADDRESS,a6),a0
 	move.b	(a0,d7.w),d1
-
 	jbsr	update_fg_tile
-
-osd_w_videoram_out:
-	movem.l	(a7)+,d0-d7/a0-a3/a5
-	OSD_EXIT
-	rts	
-	
-	
-	
-	
-bg_tile:
+	jra		99f
+10:
+	* background
 	and.w	#0x3FF,d7
-	
-
-	
-	* tile is in screen considered the current scrolling: update it
-	* (don't check Y we need update no matter when in that case)
-	
+	tst.b	osd_bg_tiles_immediate
+	jeq		12f
+	* full screen paint: draw now, but not while the
+	* blitter uses the buffers
+0:
+	tst.b	c_busy
+	jne		0b
+	jra		11f
+12:
+	jbsr	queue_bg_tile
+	tst.w	d0
+	jeq		99f					| queued: drawn by the VBL interrupt
+11:
 	lea		(BG_SCREEN_TILE_ADDRESS,a6),a0
 	move.b	(a0,d7.w),d0
 	lea		(BG_SCREEN_COLOR_ADDRESS,a6),a0
 	move.b	(a0,d7.w),d1
-
 	jbsr	update_bg_tile
+99:
+	movem.l	(a7)+,d0-d7/a0-a5
+	rts
 
-	jra		osd_w_videoram_out
-	
-	
-	.macro	COPY_TILE8_PLANE_ROW
-	move.b	d0,(offset,a1)  | buffer
-	.endm
-	
-	.macro	CLEAR_TILE8_PLANE
-	.set	offset,0
-	.rept	8
-	clr.b	(offset,a1)
-	.set	offset,offset+FG_NB_BYTES_PER_ROW
-	.endr	
-	.endm
-	
-	.macro	TILE8_NEXT_PLANE
-	add.l	d5,a1
-	add.l	d5,a2
-	.endm
+*****************************************************************
+* deferred background tiles
+*
+* producer: main loop (game events) through osd_video_byte_dirty
+* consumer: VBL interrupt, only when the blitter chain is idle (the CPU
+* writes in the restore buffer the erase blits read from)
+* - ring of tile indexes, producer writes head, consumer writes tail
+* - one "pending" flag per tile: a tile is queued once, and drawn with
+*   the tile RAM values of the moment it's drawn
+* - urgent tiles (close to the visible window) are drawn first: drawn
+*   entries become holes (-1), tail skips them
+*****************************************************************
 
-* create 2 caches
+* < D7: tile index (0-0x3FF)
+* > D0: 0 if queued (or already pending), non-zero if caller must draw it
+* trashes: D0,A0
+queue_bg_tile:
+	lea		bg_tile_pending_flags,a0
+	tst.b	(a0,d7.w)
+	jne		1f
+	move.w	bg_tile_queue_head,d0
+	sub.w	bg_tile_queue_tail,d0
+	and.w	#BG_TILE_QUEUE_MASK,d0
+	cmp.w	#BG_TILE_QUEUE_MASK-4,d0
+	jcc		2f					| (almost) full: can't happen, draw now
+	st.b	(a0,d7.w)
+	move.w	bg_tile_queue_head,d0
+	lea		bg_tile_queue,a0
+	move.w	d7,(a0,d0.w)
+	addq.w	#2,d0
+	and.w	#BG_TILE_QUEUE_MASK,d0
+	move.w	d0,bg_tile_queue_head	| publish (one word write)
+1:
+	moveq	#0,d0
+	rts
+2:
+	moveq	#-1,d0
+	rts
+
+* VBL interrupt, blitter idle
+* trashes: everything but A5
+drain_bg_tile_queue:
+	move.w	bg_tile_queue_head,d7
+	cmp.w	bg_tile_queue_tail,d7
+	jeq		99f
+	GET_MEMORY_START_IN_A6
+	move.w	game_scroll_y,d4
+	move.w	d4,d5
+	sub.w	#BG_TILE_URGENT_MARGIN,d4			| first "hot" line (can be < 0)
+	add.w	#256+BG_TILE_URGENT_MARGIN,d5		| first line after the "hot" zone
+	lea		bg_tile_queue,a2
+	lea		bg_tile_address_table,a3
+	moveq	#BG_TILES_PER_FRAME,d1
+	moveq	#BG_TILES_MAX_PER_FRAME,d3
+
+	* pass 1: tiles close to the visible window, any order
+	move.w	bg_tile_queue_tail,d2
+10:
+	cmp.w	d2,d7
+	jeq		20f
+	move.w	(a2,d2.w),d0
+	jmi		12f
+	move.w	d0,d6
+	add.w	d6,d6
+	move.w	(a3,d6.w),d6
+	and.w	#0x1F,d6
+	lsl.w	#4,d6					| first line of the tile
+	cmp.w	d5,d6
+	jge		11f
+	add.w	#BG_TILE_HEIGHT,d6
+	cmp.w	d4,d6
+	jgt		13f
+	sub.w	#BG_TILE_HEIGHT,d6
+11:
+	cmp.w	#0x10*BG_TILE_HEIGHT,d6	| rows < 0x10 also have a copy 512 lines below
+	jge		12f
+	add.w	#512,d6
+	cmp.w	d5,d6
+	jge		12f
+	add.w	#BG_TILE_HEIGHT,d6
+	cmp.w	d4,d6
+	jle		12f
+13:
+	jbsr	draw_queued_bg_tile
+	tst.w	d3
+	jle		30f
+12:
+	addq.w	#2,d2
+	and.w	#BG_TILE_QUEUE_MASK,d2
+	jra		10b
+
+	* pass 2: oldest first, within the normal budget
+20:
+	move.w	bg_tile_queue_tail,d2
+21:
+	tst.w	d1
+	jle		30f
+	cmp.w	d2,d7
+	jeq		30f
+	move.w	(a2,d2.w),d0
+	jmi		22f
+	jbsr	draw_queued_bg_tile
+22:
+	addq.w	#2,d2
+	and.w	#BG_TILE_QUEUE_MASK,d2
+	jra		21b
+
+	* skip holes at the start of the ring
+30:
+	move.w	bg_tile_queue_tail,d2
+31:
+	cmp.w	d2,d7
+	jeq		32f
+	tst.w	(a2,d2.w)
+	jpl		32f
+	addq.w	#2,d2
+	and.w	#BG_TILE_QUEUE_MASK,d2
+	jra		31b
+32:
+	move.w	d2,bg_tile_queue_tail
+99:
+	rts
+
+* < D0: tile index, A2+D2: queue entry, A6: memory base
+* decrements D1 & D3
+draw_queued_bg_tile:
+	move.w	#-1,(a2,d2.w)
+	movem.l	d1-d7/a2-a3,-(a7)
+	move.w	d0,d7
+	lea		bg_tile_pending_flags,a0
+	clr.b	(a0,d7.w)
+	lea		(BG_SCREEN_TILE_ADDRESS,a6),a0
+	move.b	(a0,d7.w),d0
+	lea		(BG_SCREEN_COLOR_ADDRESS,a6),a0
+	move.b	(a0,d7.w),d1
+	jbsr	update_bg_tile
+	movem.l	(a7)+,d1-d7/a2-a3
+	subq.w	#1,d1
+	subq.w	#1,d3
+	rts
+
+* drop everything pending (screen is being cleared), main loop
+flush_bg_tile_queue:
+	move.l	a0,-(a7)
+	move.w	d0,-(a7)
+	PUSH_INTERRUPT_STATE
+	DISABLE_INTERRUPTS
+	move.w	bg_tile_queue_head,bg_tile_queue_tail
+	lea		bg_tile_pending_flags,a0
+	move.w	#0x400/4-1,d0
+0:
+	clr.l	(a0)+
+	dbf		d0,0b
+	PULL_INTERRUPT_STATE
+	move.w	(a7)+,d0
+	move.l	(a7)+,a0
+	rts
+
+*****************************************************************
+* background tiles (16x16), drawn by the CPU in the 2 screens and the
+* restore buffer at once. Interleaved: plane p of line y is at
+* y*192 + p*32
+*****************************************************************
 
 cache_bg_tiles_address:
 	
@@ -3024,406 +2160,570 @@ cache_bg_tiles_address:
 	jne		0b
 	
 	rts
-	
-	.macro	COPY_TILE16_PLANE_ROW
-	move.w	d0,(offset,a1)  | buffer
-	move.w	d0,(offset,a3)  | restore buffer
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	move.w	d0,(offset,a4)	| second buffer
-	.endif
-	.endm
-	
-	.macro	CLEAR_TILE16_PLANE
-	.set	offset,0
-	.rept	16
-	clr.w	(offset,a1)
-	clr.w	(offset,a3)  | restore buffer
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	clr.w	(offset,a4)	| second buffer
-	.endif
-	.set	offset,offset+BG_NB_BYTES_PER_ROW
-	.endr	
-	.endm
-	
 
-	
-	.macro	TILE16_NEXT_PLANE
-	.if	BG_SCREEN_PLANE_SIZE>0x7FFF
-	add.l	d5,a1
-	add.l	d5,a3
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	add.l	d5,a4
-	.endif
-	.else
-	add.w	d5,a1
-	add.w	d5,a3
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	add.w	d5,a4
-	.endif
-	
-	.endif
-	.endm
-	
-* < D7: 0-0x400 address
+* < D7: 0-0x3FF tile index
 * < D0: tile code
-* < D1: color code
-* uses x_offset computed from scrolling current params
-
+* < D1: attribute
+* trashes: D0-D6/A0-A4
 update_bg_tile:
-	.ifndef	RELEASE
-	move.b	d0,0x120
-	move.b	d1,0x121
-	.endif
-	
-	moveq	#0,d2			| mask up to 255
-	move.b	d0,d2			| tile code
+	moveq	#0,d2
+	move.b	d0,d2					| tile code
 	moveq	#0,d3
-	move.b	d1,d3			| CLUT & tile code & flags
-
+	move.b	d1,d3					| CLUT, code MSBs, flip/mirror
 	move.w	d3,d4
-	and.b	#0xC0,d4
+	and.w	#0xC0,d4
 	add.w	d4,d4
 	add.w	d4,d4
-	add.w	d4,d2			| full tile code
-
-	* compute address
+	add.w	d4,d2					| full tile code
+	* buffer offset
 	lea		bg_tile_address_table,a1
-	.ifdef	NO68020
-	add.w	d7,d7
-	move.w	(a1,d7.w),d0
-	.else
-	move.w	(a1,d7.w*2),d0
-	.endif
+	move.w	d7,d0
+	add.w	d0,d0
 	moveq	#0,d1
-	move.b	d0,d1
-	lsr.w	#8,d0
+	move.w	(a1,d0.w),d1			| X in MSB, buffer row (0-0x1F) in LSB
+	moveq	#0,d0
+	move.b	d1,d0
+	lsr.w	#8,d1
+	add.w	d1,d1					| byte offset in line
 	cmp.w	#0x10,d0
-	jcs		0f
-	* don't display right part (used in level "well done" screen)
-	rts
-0:
-	add.w	d0,d0		| 16 pixels per tile
-	* D0.B: X, D1.B: Y (0-1F)
-	cmp.w	#0x10,d1
-	scs		d6			| repeat tile draw if Y tile  < 0x10
-	
-	* updating bitplanes
-	
-	move.l		playfield_drawn_screen_ptr,a1
-	.ifeq	OPT_ENABLE_DOUBLE_BUFFERING
-	.else 
-	* double buffering
-	move.l		playfield_displayed_screen_ptr,a4
-	.endif
-	
-	move.w	#NB_BG_PLANES-1,d4   | needed even if no tile
-	lea		mulBG_NB_BYTES_PER_ROW_table,A2
-	.ifdef	NO68020
-	add.w	d1,d1
-	move.w	(a2,d1.w),d1
-	.else
-	move.w	(a2,d1.w*2),d1
-	.endif
-	lsl.w	#4,d1	| 16 pixels
-	add.w	d1,d0
-	add.w	d0,a1
-	.ifeq	OPT_ENABLE_DOUBLE_BUFFERING
-	.else 
-	* double buffering
-	add.w	d0,a4
-	.endif
-
-	lea		background_restore_buffer,a3
-	add.w	d0,a3
-
-	
+	scs		d6						| rows 0-15 are drawn again 512 lines below
+	lsl.w	#6,d0					| row * 16 lines * 4
+	lea		mulLBG_ROW_STRIDE_table,a1
+	add.l	(a1,d0.w),d1
+	* tile planes
+	lea		empty_tile_planes,a2
 	cmp.w	#0xF8,d2
-	jeq		11f				| optim: blank tile
+	jeq		2f						| blank tile
 	lea		bg_character_table,a0
-	.ifdef	NO68020
 	add.w	d2,d2
-	add.w	d2,d2	
-	move.l	(a0,d2.w),d0		| tile pointer
-	.else
-	move.l	(a0,d2.w*4),d0		| tile pointer
-	.endif
-	.ifdef	RELEASE
-	jeq		11f					| clear tile, no error (release)
-	.else
-	jne		12f
-	move.w	d7,-(a7)
-	add.w	#BG_SCREEN_TILE_ADDRESS,d7
-	.ifdef	NO68020
-	lsr.w	#2,d2
-	.endif
-	move.w	(a7)+,d7
-	jra		11f
-12:
-	.endif
-	move.l	d0,a2
-	move.w	d3,d1		| save attributes
-	lsr.w	#4,d1
-	and.w	#3,d1		| mirror/flip
-	
-	and.w	#BG_TILE_NB_CLUTS-1,d3
-	.ifdef	NO68020
+	add.w	d2,d2
+	move.l	(a0,d2.w),d0
+	jeq		2f
+	move.l	d0,a0
+	move.w	d3,d0
+	and.w	#BG_TILE_NB_CLUTS-1,d0
+	add.w	d0,d0
+	add.w	d0,d0
+	move.l	(a0,d0.w),d0
+	jeq		2f
+	move.l	d0,a2					| 6 plane pointers (0: empty)
+2:
+	lsr.w	#4,d3
+	and.w	#3,d3					| bit 0: Y flip, bit 1: X mirror
 	add.w	d3,d3
 	add.w	d3,d3
-	move.l	(a2,d3.w),d0			| pointer on tile bitplanes for that CLUT
-	.else
-	move.l	(a2,d3.w*4),d0			| pointer on tile bitplanes for that CLUT	
-	.endif
-	.ifdef	RELEASE
-	jeq		11f						| not necessarily a problem
-	.else
-	jne		12f
-	move.w	d7,-(a7)
-	add.w	#BG_SCREEN_TILE_ADDRESS,d7
-	lsr.w	#2,d2
-	lsr.w	#2,d3
-	move.w	(a7)+,d7
-	jra		11f
-	.endif
-12:
-	move.l	d0,a2					| pointer on bitplanes
-
-
-	lea		bg_mirror_jump_table,a0
-	.ifdef	NO68020
-	add.w	d1,d1
-	add.w	d1,d1
-	move.l	(a0,d1.w),a0
-	.else
-	move.l	(a0,d1.w*4),a0
-	.endif
-	
-	* no need to sync with sprites, tile update is done off-screen
-	*lea		_custom,a5
-	*REALLY_WAIT_BLIT
-	tst.b 	d6
-	jeq		0f
-	movem.l	d0-D3/a0-a6,-(a7)
+	lea		bg_tile_draw_table,a0
+	move.l	(a0,d3.w),a0
+	move.l	r_buf0,a1
+	add.l	d1,a1
+	move.l	r_buf1,a3
+	add.l	d1,a3
+	move.l	r_restore,a4
+	add.l	d1,a4
+	tst.b	d6
+	jeq		3f
+	movem.l	a0-a4,-(a7)
 	jsr		(a0)
-	* lower part too
-	movem.l	(a7)+,d0-D3/a0-a6
-	move.w	#2*BG_SCREEN_PLANE_SIZE/3,d6
-	add.w	d6,a1
-	add.w	d6,a3
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	add.w	d6,a4
-	.endif
-	move.w	#NB_BG_PLANES-1,d4
-0:
+	movem.l	(a7)+,a0-a4
+	move.l	#WRAP_COPY_OFFSET,d1
+	add.l	d1,a1
+	add.l	d1,a3
+	add.l	d1,a4
+3:
 	jmp		(a0)
 
-standard_tile16:
-	.if	BG_SCREEN_PLANE_SIZE>0x7FFF
-	move.l	#BG_SCREEN_PLANE_SIZE-BG_NB_BYTES_PER_ROW*BG_TILE_HEIGHT,d5
-	.else
-	move.w	#BG_SCREEN_PLANE_SIZE-BG_NB_BYTES_PER_ROW*BG_TILE_HEIGHT,d5
-	.endif
+bg_tile_draw_table:
+	.long	tile16_standard
+	.long	tile16_flipped
+	.long	tile16_mirror
+	.long	tile16_mirror_flipped
 
-	* just copy
-	move.w	#BG_NB_BYTES_PER_ROW,d2
-4:
-	move.l	(a2)+,d0		| next plane
-	jeq		5f
-	move.l	d0,a0
-	move.w	#BG_TILE_HEIGHT-1,d3
-6:
+	* unrolled copy of one plane (16 rows), ~230 bytes: fits in the
+	* 68020 instruction cache for the 6 planes
+	.macro	TILE16_PLANE_COPY	first_offset,step
+	.set	tile_off,\first_offset
+	.rept	BG_TILE_HEIGHT
 	move.w	(a0)+,d0
-	move.w	d0,(a1)
-	add.w	d2,a1
-	move.w	d0,(a3)
-	add.w	d2,a3
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	move.w	d0,(a4)
-	add.w	d2,a4
-	.endif
-	dbf		d3,6b
-41:
-	TILE16_NEXT_PLANE
-	dbf		d4,4b
-	
-100:
+	move.w	d0,(tile_off,a1)
+	move.w	d0,(tile_off,a3)
+	move.w	d0,(tile_off,a4)
+	.set	tile_off,tile_off+\step
+	.endr
+	.endm
+
+	.macro	TILE16_NEXT_SOURCE
+	move.l	(a2)+,d0
+	jne		1f
+	move.l	#zero_tile_plane,d0
+1:
+	move.l	d0,a0
+	.endm
+
+	.macro	TILE16_NEXT_DEST
+	lea		(BG_NB_BYTES_PER_ROW,a1),a1
+	lea		(BG_NB_BYTES_PER_ROW,a3),a3
+	lea		(BG_NB_BYTES_PER_ROW,a4),a4
+	.endm
+
+* < A2: 6 plane pointers, A1/A3/A4: destinations (screen 1, screen 2, restore)
+tile16_standard:
+	moveq	#NB_BG_PLANES-1,d4
+0:
+	TILE16_NEXT_SOURCE
+	TILE16_PLANE_COPY	0,BG_ROW_STRIDE
+	TILE16_NEXT_DEST
+	dbf		d4,0b
 	rts
-5:
-	jbsr	clear_tile_plane_loop
-	jra		41b
 
+tile16_flipped:
+	moveq	#NB_BG_PLANES-1,d4
+0:
+	TILE16_NEXT_SOURCE
+	TILE16_PLANE_COPY	(BG_TILE_HEIGHT-1)*BG_ROW_STRIDE,-BG_ROW_STRIDE
+	TILE16_NEXT_DEST
+	dbf		d4,0b
+	rts
 
-flipped_tile16:
-	.if	BG_SCREEN_PLANE_SIZE>0x7FFF
-	move.l	#BG_SCREEN_PLANE_SIZE,d5
-	.else
-	move.w	#BG_SCREEN_PLANE_SIZE,d5
-	.endif
-	move.w	#BG_NB_BYTES_PER_ROW,d2
-	move.w	#BG_TILE_HEIGHT*BG_NB_BYTES_PER_ROW,d1
-4:
-	move.l	(a2)+,d0		| next plane
-	jeq		5f
-	move.l	d0,a0
-	
-	move.w	#BG_TILE_HEIGHT-1,d3
-	* pre-add 16*row offset
-	add.w	d1,a1
-	add.w	d1,a3
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	add.w	d1,a4
-	.endif
-6:
+tile16_mirror:
+	moveq	#0,d2
+	move.w	#BG_ROW_STRIDE,d3
+	jra		tile16_mirror_any
+tile16_mirror_flipped:
+	move.w	#(BG_TILE_HEIGHT-1)*BG_ROW_STRIDE,d2
+	move.w	#-BG_ROW_STRIDE,d3
+* < D2: offset of the first row, D3: row step
+tile16_mirror_any:
+	move.l	a5,-(a7)
+	lea		mirror_table,a5
+	moveq	#NB_BG_PLANES-1,d4
+0:
+	TILE16_NEXT_SOURCE
+	move.w	d2,d1
+	moveq	#BG_TILE_HEIGHT-1,d5
+2:
+	moveq	#0,d0
 	move.w	(a0)+,d0
-	sub.w	d2,a1
-	move.w	d0,(a1)
-	sub.w	d2,a3
-	move.w	d0,(a3)
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	sub.w	d2,a4
-	move.w	d0,(a4)
-	.endif
-	dbf		d3,6b
-41:
-	* add plane size, pointers are at start of planes
-	TILE16_NEXT_PLANE
-	dbf		d4,4b
+	add.l	d0,d0
+	move.w	(a5,d0.l),d0
+	move.w	d0,(a1,d1.w)
+	move.w	d0,(a3,d1.w)
+	move.w	d0,(a4,d1.w)
+	add.w	d3,d1
+	dbf		d5,2b
+	TILE16_NEXT_DEST
+	dbf		d4,0b
+	move.l	(a7)+,a5
+	rts
+
+*****************************************************************
+* blitter chain
+*
+* the chain is fed from 2 lists:
+* - erase entries of the target buffer (1 blit each: restore => screen)
+* - draw jobs (6 cookie-cut blits each), appended while the chain runs
+* registers that don't change between blits of a job are written once
+*****************************************************************
+
+* starts the chain (blitter must be idle)
+* < A5: custom
+* trashes: D0-D1/A0-A1
+kick_chain:
+	st.b	c_busy
+	jbsr	next_blit
+	tst.w	d0
+	jne		0f
+	sf.b	c_busy
 0:
 	rts
-5:
-	jbsr	clear_tile_plane_loop
-	sub.w	d1,d5
-	TILE16_NEXT_PLANE
-	add.w	d1,d5
-	dbf		d4,4b
-	rts
-	
-clear_tile_plane_loop:
-	move.w	#BG_TILE_HEIGHT-1,d3
-6:
-	clr.w	(a1)
-	add.w	d2,a1
-	clr.w	(a3)  | restore buffer
-	add.w	d2,a3
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	clr.w	(a4)	| second buffer
-	add.w	d2,a4
-	.endif
-	dbf		d3,6b
-	rts
-	
-mirror_tile16:
-	.if	BG_SCREEN_PLANE_SIZE>0x7FFF
-	move.l	#BG_SCREEN_PLANE_SIZE-BG_NB_BYTES_PER_ROW*BG_TILE_HEIGHT,d5
-	.else
-	move.w	#BG_SCREEN_PLANE_SIZE-BG_NB_BYTES_PER_ROW*BG_TILE_HEIGHT,d5
-	.endif
-	move.w	#BG_NB_BYTES_PER_ROW,d2
-	move.l	a5,-(a7)
-	lea		mirror_table,a5
-	.ifdef	MC68020
-	moveq	#0,d1
-	.endif
-4:
-	move.l	(a2)+,d0		| next plane
-	jeq		5f
-	move.l	d0,a0
-	move.w	#BG_TILE_HEIGHT-1,d3
-6:
-	.ifdef	MC68020
-	move.w	(a0)+,d1
-	move.w	(a5,d1.l*2),d0	| mirror
-	.else
-	moveq	#0,d1	
-	move.w	(a0)+,d1
-	add.l	d1,d1
-	move.w	(a5,d1.l),d0	| mirror
-	.endif
-	move.w	d0,(a1)
-	add.w	d2,a1
-	move.w	d0,(a3)
-	add.w	d2,a3
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-	move.w	d0,(a4)
-	add.w	d2,a4
-	.endif
-	dbf		d3,6b
-41:
-	TILE16_NEXT_PLANE
-	dbf		d4,4b
-	move.l	(a7)+,a5
-	rts
 
-5:
-	jbsr	clear_tile_plane_loop
-	jra		41b
-	
-mirror_flipped_tile16:
-	.if	BG_SCREEN_PLANE_SIZE>0x7FFF
-	move.l	#BG_SCREEN_PLANE_SIZE,d5
-	.else
-	move.w	#BG_SCREEN_PLANE_SIZE,d5
-	.endif
-	move.w	#BG_NB_BYTES_PER_ROW,d2
-	move.l	a5,-(a7)
-	lea		mirror_table,a5
-	.ifdef	MC68020
-	moveq	#0,d1
-	.endif
-4:
-	move.l	(a2)+,d0		| next plane
-	jeq		5f
-	move.l	d0,a0
-	.set	offset,BG_TILE_HEIGHT*BG_NB_BYTES_PER_ROW
-	.rept	BG_TILE_HEIGHT
-	.set	offset,offset-BG_NB_BYTES_PER_ROW
-	.ifdef	MC68020
-	move.w	(a0)+,d1
-	move.w	(a5,d1.l*2),d0	| mirror
-	.else
-	moveq	#0,d1	
-	move.w	(a0)+,d1
-	add.l	d1,d1
-	move.w	(a5,d1.l),d0	| mirror
-	.endif
-	COPY_TILE16_PLANE_ROW
-	.endr
-41:
-	TILE16_NEXT_PLANE
-	dbf		d4,4b
-	move.l	(a7)+,a5
+* issues the next blit. Chain state is updated BEFORE bltsize is written
+* so the interrupt of a very short blit always sees a consistent state
+* < A5: custom
+* > D0: 0 if there was nothing to do
+* trashes: D1/A0-A1
+next_blit:
+	move.l	c_erase_ptr,a0
+0:
+	cmp.l	c_erase_end,a0
+	jcc		10f
+	move.w	(ER_SIZE,a0),d1
+	jne		1f
+	lea		(ER_SIZEOF,a0),a0		| static object: skipped
+	jra		0b
+1:
+	move.l	(ER_OFFSET,a0),d0
+	move.l	c_restore_base,a1
+	add.l	d0,a1
+	move.l	a1,(bltapt,a5)
+	move.l	c_dest_base,a1
+	add.l	d0,a1
+	move.l	a1,(bltdpt,a5)
+	move.w	(ER_MOD,a0),d0
+	move.w	d0,(bltamod,a5)
+	move.w	d0,(bltdmod,a5)
+	lea		(ER_SIZEOF,a0),a0
+	move.l	a0,c_erase_ptr
+	move.w	d1,(bltsize,a5)
+	moveq	#1,d0
 	rts
-
-5:
-	move.w	#BG_TILE_HEIGHT*BG_NB_BYTES_PER_ROW,d1
-	sub.w	d1,d5
-	jbsr	clear_tile_plane_loop
-	TILE16_NEXT_PLANE
-	add.w	d1,d5
-	dbf		d4,4b
-	move.l	(a7)+,a5
-	rts
-
-	* clear tile
-
+10:
+	move.l	a0,c_erase_ptr
+	* draw jobs
+	move.l	c_job_ptr,a0
+	cmp.l	c_job_end,a0
+	jcc		20f						| no job available (yet)
+	move.w	c_plane,d1				| 0,4,...,20
+	jne		11f
+	* first plane of a job: registers common to the 6 blits
+	move.w	(JOB_CON1,a0),(bltcon1,a5)
+	move.w	(JOB_ABMOD,a0),d0
+	move.w	d0,(bltamod,a5)
+	move.w	d0,(bltbmod,a5)
+	move.w	(JOB_CDMOD,a0),d0
+	move.w	d0,(bltcmod,a5)
+	move.w	d0,(bltdmod,a5)
+	move.w	(JOB_ALWM,a0),(bltalwm,a5)
+	move.l	(JOB_DEST,a0),c_plane_dest
 11:
-111:
-	jbsr	clear_tile_plane_loop
-	TILE16_NEXT_PLANE
-	dbf		d4,111b
-2:
+	move.l	c_plane_dest,a1
+	move.l	a1,(bltcpt,a5)
+	move.l	a1,(bltdpt,a5)
+	lea		(BG_NB_BYTES_PER_ROW,a1),a1	| interleaved: next plane = next 32 bytes
+	move.l	a1,c_plane_dest
+	move.l	(JOB_MASK,a0),(bltapt,a5)
+	move.l	(JOB_PLANES,a0,d1.w),d0
+	jeq		12f
+	move.l	d0,(bltbpt,a5)
+	move.w	(JOB_CON0,a0),(bltcon0,a5)
+	jra		13f
+12:
+	* empty plane: D = /A.C (B disabled, BLTBDAT=0)
+	move.w	(JOB_CON0,a0),d0
+	and.w	#0xF0FF,d0
+	or.w	#0x0B00,d0
+	move.w	d0,(bltcon0,a5)
+	move.w	#0,(bltbdat,a5)
+13:
+	move.w	(JOB_SIZE,a0),d0
+	addq.w	#4,d1
+	cmp.w	#NB_PLAYFIELD_PLANES*4,d1
+	jne		14f
+	moveq	#0,d1
+	lea		(JOB_SIZEOF,a0),a0
+	move.l	a0,c_job_ptr
+14:
+	move.w	d1,c_plane
+	move.w	d0,(bltsize,a5)
+	moveq	#1,d0
+	rts
+20:
+	moveq	#0,d0
 	rts
 
-* all tile orientations are used, which is expected for a
-* top-down game. Ghosts'N'Goblins has this flipx/y capability
-* but never uses the Y flip, only X mirror
+*****************************************************************
+* bob jobs
+*****************************************************************
 
-bg_mirror_jump_table:
-	.long	standard_tile16
-	.long	flipped_tile16
-	.long	mirror_tile16
-	.long	mirror_flipped_tile16
-	
-	
+* arcade sprite list => jobs (+ erase entries for the target buffer)
+* < A4: target buffer
+* < A5: custom
+build_bob_jobs:
+	move.l	a6,-(a7)
+	* same order as the arcade (last sprite drawn first)
+	lea		buffered_spriteram+SPRITE_BUFFER_SIZE-CURRENT_SPRITE_SIZE,a2
+1:
+	jbsr	build_one_bob
+	subq.w	#CURRENT_SPRITE_SIZE,a2
+	cmp.l	#buffered_spriteram,a2
+	jcc		1b
+	move.l	(a7)+,a6
+	rts
+
+* < A2: sprite entry, A4: target buffer, A5: custom
+* preserves A2/A4/A5
+build_one_bob:
+	tst.b	(TARGET_SPRITE_Y,a2)
+	jeq		99f						| X follows Y: 0 means inactive
+	moveq	#0,d0
+	moveq	#0,d1
+	move.b	(TARGET_SPRITE_X,a2),d1	| (screen is rotated: arcade X is host Y)
+	move.b	(TARGET_SPRITE_Y,a2),d0
+	moveq	#0,d2
+	move.b	(TARGET_SPRITE_ATTRIBUTES,a2),d2
+	btst	#0,d2
+	jeq		0f
+	sub.w	#0x100,d1
+0:
+	and.b	#0xC0,d2
+	lsl.w	#2,d2
+	move.b	(TARGET_SPRITE_CODE,a2),d2	| code = tile + bank*256
+	neg.w	d1
+	add.w	#0x100,d1
+	cmp.w	#0x300,d2
+	jcc		99f						| bank 3: not displayed
+	cmp.w	#256-SPRITE_Y_CORRECTION,d1
+	jcc		99f						| too low
+	move.b	(TARGET_SPRITE_ATTRIBUTES,a2),d3
+	move.w	d2,d6					| object code
+
+	* manual horizontal grouping (see sprite_groups.68k):
+	* 0: normal, bit 14: never drawn, else the code of the group bob
+	* encoded *2+1, bit 10 flipped when mirrored: other half draws it
+	lea		sprite_group_table,a3
+	add.w	d2,d2
+	move.w	(a3,d2.w),d4
+	jeq		10f
+	btst	#14,d4
+	jne		99f
+	bclr	#0,d4
+	asr.w	#1,d4
+	btst	#MIRROR_BIT,d3
+	jeq		1f
+	bchg	#10,d4
+1:
+	btst	#10,d4
+	jne		99f
+	move.w	d4,d2
+	add.w	d2,d2
+10:
+	add.w	d2,d2
+	lea		shared_bob_table,a3
+	move.l	(a3,d2.w),d4
+	jeq		99f
+	move.l	d4,a3
+	moveq	#0,d4
+	move.b	d3,d4
+	lsr.b	#4,d4
+	and.w	#3,d4					| clut
+	add.w	d4,d4
+	add.w	d4,d4
+	move.l	(a3,d4.w),d4
+	jeq		99f						| clut not converted (transitions)
+	move.l	d4,a3					| bob header
+	tst.l	(BOB_MASK,a3)
+	jeq		99f						| empty bob
+
+	move.l	c_job_end,a1			| job being written (not visible to the chain yet)
+	move.w	d6,(JOB_CODE,a1)
+	move.w	(BOB_HEIGHT,a3),d4
+	move.w	(BOB_WIDTH,a3),d5
+	subq.w	#2,d5					| source bytes per row
+	add.w	(BOB_YOFF,a3),d1
+
+	* plane pointers
+	btst	#MIRROR_BIT,d3
+	jne		20f
+	move.l	(BOB_MASK,a3),(JOB_MASK,a1)
+	lea		(BOB_PLANES,a3),a0
+	lea		(JOB_PLANES,a1),a3
+	.rept	NB_PLAYFIELD_PLANES
+	move.l	(a0)+,(a3)+
+	.endr
+	jra		30f
+20:
+	* mirrored: planes come from the mirror cache
+	lea		(BOB_PLANES,a3),a3
+	lea		(JOB_PLANES,a1),a6
+	moveq	#NB_PLAYFIELD_PLANES-1,d7
+21:
+	move.l	(a3)+,d2
+	jeq		22f
+	move.l	d2,a0
+	jbsr	mirror_plane
+	move.l	a0,d2
+22:
+	move.l	d2,(a6)+
+	dbf		d7,21b
+	move.l	(a3),a0					| mask
+	jbsr	mirror_plane
+	move.l	a0,(JOB_MASK,a1)
+30:
+	* vertical position in the buffer, clipping
+	add.w	game_scroll_y,d1		| bobs follow the scrolling
+	add.w	#SPRITE_Y_CORRECTION,d1
+	cmp.w	#BG_NB_LINES,d1
+	jge		99f
+	move.w	d1,d2
+	add.w	d4,d2
+	subq.w	#1,d2					| bottom line
+	jmi		99f
+	moveq	#0,d7					| clipped rows at the top
+	tst.w	d1
+	jpl		31f
+	move.w	d1,d7
+	neg.w	d7
+	moveq	#0,d1
+31:
+	sub.w	d7,d4					| visible rows
+
+	* horizontal position
+	move.w	d0,d3
+	and.w	#15,d3
+	ror.w	#4,d3					| shift in bits 15-12
+	move.w	d3,(JOB_CON1,a1)
+	or.w	#0x0FCA,d3				| A,B,C,D, D = A.B + /A.C
+	move.w	d3,(JOB_CON0,a1)
+	lsr.w	#4,d0
+	add.w	d0,d0					| first byte (even)
+	move.w	d5,d6
+	addq.w	#2,d6					| blit width in bytes
+	* the shift column is read from the next row (modulo -2) and masked out
+	move.w	#-2,(JOB_ABMOD,a1)
+	clr.w	(JOB_ALWM,a1)
+	move.w	d0,d3
+	add.w	d6,d3
+	cmp.w	#BG_NB_BYTES_PER_ROW+2,d3
+	jls		32f
+	* right clip: allow only the hidden first word of the next plane line
+	moveq	#BG_NB_BYTES_PER_ROW+2,d6
+	sub.w	d0,d6
+	move.w	#-1,(JOB_ALWM,a1)
+	move.w	d5,d3
+	sub.w	d6,d3
+	move.w	d3,(JOB_ABMOD,a1)
+32:
+	move.w	d4,d3
+	lsl.w	#6,d3
+	lsr.w	#1,d6
+	or.w	d6,d3
+	move.w	d3,(JOB_SIZE,a1)
+	add.w	d6,d6
+
+	* destination
+	lea		mulLBG_ROW_STRIDE_table,a0
+	move.w	d1,d3
+	add.w	d3,d3
+	add.w	d3,d3
+	move.l	(a0,d3.w),d3
+	add.l	d0,d3					| top-left visible byte (also used to erase)
+	btst	#FLIP_BIT,(TARGET_SPRITE_ATTRIBUTES,a2)
+	jne		33f
+	mulu	d5,d7					| source offset: skip clipped rows
+	move.l	d3,a3
+	move.w	#BG_ROW_STRIDE,d2
+	sub.w	d6,d2
+	move.w	d2,(JOB_CDMOD,a1)
+	jra		34f
+33:
+	* Y flip: draw from the bottom line upwards (clipped rows are the last source rows)
+	moveq	#0,d7
+	add.w	d2,d2
+	add.w	d2,d2
+	move.l	(a0,d2.w),a3
+	add.w	d0,a3
+	move.w	#-BG_ROW_STRIDE,d2
+	sub.w	d6,d2
+	move.w	d2,(JOB_CDMOD,a1)
+34:
+	add.l	c_dest_base,a3
+	move.l	a3,(JOB_DEST,a1)
+	tst.w	d7
+	jeq		36f
+	add.l	d7,(JOB_MASK,a1)
+	lea		(JOB_PLANES,a1),a0
+	moveq	#NB_PLAYFIELD_PLANES-1,d2
+35:
+	tst.l	(a0)
+	jeq		351f
+	add.l	d7,(a0)
+351:
+	addq.w	#4,a0
+	dbf		d2,35b
+36:
+	* erase entry for the next time this buffer is drawn (1 interleaved blit)
+	move.l	r_erase_wptr,a0
+	move.l	d3,(ER_OFFSET,a0)
+	mulu	#NB_PLAYFIELD_PLANES,d4
+	lsl.w	#6,d4
+	move.w	d6,d2
+	lsr.w	#1,d2
+	or.w	d2,d4
+	move.w	d4,(ER_SIZE,a0)
+	moveq	#BG_NB_BYTES_PER_ROW,d2
+	sub.w	d6,d2
+	move.w	d2,(ER_MOD,a0)
+	move.w	(JOB_CODE,a1),(ER_CODE,a0)
+	lea		(ER_SIZEOF,a0),a0
+	move.l	a0,r_erase_wptr
+	addq.w	#1,r_erase_count
+
+	* publish the job, restart the chain if it ran out of work
+	lea		(JOB_SIZEOF,a1),a1
+	move.l	a1,c_job_end
+	tst.b	c_busy
+	jne		99f
+	jbsr	kick_chain
+99:
+	rts
+
+*****************************************************************
+* mirrored planes cache
+*
+* the word before each bob plane (former "orientation" flag) holds a slot
+* number. A slot is valid if <= slot count and its owner is that plane, so
+* flushing the cache is just resetting the pool & count.
+* Planes shared between cluts (masks...) are mirrored once.
+*****************************************************************
+
+* < A0: plane data (not null)
+* < D4: rows, D5: bytes per row
+* > A0: mirrored copy (original data if the cache is full)
+* preserves everything else
+mirror_plane:
+	movem.l	d0-d3/a1-a3,-(a7)
+	moveq	#0,d0
+	move.w	(-2,a0),d0
+	jeq		10f
+	cmp.w	r_mslot_count,d0
+	jhi		10f
+	lsl.w	#3,d0
+	lea		mirror_slots-8,a1
+	cmp.l	(a1,d0.w),a0
+	jne		10f
+	move.l	(4,a1,d0.w),a0			| hit
+	jra		99f
+10:
+	* miss
+	move.w	r_mslot_count,d0
+	cmp.w	#MIRROR_MAX_SLOTS,d0
+	jcc		99f
+	move.w	d4,d1
+	mulu	d5,d1
+	move.l	r_mpool_ptr,a2
+	lea		(a2,d1.l),a3
+	cmp.l	#mirror_pool_end,a3
+	jhi		99f
+	move.l	a3,r_mpool_ptr
+	addq.w	#1,d0
+	move.w	d0,r_mslot_count
+	move.w	d0,(-2,a0)
+	lsl.w	#3,d0
+	lea		mirror_slots-8,a1
+	move.l	a0,(a1,d0.w)
+	move.l	a2,(4,a1,d0.w)
+	* mirror: word order reversed, bits reversed (mirror_table)
+	lea		mirror_table,a1
+	move.l	a2,a3
+	move.w	d4,d3
+	subq.w	#1,d3
+	move.w	d5,d2
+	lsr.w	#1,d2
+	subq.w	#1,d2
+20:
+	add.w	d5,a2					| end of destination row
+	move.w	d2,d1
+21:
+	moveq	#0,d0
+	move.w	(a0)+,d0
+	add.l	d0,d0
+	move.w	(a1,d0.l),-(a2)
+	dbf		d1,21b
+	add.w	d5,a2					| next destination row
+	dbf		d3,20b
+	move.l	a3,a0
+99:
+	movem.l	(a7)+,d0-d3/a1-a3
+	rts
 cache_fg_tiles_address:
 	moveq	#0,d7
 	lea		fg_tile_address_table,a0
@@ -3666,52 +2966,6 @@ HW_SpriteYTable_\height:
 	.endm
 
 	DEF_HW_SPRITE_Y_TABLE	256
-
-
-set_bobs_bitplanes:
-	movem.l	a0-a1/d0-d2,-(a7)
-	
-	* set bitplanes
-	moveq	#0,d0
-	*move.w	bob_previous_displayed_sprites+2,d0 | game scroll Y when bobs were drawn
-	move.w	game_scroll_y,d0
-
-	lea		mulBG_NB_BYTES_PER_ROW_table,a2
-	.ifdef	MC68020
-	move.w	(a2,d0.w*2),d0		| compute Y offset
-	.else
-	add.w	d0,d0
-	move.w	(a2,d0.w),d0		| compute Y offset
-	.endif
-1:	
-
-	
-	
-    moveq #NB_PLAYFIELD_PLANES-1,d1
- 	move.l	#BG_SCREEN_PLANE_SIZE,d2
-	.ifndef	RELEASE
-	* quick check just in case someone uses that with plane size > 0x7FFF
-	jpl		10f
-	BREAKPOINT	"negative plane size!"
-10:
-	.endif
-2:
-    move.l	playfield_displayed_screen_ptr(pc),a0
-	
-	add.l	d0,a0		| X/Y scroll offset (long!)
-	move.l	a0,d0		| first bitplane screen pointer
- 	lea	bobs_bitplanes+2,a0
-1:
-    swap d0
-    move.w d0,(a0)
-    swap d0
-    move.w d0,(4,a0)    
-    addq.w  #8,a0
-    add.l d2,d0
-    dbf d1,1b
-	movem.l	(a7)+,a0-a1/d0-d2
-    rts
-
 scroll_table:
 	* generated by python script
 	.ifne	OPT_AGA_MODE
@@ -4774,6 +4028,81 @@ sprite_mem_name:
 
 
 
+
+*****************************************************************
+* renderer state (in .text like the other variables: chip-only machines
+* don't care, and PC-relative access stays possible)
+*****************************************************************
+	.align	4
+r_buf0:
+	.long	0
+r_buf1:
+	.long	0
+r_restore:
+	.long	0
+r_buffers:
+	.skip	BUF_SIZEOF*2
+r_erase_wptr:
+	.long	0
+r_mpool_ptr:
+	.long	0
+* blitter chain (shared with the blitter interrupt)
+c_erase_ptr:
+	.long	0
+c_erase_end:
+	.long	0
+c_job_ptr:
+	.long	0
+c_job_end:
+	.long	0
+c_plane_dest:
+	.long	0
+c_dest_base:
+	.long	0
+c_restore_base:
+	.long	0
+c_plane:
+	.word	0
+r_built:
+	.word	0
+r_vbl_count:
+	.word	0
+r_vbls_since_build:
+	.word	0
+r_shown_vbl:
+	.word	0
+r_min_interval:
+	.word	2
+r_late_start:
+	.word	0x1C
+r_late_end:
+	.word	0x12C
+r_erase_count:
+	.word	0
+r_mslot_count:
+	.word	0
+bg_tile_queue_head:
+	.word	0
+bg_tile_queue_tail:
+	.word	0
+c_busy:
+	.byte	0
+c_list_done:
+	.byte	0
+r_shown:
+	.byte	0
+osd_bg_tiles_immediate:
+	.byte	0
+	.align	4
+empty_tile_planes:
+	.rept	NB_PLAYFIELD_PLANES
+	.long	0
+	.endr
+zero_tile_plane:
+	.skip	BG_TILE_HEIGHT*2
+
+	MUL_TABLE_L	BG_ROW_STRIDE,BG_BUFFER_LINES
+
 looped_sound_enabled:
 	.long	0
 
@@ -5115,10 +4444,6 @@ temp_filename_buffer:
 mirror_table:
 	.include 	"mirror_table.68k"
 
-	DECL_BLITLISTS	BLITTER_LIST_SIZE
-		
-  
-
 	.align 2
 
 	.section 	.data
@@ -5175,6 +4500,24 @@ sprite_log_table_end:
 	.endif
 	
 
+
+r_jobs:
+	.skip	MAX_JOBS*JOB_SIZEOF
+erase_list_0a:
+	.skip	MAX_JOBS*ER_SIZEOF
+erase_list_0b:
+	.skip	MAX_JOBS*ER_SIZEOF
+erase_list_1a:
+	.skip	MAX_JOBS*ER_SIZEOF
+erase_list_1b:
+	.skip	MAX_JOBS*ER_SIZEOF
+	.align	4
+mirror_slots:
+	.skip	MIRROR_MAX_SLOTS*8
+bg_tile_queue:
+	.skip	BG_TILE_QUEUE_SIZE*2
+bg_tile_pending_flags:
+	.skip	0x400
 
 	.section	.datachip
 
@@ -5306,35 +4649,21 @@ pal_wait:
 	
 	* aligning on 8 bytes so .align will work
 	* in the next datachip sections
-	.align	8
-	
-		.section .bsschip
-		
-		.ifne		OPT_SPRITE_MIRRORING
-mirror_buffer:
-	.skip	MIRROR_BUFFER_SIZE
-mirror_buffer_end:
-	.endif
-	
-	
-	
+	.section .bsschip
+
 hw_sprite_ram_buffer:
 	.skip	HW_SPRITE_BUFFER_SIZE*8	| 8 64-bit wide sprites + control words + align
-	
-background_restore_buffer:
-	.skip	BG_SCREEN_SIZE
-		
-bobs_screen_buffer_1:
-	.skip	BG_SCREEN_SIZE
-	.skip	BG_NB_BYTES_PER_ROW*48		| margin to avoid sprite blit wrap when game scrolls up
-	.ifne	OPT_ENABLE_DOUBLE_BUFFERING
-bobs_screen_buffer_2:
-	.skip	BG_SCREEN_SIZE
-	.skip	BG_NB_BYTES_PER_ROW*48
-	.endif
+
+* +16: alignment slack (see platform_init)
+restore_buffer:
+	.skip	BG_BUFFER_SIZE+16
+screen_buffer_1:
+	.skip	BG_BUFFER_SIZE+16
+screen_buffer_2:
+	.skip	BG_BUFFER_SIZE+16
+* mirrored bob planes, read by the blitter
+mirror_pool:
+	.skip	MIRROR_POOL_SIZE
+mirror_pool_end:
 chipmem_end:
 	.skip	8
-
-
-
-		

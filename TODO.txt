@@ -1,9 +1,7 @@
   feed_scrolling_tiles_a759
   create a column_dirty method 
-- tag sprites to mirror to speed game up (maybe 50fps?) or 0x15000 bytes are wasted
-  - soldiers
-  - shooters behind bunkers
-  => too much chipmem taken
+chained blits seem to take too much memory, see why, it seems to be not so fast
+it's strange that it needs so much memory claude says (same issue in Volley or Bad Dudes)
 
 - add looped sounds (heli) not as loops 
 - add missing heli sound

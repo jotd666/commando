@@ -13968,11 +13968,19 @@ l_a600:
 	MAKE_H                                 	| [...] update MSB reg
 	move.b	d5,(0x0e,a2)                    	| [$a62a: ld   (ix+$0e),h]
 	move.b	d6,(0x0f,a2)                    	| [$a62d: ld   (ix+$0f),l]
+	* The full-screen paint at level start or restart
+	* queues about 512 tiles. The queue only draws 4 per
+	* VBL, plus up to 16 urgent ones, and only while the
+	* blitter is idle, so the screen fills in over a dozen
+	* frames or more.
+
+	st.b	osd_bg_tiles_immediate		| block defered tile draw
 	jbsr	l_9f8b                            	| [$a630: call $9f8b]
 	jbsr	l_9f8b                            	| [$a633: call $9f8b]
 	jbsr	l_9f8b                            	| [$a636: call $9f8b]
 	jbsr	l_9f8b                            	| [$a639: call $9f8b]
 	jbsr	l_9f8b                            	| [$a63c: call $9f8b]
+	sf.b	osd_bg_tiles_immediate
 	jbsr	entry_a318                        	| [$a63f: call entry_a318]
 	jbsr	entry_a318                        	| [$a642: call entry_a318]
 	jbsr	entry_a318                        	| [$a645: call entry_a318]

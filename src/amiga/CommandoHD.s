@@ -1,4 +1,4 @@
-; GnG AGA slave
+; Commando AGA slave
 	INCDIR	Include:
 	INCLUDE	whdload.i
 	INCLUDE	whdmacros.i
@@ -16,7 +16,7 @@ CHIPSIZE = $1E0000
 EXPMEM = 0
 CHIPSIZE = $1E0000
 	ELSE
-EXPMEM = $170000
+EXPMEM = $190000   ; $170000 is enough if no blitter chain
 CHIPSIZE = $1E0000
 	ENDC
 	ENDC
