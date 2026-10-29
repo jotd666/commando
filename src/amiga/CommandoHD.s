@@ -16,14 +16,14 @@ CHIPSIZE = $1E0000
 EXPMEM = 0
 CHIPSIZE = $1E0000
 	ELSE
-EXPMEM = $190000   ; $170000 is enough if no blitter chain
+EXPMEM = $160000
 CHIPSIZE = $1E0000
 	ENDC
 	ENDC
 
 _base	SLAVE_HEADER					; ws_security + ws_id
 	dc.w	17					; ws_version (was 10)
-	dc.w	WHDLF_NoError
+	dc.w	WHDLF_NoError|WHDLF_ReqAGA|WHDLF_Req68020
 	dc.l	CHIPSIZE
 	dc.l	0					; ws_execinstall
 	dc.w	start-_base		; ws_gameloader
@@ -47,8 +47,9 @@ _config
 	dc.b	"C1:X:invincible:0;"
 	dc.b	"C1:X:infinite lives:1;"
 	dc.b	"C1:X:cheat keys:4;"
-	dc.b	"C2:X:50 Hz update:0;"
+	dc.b	"C2:X:25 Hz update:0;"
 	dc.b	"C2:X:disable long fire press for grenade:1;"
+	dc.b	"C2:X:PAL 50Hz logic (slower game):2;"
 
 	dc.b	"C3:L:difficulty level:normal,difficult;"
 	dc.b	"C4:L:lives:3,4,5;"
@@ -61,7 +62,7 @@ _config
 
 
 DECL_VERSION:MACRO
-	dc.b	"1.0"
+	dc.b	"1.1"
 	IFD BARFLY
 		dc.b	" "
 		INCBIN	"T:date"

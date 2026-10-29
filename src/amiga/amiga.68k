@@ -247,8 +247,21 @@ BUF_SIZEOF = 20
 
 * mirrored planes cache
 MIRROR_POOL_SIZE = 0xA000
-MIRROR_POOL_FLUSH = MIRROR_POOL_SIZE/2	| flushed at frame start above that
+MIRROR_FRAME_NEED = 0x1800			| most bytes a single frame can add (see 0x14C in dev builds)
+MIRROR_POOL_FLUSH = MIRROR_POOL_SIZE-MIRROR_FRAME_NEED	| flushed at frame start above that
 MIRROR_MAX_SLOTS = MIRROR_POOL_SIZE/32
+
+* reverses the 16 bits of a word with a 256-byte table (2 lookups)
+* < D6: word, \table: address register on mirror_byte_table
+* > D0: mirrored word. trashes D6
+	.macro	MIRROR_WORD	table
+	moveq	#0,d0
+	move.b	d6,d0
+	move.b	(\table,d0.w),d0		| reversed low byte...
+	lsl.w	#8,d0					| ...becomes the high byte
+	lsr.w	#8,d6
+	move.b	(\table,d6.w),d0		| reversed high byte becomes the low byte
+	.endm
 
 * deferred background tiles
 BG_TILE_QUEUE_SIZE = 0x800			| entries, power of 2, > 0x400
@@ -379,7 +392,8 @@ next\@:
 _user:
     * if D0 contains "WHDL"
     * A0 contains resload
-        
+
+     
     cmp.l   #0x05748444c,D0	| WHDL
     bne.b   .standard
 	move.b	d1,_keyexit
@@ -513,7 +527,6 @@ _user:
 	.endr
 	.endif
 
-
 	* dummy copperlist with no bitplanes enabled
 	lea		_custom,a5
 	lea		debug_copperlist,a0
@@ -541,17 +554,21 @@ apply_settings:
 	* cheat key disable highscore only if used
 	st.b	cheat_used
 2:
-
+	
 
 0:
 1:	
-	* default is 25Hz
+	* default is 50Hz, works ok on A1200/020 nofast
 	move.l	misc_options,d1
 	btst	#0,d1
-	seq		frameskip
+	sne		frameskip
 	btst	#1,d1
 	sne		disable_long_fire_press_flag
-
+	btst	#2,d1
+	jeq 	0f
+	* 50Hz logic
+	move.w	#COPPER_NOP,pal_intreq_block_game	
+0:
 
 
 
@@ -1294,6 +1311,9 @@ start_new_frame:
 	move.l	#mirror_pool,r_mpool_ptr
 	clr.w	r_mslot_count
 1:
+	.ifndef	RELEASE
+	move.l	r_mpool_ptr,r_mpool_frame_start
+	.endif
 	* chain state
 	move.l	(BUF_BASE,a4),c_dest_base
 	jbsr	mark_static_erases
@@ -1322,6 +1342,15 @@ start_new_frame:
 	move.l	d0,(BUF_ERASE_NEXT,a4)
 	move.w	r_erase_count,(BUF_ERASE_COUNT,a4)
 	move.l	game_scroll_x,(BUF_SCROLL,a4)	| x & y
+	.ifndef	RELEASE
+	* 0x14C: most mirror pool bytes used by a single frame (write 0 to reset)
+	move.l	r_mpool_ptr,d0
+	sub.l	r_mpool_frame_start,d0
+	cmp.w	0x14C,d0
+	jls		0f
+	move.w	d0,0x14C
+0:
+	.endif
 	st.b	c_list_done
 	rts
 
@@ -1584,6 +1613,8 @@ platform_init:
 	* set blitter parameters
 	move.l	#-1,bltafwm(a5)
 	
+	
+	
 	move.l	monitor,d0
 	cmp.l	#NTSC_MONITOR_ID,D0
 	bne		0f
@@ -1593,8 +1624,9 @@ platform_init:
 	* also change screen start position, make it higher
 	move.w	#0x01+(0xC<<8),screen_start
 
-	
-	*move.w	#0x0401,pal_wait			| else intreq never happens
+	move.w	#COPPER_NOP,pal_wait			| else intreq never happens
+	move.w	#COPPER_NOP,pal_wait+4			| else intreq never happens
+	move.w	#COPPER_NOP,pal_wait+8			| else intreq never happens
 0:
 	.if		NB_PLAYFIELD_PLANES==8
     move.w #0x0210+BORDERBLANK,bplcon0(a5) | 8 bitplanes, borderblank
@@ -1602,6 +1634,7 @@ platform_init:
     move.w #0x200+BORDERBLANK+(NB_PLAYFIELD_PLANES<<12),bplcon0(a5) | 8 > nb bitplanes, borderblank
 	.endif
     move.w #BASE_BPLCON2_VALUE,bplcon2(a5)
+
 
 
  	*         VVHH
@@ -1742,7 +1775,6 @@ platform_init:
 	jbsr	load_palette
 		
 	
-
 	
 	jbsr		init_renderer
 	
@@ -2304,17 +2336,15 @@ tile16_mirror_flipped:
 * < D2: offset of the first row, D3: row step
 tile16_mirror_any:
 	move.l	a5,-(a7)
-	lea		mirror_table,a5
+	lea		mirror_byte_table,a5
 	moveq	#NB_BG_PLANES-1,d4
 0:
 	TILE16_NEXT_SOURCE
 	move.w	d2,d1
 	moveq	#BG_TILE_HEIGHT-1,d5
 2:
-	moveq	#0,d0
-	move.w	(a0)+,d0
-	add.l	d0,d0
-	move.w	(a5,d0.l),d0
+	move.w	(a0)+,d6				| (d6 free: wrap flag already tested by update_bg_tile)
+	MIRROR_WORD	a5
 	move.w	d0,(a1,d1.w)
 	move.w	d0,(a3,d1.w)
 	move.w	d0,(a4,d1.w)
@@ -2407,12 +2437,13 @@ next_blit:
 	move.w	(JOB_CON0,a0),(bltcon0,a5)
 	jra		13f
 12:
-	* empty plane: D = /A.C (B disabled, BLTBDAT=0)
+	* empty plane: clear the plane under the mask, D = /A.C
+	* minterm 0x0A doesn't involve B at all: no BLTBDAT, and the B shift
+	* (BSH, set for the whole job) can't shift stale B data in
 	move.w	(JOB_CON0,a0),d0
-	and.w	#0xF0FF,d0
-	or.w	#0x0B00,d0
+	and.w	#0xF000,d0				| keep A shift
+	or.w	#0x0B0A,d0				| A,C,D, D = /A.C
 	move.w	d0,(bltcon0,a5)
-	move.w	#0,(bltbdat,a5)
 13:
 	move.w	(JOB_SIZE,a0),d0
 	addq.w	#4,d1
@@ -2680,7 +2711,7 @@ build_one_bob:
 * > A0: mirrored copy (original data if the cache is full)
 * preserves everything else
 mirror_plane:
-	movem.l	d0-d3/a1-a3,-(a7)
+	movem.l	d0-d3/d6/a1-a3,-(a7)
 	moveq	#0,d0
 	move.w	(-2,a0),d0
 	jeq		10f
@@ -2711,8 +2742,8 @@ mirror_plane:
 	lea		mirror_slots-8,a1
 	move.l	a0,(a1,d0.w)
 	move.l	a2,(4,a1,d0.w)
-	* mirror: word order reversed, bits reversed (mirror_table)
-	lea		mirror_table,a1
+	* mirror: word order reversed, bits reversed
+	lea		mirror_byte_table,a1
 	move.l	a2,a3
 	move.w	d4,d3
 	subq.w	#1,d3
@@ -2723,16 +2754,15 @@ mirror_plane:
 	add.w	d5,a2					| end of destination row
 	move.w	d2,d1
 21:
-	moveq	#0,d0
-	move.w	(a0)+,d0
-	add.l	d0,d0
-	move.w	(a1,d0.l),-(a2)
+	move.w	(a0)+,d6
+	MIRROR_WORD	a1
+	move.w	d0,-(a2)
 	dbf		d1,21b
 	add.w	d5,a2					| next destination row
 	dbf		d3,20b
 	move.l	a3,a0
 99:
-	movem.l	(a7)+,d0-d3/a1-a3
+	movem.l	(a7)+,d0-d3/d6/a1-a3
 	rts
 cache_fg_tiles_address:
 	moveq	#0,d7
@@ -4056,6 +4086,10 @@ r_erase_wptr:
 	.long	0
 r_mpool_ptr:
 	.long	0
+	.ifndef	RELEASE
+r_mpool_frame_start:
+	.long	0
+	.endif
 * blitter chain (shared with the blitter interrupt)
 c_erase_ptr:
 	.long	0
@@ -4451,8 +4485,15 @@ temp_filename_buffer:
 	.skip	255
 	.align	2
 	
-mirror_table:
-	.include 	"mirror_table.68k"
+* bit-reversed bytes (was a 128 KB word table)
+mirror_byte_table:
+	.set	mbt_i,0
+	.rept	256
+	* no '|' here: it starts a comment on m68k gas (bits don't overlap, + is the same as or)
+	.byte	((mbt_i&1)<<7)+((mbt_i&2)<<5)+((mbt_i&4)<<3)+((mbt_i&8)<<1)+((mbt_i&16)>>1)+((mbt_i&32)>>3)+((mbt_i&64)>>5)+((mbt_i&128)>>7)
+	.set	mbt_i,mbt_i+1
+	.endr
+	.align	2
 
 	.align 2
 
@@ -4642,14 +4683,14 @@ pal_intreq_block_game:
 	.endif
 	* we have to perform several small waits else it doesn't wait
 	* I don't want to know why, it works.
+pal_wait:
+
 	.word	0x01+(0x04<<8),0xFFFE
 	.word	0x01+(0x0C<<8),0xFFFE
 	.word	0x01+(0x30<<8),0xFFFE
 
 
 	
-pal_wait:
-	*.word	xxxx
 	.word	 intreq,0x8004
 
 
