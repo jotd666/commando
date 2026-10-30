@@ -245,6 +245,11 @@ BUF_ERASE_NEXT = 12		| .l erase list being filled
 BUF_ERASE_COUNT = 16	| .w
 BUF_SIZEOF = 20
 
+* Apollo Vampire V4: blit-done interrupts can apparently get lost, which
+* froze the display (chain never completes). recover_stalled_chain restarts it.
+* set to 1 to flash color 0 green each time it happens (tester builds)
+OPT_SHOW_BLIT_RECOVERY = 0
+
 * mirrored planes cache
 MIRROR_POOL_SIZE = 0xA000
 MIRROR_FRAME_NEED = 0x1800			| most bytes a single frame can add (see 0x14C in dev builds)
@@ -1230,6 +1235,10 @@ osd_disable_interrupts:
 
 * < A5: custom
 render_vbl:
+	tst.b	c_busy
+	jeq		0f
+	jbsr	recover_stalled_chain
+0:
 	tst.b	c_list_done
 	jeq		99f
 	tst.b	c_busy
@@ -1925,7 +1934,10 @@ osd_set_x_page:
 	* let the blitter finish what it's doing in the buffers
 0:
 	tst.b	c_busy
-	jne		0b
+	jeq		2f
+	jbsr	recover_stalled_chain
+	jra		0b
+2:
 	move.l	r_buf0,a0
 	move.l	r_buf1,a1
 	move.l	r_restore,a2
@@ -1994,7 +2006,9 @@ osd_video_byte_dirty:
 	* full screen paint: draw now (the queued copy will redraw the same tile),
 	* but not while the blitter uses the buffers
 	tst.b	c_busy
-	jne		12b
+	jeq		11f
+	jbsr	recover_stalled_chain
+	jra		12b
 11:
 	lea		(BG_SCREEN_TILE_ADDRESS,a6),a0
 	move.b	(a0,d7.w),d0
@@ -2374,6 +2388,53 @@ kick_chain:
 	jne		0f
 	sf.b	c_busy
 0:
+	rts
+
+* restarts the blitter chain if its interrupt got lost (seen on Vampire V4):
+* chain marked busy, blitter idle and no blitter request pending, still true
+* a couple of lines later with the blitter interrupt masked
+* safe from the main loop or level 1 (never from level 3)
+* preserves all registers
+recover_stalled_chain:
+	tst.b	c_busy
+	jne		0f
+	rts								| nothing running: don't touch intena
+0:
+	movem.l	d0-d1/a0-a1/a5,-(a7)
+	lea		_custom,a5
+	* quick checks first: blitting or request pending is the normal case
+	btst	#6,(dmaconr,a5)			| BBUSY (read twice: early Agnus delay)
+	btst	#6,(dmaconr,a5)
+	jne		99f
+	move.w	(intreqr,a5),d0
+	btst	#6,d0
+	jne		99f
+	* suspicious: give a just-finished blit time to raise its request
+	moveq	#1,d0
+	jbsr	beamdelay
+	move.w	#0x0040,(intena,a5)		| blitter interrupt masked while we look again
+	tst.b	c_busy
+	jeq		98f						| the interrupt came after all
+	btst	#6,(dmaconr,a5)
+	jne		98f
+	move.w	(intreqr,a5),d0
+	btst	#6,d0
+	jne		98f
+	* lost: do what the interrupt would have done
+	.ifndef	RELEASE
+	addq.w	#1,0x14E				| number of recoveries
+	.endif
+	.ifne	OPT_SHOW_BLIT_RECOVERY
+	COLOR0_FLASH	0x0F0
+	.endif
+	jbsr	next_blit
+	tst.w	d0
+	jne		98f
+	sf.b	c_busy
+98:
+	move.w	#0xC040,(intena,a5)
+99:
+	movem.l	(a7)+,d0-d1/a0-a1/a5
 	rts
 
 * issues the next blit. Chain state is updated BEFORE bltsize is written
